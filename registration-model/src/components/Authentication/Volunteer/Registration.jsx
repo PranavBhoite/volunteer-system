@@ -22,11 +22,11 @@ const Registration = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const mobileRegex = /^[6-9]\d{9}$/;
 
-    if (!formData.name.trim()) newErrors.name = "Name is required";
-    if (!emailRegex.test(formData.email)) newErrors.email = "Invalid email";
-    if (formData.password.length < 8) newErrors.password = "Minimum 8 characters";
-    if (!formData.address.trim()) newErrors.address = "Address is required";
-    if (!mobileRegex.test(formData.mobileNo)) newErrors.mobileNo = "Invalid mobile number";
+    if (!formData.name.trim()) newErrors.name = "Name is required..";
+    if (!emailRegex.test(formData.email)) newErrors.email = "Invalid email..";
+    if (formData.password.length < 8) newErrors.password = "Minimum 8 characters..";
+    if (!formData.address.trim()) newErrors.address = "Address is required..";
+    if (!mobileRegex.test(formData.mobileNo)) newErrors.mobileNo = "Invalid mobile number..";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;

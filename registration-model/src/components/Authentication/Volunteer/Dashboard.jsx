@@ -17,7 +17,7 @@ const Dashboard = () => {
       const res = await axios.get("http://localhost:5000/api/auth/users");
       setUsers(res.data);
     } catch (err) {
-      setError("Failed to load users.");
+      setError("Failed to load users..");
     } finally {
       setLoading(false);
     }

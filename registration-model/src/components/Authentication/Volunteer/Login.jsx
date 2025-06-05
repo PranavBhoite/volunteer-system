@@ -116,7 +116,7 @@ const Login = () => {
     e.preventDefault();
 
     if (!formData.email || !formData.password) {
-      setError("Both email and password are required.");
+      setError("Both email and password are required..");
       return;
     }
 
