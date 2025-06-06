@@ -6,6 +6,7 @@ import Registration from './components/Authentication/Volunteer/Registration';
 import Login from './components/Authentication/Volunteer/Login';
 import Dashboard from './components/Authentication/Volunteer/Dashboard';
 import VolunteerView from './components/Event/VolunteerView';
+import OrganizerView from './components/Event/OrganizerView';
 import TMGFHomepage from './components/Home/TMGFHomepage';
 
 //mock data for initial events
@@ -55,6 +56,31 @@ function App() {
   const [registeredEvents, setRegisteredEvents] = useState([]);
   const [savedEvents, setSavedEvents] = useState([]);
 
+  const handleAddEvent = (eventData) => {
+    const newEvent = {
+      ...eventData,
+      id: Date.now(),
+      volunteersRegistered: 0
+    };
+    setEvents([...events, newEvent]);
+  };
+
+  const handleEditEvent = (eventId, eventData) => {
+    setEvents(events.map(event => 
+      event.id === eventId 
+        ? { ...event, ...eventData }
+        : event
+    ));
+  };
+
+  const handleDeleteEvent = (eventId) => {
+    if (window.confirm('Are you sure you want to delete this event?')) {
+      setEvents(events.filter(event => event.id !== eventId));
+      setRegisteredEvents(registeredEvents.filter(id => id !== eventId));
+      setSavedEvents(savedEvents.filter(id => id !== eventId));
+    }
+  };
+
   const handleRegisterEvent = (eventId) => {
     if (!registeredEvents.includes(eventId)) {
       setRegisteredEvents([...registeredEvents, eventId]);
@@ -91,6 +117,17 @@ function App() {
               onRegisterEvent={handleRegisterEvent} 
               onSaveEvent={handleSaveEvent} 
             />
+          }
+        />
+        <Route 
+        path= "/organizer-view"
+          element={
+            <OrganizerView
+            events={events}
+            onAddEvent={handleAddEvent}
+            onEditEvent={handleEditEvent}
+            onDeleteEvent={handleDeleteEvent}
+          />
           }
         />
 
