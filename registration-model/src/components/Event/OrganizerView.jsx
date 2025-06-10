@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, MapPin, Clock, Users, Plus, Edit3, Trash2, Eye } from 'lucide-react';
-import { Navbar, Nav, Button, Container } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { Calendar, MapPin, Clock, Users, Plus, Edit3, Trash2} from 'lucide-react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const OrganizerView = () => {
-  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [completedEvents, setCompletedEvents] = useState([]);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,47 +19,64 @@ const OrganizerView = () => {
     date: '',
     time: '',
     location: '',
-    volunteersNeeded: '',
+    volunteersNeeded: 0,
     category: 'Environmental',
-    organizer: ''
+    volunteersRegistered : 0,
+    volunteers : []
   });
+  const [eventType, setEventType] = useState("Upcoming");
 
-  const handleLogin = () => {
-    navigate("/login");
-  };
+  const toggleEventType = (type) => {
+    setEventType(type);
+  }
 
-  const handleSignup = () => {
-    navigate("/Registration");
+  useEffect(() => {
+    setEvents(eventType === "Upcoming" ? upcomingEvents : completedEvents);
+  }, [eventType]);
+
+  const fetchEvents = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('http://localhost:5000/api/events');
+  
+      const now = new Date(); 
+
+      const upcomingEvents = [];
+      const completedEvents = [];
+
+      const allSortedEvents = response.data.sort((a, b) => {
+        const aDateTime = new Date(`${a.date}T${a.time}:00`);
+        const bDateTime = new Date(`${b.date}T${b.time}:00`);
+        return aDateTime.getTime() - bDateTime.getTime(); 
+      });
+  
+      allSortedEvents.forEach(event => {
+        const eventDateTime = new Date(`${event.date}T${event.time}:00`);
+  
+        if (eventDateTime.getTime() > now.getTime()) {
+          upcomingEvents.push(event);
+        } else {
+          completedEvents.push(event);
+        }
+      });
+  
+      setUpcomingEvents(upcomingEvents);
+      setCompletedEvents(completedEvents);
+      setEvents(eventType === "Upcoming" ? upcomingEvents : completedEvents);
+  
+    } catch (err) {
+      setError('Failed to fetch events');
+      console.error('Error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Fetch events on component mount
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/events');
-        setEvents(response.data);
-        setLoading(false);
-      } catch (err) {
-        setError('Failed to fetch events');
-        setLoading(false);
-        console.error('Error:', err);
-      }
-    };
-
     fetchEvents();
   }, []);
 
-  const fetchEvents = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/api/events');
-      setEvents(response.data);
-      setLoading(false);
-    } catch (err) {
-      setError('Failed to fetch events');
-      setLoading(false);
-      console.error('Error:', err);
-    }
-  };
 
   const resetForm = () => {
     setFormData({
@@ -67,69 +85,32 @@ const OrganizerView = () => {
       date: '',
       time: '',
       location: '',
-      volunteersNeeded: '',
+      volunteersNeeded: 0,
       category: 'Environmental',
-      organizer: ''
+      volunteersRegistered : 0,
+      volunteers : []
     });
   };
 
-const validateForm = () => {
-  if (!formData.title.trim()) {
-    alert('Title is required');
-    return false;
-  }
-  if (!formData.description.trim()) {
-    alert('Description is required');
-    return false;
-  }
-  if (!formData.date) {
-    alert('Date is required');
-    return false;
-  }
-  if (!formData.time) {
-    alert('Time is required');
-    return false;
-  }
-  if (!formData.location.trim()) {
-    alert('Location is required');
-    return false;
-  }
-  if (!formData.volunteersNeeded || formData.volunteersNeeded < 1) {
-    alert('Number of volunteers needed must be at least 1');
-    return false;
-  }
-  return true;
-};
-
   const handleSubmit = async (e) => {
   e.preventDefault();
+  let response = null;
   try {
     if (editingEvent) {
-      const response = await axios.put(`http://localhost:5000/api/events/${editingEvent._id}`, {
+      response = await axios.put(`http://localhost:5000/api/events/${editingEvent._id}`, {
         ...formData,
-        volunteersNeeded: parseInt(formData.volunteersNeeded)
       });
-      
-      if (response.data) {
-        setEvents(prevEvents => 
-          prevEvents.map(event => event._id === editingEvent._id ? response.data : event)
-        );
-        setShowAddForm(false);
-        setEditingEvent(null);
-        resetForm();
-      }
+      console.log(response.data);      
     } else {
-      const response = await axios.post('http://localhost:5000/api/events', {
+      response = await axios.post('http://localhost:5000/api/events', {
         ...formData,
-        volunteersNeeded: parseInt(formData.volunteersNeeded),
-        volunteersRegistered: 0
-      });
-      
-      if (response.data) {
-        setEvents(prevEvents => [...prevEvents, response.data]);
-        setShowAddForm(false);
-        resetForm();
-      }
+      });      
+    }
+    if (response.data) {
+      fetchEvents();
+      setShowAddForm(false);
+      setEditingEvent(null);
+      resetForm();
     }
   } catch (err) {
     console.error('Error saving event:', err);
@@ -141,7 +122,7 @@ const validateForm = () => {
     if (window.confirm('Are you sure you want to delete this event?')) {
       try {
         await axios.delete(`http://localhost:5000/api/events/${eventId}`);
-        setEvents(prevEvents => prevEvents.filter(event => event._id !== eventId));
+        fetchEvents();
       } catch (err) {
         console.error('Error deleting event:', err);
         alert('Failed to delete event');
@@ -159,7 +140,6 @@ const validateForm = () => {
       location: event.location,
       volunteersNeeded: event.volunteersNeeded.toString(),
       category: event.category,
-      organizer: event.organizer || ''
     });
     setShowAddForm(true);
   };
@@ -169,6 +149,14 @@ const validateForm = () => {
     setEditingEvent(null);
     resetForm();
   };
+
+  const filteredEvents = events.filter(event => {
+    const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         event.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || event.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
 
   if (loading) {
     return (
@@ -209,78 +197,6 @@ const validateForm = () => {
       padding: '0',
       fontFamily: 'Arial, sans-serif'
     }}>
-      {/* Navigation Bar */}
-                  <Navbar
-                    expand="lg"
-                    className="navbar-dark"
-                    style={{
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
-                      backdropFilter: "blur(10px)",
-                    }}
-                  >
-                    <Container>
-                      <Navbar.Brand href="#" className="fw-bold fs-3 text-white">
-                        TMGF
-                      </Navbar.Brand>
-                      <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                      <Navbar.Collapse id="basic-navbar-nav">
-                        <Nav className="ms-auto align-items-center">
-                          <Nav.Link
-                            href="#about"
-                            className="text-white mx-2 fw-medium"
-                            style={{ fontSize: "1.1rem" }}
-                          >
-                            About
-                          </Nav.Link>
-                          <Nav.Link
-                            className="text-white mx-2 fw-medium position-relative"
-                            style={{ fontSize: "1.1rem"}}
-                            onClick={handleLogin}
-                          >
-                            Events
-                          </Nav.Link>
-                          <Button
-                            variant="outline-light"
-                            className="mx-2 px-4 py-2 fw-medium"
-                            onClick={handleLogin}
-                            style={{ borderRadius: "25px", transition: "all 0.3s ease" }}
-                            onMouseEnter={(e) => {
-                              e.target.style.backgroundColor = "rgba(255, 255, 255, 0.2)";
-                              e.target.style.transform = "translateY(-2px)";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.backgroundColor = "transparent";
-                              e.target.style.transform = "translateY(0)";
-                            }}
-                          >
-                            Login
-                          </Button>
-                          <Button
-                            variant="light"
-                            className="mx-2 px-4 py-2 fw-medium"
-                            onClick={handleSignup}
-                            style={{
-                              borderRadius: "25px",
-                              transition: "all 0.3s ease",
-                              color: "#667eea",
-                            }}
-                            onMouseEnter={(e) => {
-                              e.target.style.backgroundColor = "#f8f9fa";
-                              e.target.style.transform = "translateY(-2px)";
-                              e.target.style.boxShadow = "0 8px 25px rgba(0,0,0,0.2)";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.backgroundColor = "white";
-                              e.target.style.transform = "translateY(0)";
-                              e.target.style.boxShadow = "none";
-                            }}
-                          >
-                            Sign Up
-                          </Button>
-                        </Nav>
-                      </Navbar.Collapse>
-                    </Container>
-                  </Navbar>
 
       {/* Main Content */}
       <div style={{ padding: '20px' }}>
@@ -305,13 +221,7 @@ const validateForm = () => {
             Manage your volunteer events and track participation
           </p>
         </div>
-
         <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto'
-        }}>
-          {/* Add Event Button */}
-          <div style={{
             marginBottom: '30px',
             textAlign: 'center'
           }}>
@@ -344,6 +254,137 @@ const validateForm = () => {
               Create New Event
             </button>
           </div>
+
+          <div style={{
+        maxWidth: '1200px',
+        margin: '0 auto'
+      }}>
+        {/* Search and Filter Bar */}
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: '20px',
+          padding: '20px',
+          marginBottom: '30px',
+          border: '1px solid rgba(255, 255, 255, 0.2)'
+        }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr auto',
+            gap: '20px',
+            alignItems: 'center'
+          }}>
+            <input
+              type="text"
+              placeholder="Search events..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                padding: '12px 20px',
+                borderRadius: '25px',
+                border: 'none',
+                fontSize: '16px',
+                background: 'rgba(255, 255, 255, 0.9)',
+                outline: 'none',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+              }}
+            />
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              style={{
+                padding: '12px 20px',
+                borderRadius: '25px',
+                border: 'none',
+                fontSize: '16px',
+                background: 'rgba(255, 255, 255, 0.9)',
+                outline: 'none',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                cursor: 'pointer'
+              }}
+            >
+              <option value="all">All Categories</option>
+              <option value="Environmental">Environmental</option>
+              <option value="Social Service">Social Service</option>
+              <option value="Education">Education</option>
+              <option value="Healthcare">Healthcare</option>
+              <option value="Community">Community</option>
+            </select>
+          </div>
+          </div>
+          </div>
+
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: '20px',
+          padding: '15px 20px',
+          marginBottom: '30px',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          display: 'flex',
+          justifyContent: 'space-around',
+          gap: '10px'
+        }}>
+          {['Upcoming', 'Completed'].map(type => (
+            <button
+              key={type}
+              onClick={() => toggleEventType(type)}
+              style={{
+                flex: 1, // Distribute space equally
+                background: 'transparent',
+                border: 'none',
+                padding: '10px 15px',
+                borderRadius: '15px', // Slightly less rounded than the container
+                fontSize: '1.1rem',
+                fontWeight: eventType === type ? '700' : '500',
+                color: eventType === type ? 'white' : 'rgba(255, 255, 255, 0.7)',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                position: 'relative', // For the underline
+                overflow: 'hidden',
+                outline: 'none',
+                // Conditional styling for active type
+                transform: eventType === type ? 'translateY(-3px)' : 'translateY(0)',
+                boxShadow: eventType === type ? '0 8px 20px rgba(0, 0, 0, 0.3)' : 'none',
+              }}
+              // Hover effects
+              onMouseEnter={(e) => {
+                if (eventType !== type) {
+                  e.currentTarget.style.color = 'white';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.2)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (eventType !== type) {
+                  e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }
+              }}
+            >
+              {type}
+              {/* Underline for active type */}
+              {eventType === type && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: '0px', // Position slightly below the text
+                  left: '10%',
+                  width: '80%',
+                  height: '4px',
+                  background: 'linear-gradient(90deg, #84d9d2, #764ba2)', // Matching gradient color
+                  borderRadius: '2px',
+                  transition: 'width 0.3s ease-out',
+                }}></div>
+              )}
+            </button>
+          ))}
+        </div>
+
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto'
+        }}>
 
           {/* Add/Edit Event Form */}
           {showAddForm && (
@@ -388,42 +429,6 @@ const validateForm = () => {
                       required
                       value={formData.title}
                       onChange={(e) => setFormData({...formData, title: e.target.value})}
-                      style={{
-                        padding: '12px 16px',
-                        border: '2px solid #e2e8f0',
-                        borderRadius: '12px',
-                        fontSize: '1rem',
-                        outline: 'none',
-                        transition: 'all 0.3s ease'
-                      }}
-                      onFocus={(e) => {
-                        e.target.style.borderColor = '#667eea';
-                        e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.border = '2px solid #e2e8f0';
-                        e.target.style.boxShadow = '';
-                      }}
-                    />
-                  </div>
-
-                  <div style={{
-                    display: 'flex',
-                    flexDirection: 'column'
-                  }}>
-                    <label style={{
-                      fontSize: '0.9rem',
-                      fontWeight: '600',
-                      color: '#2d3748',
-                      marginBottom: '8px'
-                    }}>
-                      Organizer *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.organizer}
-                      onChange={(e) => setFormData({...formData, organizer: e.target.value})}
                       style={{
                         padding: '12px 16px',
                         border: '2px solid #e2e8f0',
@@ -735,7 +740,7 @@ const validateForm = () => {
             gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
             gap: '25px'
           }}>
-            {events.map(event => (
+            {filteredEvents.map(event => (
               <div 
                 key={event._id} 
                 style={{
@@ -773,14 +778,6 @@ const validateForm = () => {
                       }}>
                         {event.title}
                       </h3>
-                      <p style={{
-                        fontSize: '0.85rem',
-                        color: '#718096',
-                        margin: '5px 0 0 0',
-                        fontStyle: 'italic'
-                      }}>
-                        by {event.organizer}
-                      </p>
                     </div>
                     <span style={{
                       background: 'linear-gradient(135deg, #667eea, #764ba2)',
@@ -864,63 +861,66 @@ const validateForm = () => {
                       {event.location}
                     </span>
                   </div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    marginBottom: '8px'
-                  }}>
-                    <Users size={16} style={{
-                      color: '#667eea',
-                      marginRight: '8px'
-                    }} />
-                    <span style={{
-                      fontSize: '0.9rem',
-                      color: '#555'
+                  {eventType === "Upcoming" && 
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      marginBottom: '8px'
                     }}>
-                      {event.volunteersRegistered} / {event.volunteersNeeded} volunteers registered
-                    </span>
-                  </div>
+                      <Users size={16} style={{
+                        color: '#667eea',
+                        marginRight: '8px'
+                      }} />
+                      <span style={{
+                        fontSize: '0.9rem',
+                        color: '#555'
+                      }}>
+                        {event.volunteersRegistered} / {event.volunteersNeeded} volunteers registered
+                      </span>
+                    </div>
+                  }
                 </div>
 
-                {/* Registration Progress */}
-                <div style={{ marginBottom: '20px' }}>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '8px'
-                  }}>
-                    <span style={{
-                      fontSize: '0.9rem',
-                      fontWeight: '600',
-                      color: '#4a5568'
+                {eventType === "Upcoming" &&
+                  <div style={{ marginBottom: '20px' }}>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: '8px'
                     }}>
-                      Registration Progress
-                    </span>
-                    <span style={{
-                      fontSize: '0.9rem',
-                      fontWeight: '600',
-                      color: '#667eea'
+                      <span style={{
+                        fontSize: '0.9rem',
+                        fontWeight: '600',
+                        color: '#4a5568'
+                      }}>
+                        Registration Progress
+                      </span>
+                      <span style={{
+                        fontSize: '0.9rem',
+                        fontWeight: '600',
+                        color: '#667eea'
+                      }}>
+                        {Math.round((event.volunteersRegistered / event.volunteersNeeded) * 100)}%
+                      </span>
+                    </div>
+                    <div style={{
+                      background: '#e2e8f0',
+                      borderRadius: '10px',
+                      height: '10px',
+                      overflow: 'hidden'
                     }}>
-                      {Math.round((event.volunteersRegistered / event.volunteersNeeded) * 100)}%
-                    </span>
+                      <div 
+                        style={{
+                          background: 'linear-gradient(90deg, #667eea, #764ba2)',
+                          height: '100%',
+                          width: `${Math.min((event.volunteersRegistered / event.volunteersNeeded) * 100, 100)}%`,
+                          transition: 'width 0.3s ease'
+                        }}
+                      />
+                    </div>
                   </div>
-                  <div style={{
-                    background: '#e2e8f0',
-                    borderRadius: '10px',
-                    height: '10px',
-                    overflow: 'hidden'
-                  }}>
-                    <div 
-                      style={{
-                        background: 'linear-gradient(90deg, #667eea, #764ba2)',
-                        height: '100%',
-                        width: `${Math.min((event.volunteersRegistered / event.volunteersNeeded) * 100, 100)}%`,
-                        transition: 'width 0.3s ease'
-                      }}
-                    />
-                  </div>
-                </div>
+                }
 
                 {/* Status Badge */}
                 <div style={{
@@ -935,7 +935,7 @@ const validateForm = () => {
                     fontWeight: '600',
                     textTransform: 'uppercase',
                     letterSpacing: '0.5px',
-                    ...(event.volunteersRegistered >= event.volunteersNeeded 
+                    ...(eventType === "Completed" || event.volunteersRegistered >= event.volunteersNeeded 
                       ? {
                           background: '#c6f6d5',
                           color: '#22543d'
@@ -950,7 +950,10 @@ const validateForm = () => {
                           color: '#2c5282'
                         })
                   }}>
-                    {event.volunteersRegistered >= event.volunteersNeeded 
+                    {eventType === "Completed" ?
+                    'Event Completed Successfully' 
+                    :
+                    event.volunteersRegistered >= event.volunteersNeeded 
                       ? 'Fully Registered' 
                       : event.volunteersRegistered > event.volunteersNeeded * 0.7
                       ? 'Almost Full'
@@ -958,105 +961,75 @@ const validateForm = () => {
                   </span>
                 </div>
 
-                {/* Action Buttons */}
-                <div style={{
-                  display: 'flex',
-                  gap: '10px'
-                }}>
-                  <button
-                    onClick={() => handleEdit(event)}
-                    style={{
-                      flex: '1',
-                      padding: '10px 16px',
-                      background: 'linear-gradient(135deg, #4299e1, #3182ce)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '20px',
-                      fontSize: '0.85rem',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '6px',
-                      transition: 'all 0.3s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.transform = 'translateY(-1px)';
-                      e.target.style.boxShadow = '0 4px 12px rgba(66, 153, 225, 0.4)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.transform = '';
-                      e.target.style.boxShadow = '';
-                    }}
-                  >
-                    <Edit3 size={16} />
-                    Edit
-                  </button>
+                {eventType === "Upcoming" && 
+                  <div style={{
+                    display: 'flex',
+                    gap: '10px'
+                  }}>
+                    <button
+                      onClick={() => handleEdit(event)}
+                      style={{
+                        flex: '1',
+                        padding: '10px 16px',
+                        background: 'linear-gradient(135deg, #4299e1, #3182ce)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '20px',
+                        fontSize: '0.85rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        transition: 'all 0.3s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.transform = 'translateY(-1px)';
+                        e.target.style.boxShadow = '0 4px 12px rgba(66, 153, 225, 0.4)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.transform = '';
+                        e.target.style.boxShadow = '';
+                      }}
+                    >
+                      <Edit3 size={16} />
+                      Edit
+                    </button>
+  
+                    <button
+                      onClick={() => handleDeleteEvent(event._id)}
+                      style={{
+                        flex: '1',
+                        padding: '10px 16px',
+                        background: 'linear-gradient(135deg, #e53e3e, #c53030)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '20px',
+                        fontSize: '0.85rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        transition: 'all 0.3s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.transform = 'translateY(-1px)';
+                        e.target.style.boxShadow = '0 4px 12px rgba(229, 62, 62, 0.4)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.transform = '';
+                        e.target.style.boxShadow = '';
+                      }}
+                    >
+                      <Trash2 size={16} />
+                      Delete
+                    </button>
 
-                  <button
-                    onClick={() => handleDeleteEvent(event._id)}
-                    style={{
-                      flex: '1',
-                      padding: '10px 16px',
-                      background: 'linear-gradient(135deg, #e53e3e, #c53030)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '20px',
-                      fontSize: '0.85rem',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '6px',
-                      transition: 'all 0.3s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.transform = 'translateY(-1px)';
-                      e.target.style.boxShadow = '0 4px 12px rgba(229, 62, 62, 0.4)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.transform = '';
-                      e.target.style.boxShadow = '';
-                    }}
-                  >
-                    <Trash2 size={16} />
-                    Delete
-                  </button>
-
-                  <button 
-                    style={{
-                      flex: '1',
-                      padding: '10px 16px',
-                      background: 'transparent',
-                      color: '#718096',
-                      border: '2px solid #e2e8f0',
-                      borderRadius: '20px',
-                      fontSize: '0.85rem',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '6px',
-                      transition: 'all 0.3s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.background = '#f7fafc';
-                      e.target.style.borderColor = '#cbd5e0';
-                      e.target.style.color = '#4a5568';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.background = 'transparent';
-                      e.target.style.borderColor = '#e2e8f0';
-                      e.target.style.color = '#718096';
-                    }}
-                  >
-                    <Eye size={16} />
-                    View Details
-                  </button>
-                </div>
+                  </div>
+                }
               </div>
             ))}
           </div>

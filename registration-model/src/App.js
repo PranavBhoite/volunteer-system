@@ -18,7 +18,6 @@ function App() {
         <Route path="/dashboard" element={<Dashboard/>} />
         <Route path="/volunteer-view" element={<VolunteerView/>} />
         <Route path="/organizer-view" element={<OrganizerView/>} />
-
       </Routes>
     </Router>
   );
