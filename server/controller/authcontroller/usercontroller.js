@@ -1,7 +1,7 @@
 const User = require('../../models/User');
 
 exports.registerUser = async (req, res) => {
-  const { name, email, password, address, mobileNo } = req.body;
+  const { name, email, password, address, mobileNo, completedEvents, registeredEvents } = req.body;
 
   try {
     const existingUser = await User.findOne({ email });
@@ -16,7 +16,9 @@ exports.registerUser = async (req, res) => {
       password,
       address,
       mobileNo,
-      status: "active", // optional, since default is already active
+      status: "active", 
+      completedEvents,
+      registeredEvents
     });
 
     await newUser.save();

@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Card, Button, Modal, Form, Row, Col, Container } from "react-bootstrap";
+import VolunteerView from "../../Event/VolunteerView";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const [users, setUsers] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const navigator = useNavigate();
 
   const fetchUsers = async () => {
     const res = await axios.get("http://localhost:5000/api/auth/users");
@@ -58,6 +61,21 @@ const Dashboard = () => {
           </Col>
         ))}
       </Row>
+      <Button
+      onClick={() => {
+        navigator("/volunteer-view")
+      }}
+      >
+        Events
+      </Button>
+      <br />
+      <Button
+      onClick={() => {
+        navigator("/organizer-view")
+      }}
+      >
+        Organise Events
+      </Button>
 
       {/* Update Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>

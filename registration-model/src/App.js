@@ -5,8 +5,8 @@ import Registration from './components/Authentication/Volunteer/Registration';
 import Login from './components/Authentication/Volunteer/Login';
 import Dashboard from './components/Authentication/Volunteer/Dashboard';
 import TMGFHomepage from './components/Home/TMGFHomepage';
-import Events from './components/Events/events';
-import EventForm from "./components/Events/eventForm";
+import VolunteerView from './components/Event/VolunteerView';
+import OrganizerView from './components/Event/OrganizerView';
 
 function App() {
   return (
@@ -16,8 +16,8 @@ function App() {
         <Route path="/login" element={<Login/>} />
         <Route path="/Registration" element={<Registration/>} />
         <Route path="/dashboard" element={<Dashboard/>} />
-        <Route path="/events" element={<Events/>} />
-        <Route path="/eventform" element={<EventForm/>} />
+        <Route path="/volunteer-view" element={<VolunteerView/>} />
+        <Route path="/organizer-view" element={<OrganizerView/>} />
       </Routes>
     </Router>
   );
