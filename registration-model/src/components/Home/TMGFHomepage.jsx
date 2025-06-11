@@ -23,6 +23,10 @@ const TMGFLandingPage = () => {
     navigate("/Registration");
   };
 
+  const handleEvents = () => {
+    navigate("/events");
+  };
+
   return (
     <div
       className="min-vh-100"
@@ -55,7 +59,8 @@ const TMGFLandingPage = () => {
               </Nav.Link>
               <Nav.Link
                 className="text-white-50 mx-2 fw-medium position-relative"
-                style={{ fontSize: "1.1rem", cursor: "not-allowed" }}
+                style={{ fontSize: "1.1rem"}}
+                onClick={handleEvents}
               >
                 Events
                 <Badge

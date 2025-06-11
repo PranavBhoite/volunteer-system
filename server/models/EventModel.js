@@ -35,6 +35,9 @@ const eventSchema = new mongoose.Schema({
   volunteersRegistered : {
     type : Number,
     default : 0
+  },
+  volunteers : {
+    type : [String],
   }
 });
 

@@ -6,7 +6,9 @@ const userSchema = new mongoose.Schema({
   password: String,
   address: String,
   mobileNo: String,
-  status: { type: String, default: "active" } // active or inactive
+  status: { type: String, default: "active" }, // active or inactive
+  registeredEvents : [String],
+  completedEvents : [String],
 });
 
 module.exports = mongoose.model("User", userSchema);
