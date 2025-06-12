@@ -80,6 +80,10 @@ const Dashboard = () => {
           navigate(`/volunteer-view/${userId}`);
   } ;
 
+  const handleHelpsection = () => {
+    navigate(`/help-section/${userId}`);
+  }
+
   // Show loading state
   if (loading) {
     return (
@@ -174,6 +178,13 @@ const Dashboard = () => {
   onClick={handleVolunteerView}
 >
   Go to Volunteer View
+</Button>
+              <Button
+  variant="success"
+  className="mt-3 ms-2"
+  onClick={handleHelpsection}
+>
+  Help Section
 </Button>
       </Form>
     </Container>

@@ -8,6 +8,8 @@ import VolunteerView from './components/Event/VolunteerView';
 import OrganizerView from './components/Event/OrganizerView';
 import AdminRegister from './components/Authentication/Admin/AdminRegister';
 import AdminLogin from './components/Authentication/Admin/AdminLogin';
+import AdminDashboard from './components/Authentication/Admin/AdminDashboard';
+import HelpSection from './components/Help/HelpSection';
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
         <Route path="/organizer-view" element={<OrganizerView/>} />
          <Route path="/admin/register" element={<AdminRegister />} />
         <Route path="/admin/login" element={<AdminLogin />} />
+         <Route path="/admin-dashboard/:uid" element={<AdminDashboard />} />
+        <Route path="/help-section/:uid" element={<HelpSection />} />
       </Routes>
     </Router>
   );
