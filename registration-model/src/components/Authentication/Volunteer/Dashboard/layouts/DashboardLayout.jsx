@@ -1,16 +1,16 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 
-import Sidebar from "../components/Sidebar.jsx";
-import Header from "../components/Header.jsx";
-import Dashboard from "../components/Authentication/Volunteer/Dashboard.jsx";
-import VolunteerView from "../components/Event/VolunteerView.jsx";
-import OrganizerView from "../components/Event/OrganizerView.jsx";
-import Profile from "../pages/Profile.jsx";
+import OrganizerView from "../../../../Event/OrganizerView.jsx";
+import VolunteerView from "../../../../Event/VolunteerView.jsx";
+import Header from "../Header.jsx";
+import Sidebar from "../Sidebar.jsx";
+import Dashboard from "../Dashboard.jsx";
 import Event from "../pages/Event.jsx";
 import Help from "../pages/Help.jsx";
-import HelpCreate from "../pages/HelpCreate";
-import HelpApproved from "../pages/HelpApproved";
-import HelpDisapproved from "../pages/HelpDisapproved";
+import HelpApproved from "../pages/HelpApproved.jsx";
+import HelpCreate from "../pages/HelpCreate.jsx";
+import HelpDisapproved from "../pages/HelpDisapproved.jsx";
+import Profile from "../pages/Profile.jsx";
 
 export default function DashboardLayout() {
   return (

@@ -1,4 +1,6 @@
 import './App.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { BrowserRouter as Router, Routes, Route} from "react-router-dom";
 
 
@@ -8,7 +10,7 @@ import Login from './components/Authentication/Volunteer/Login';
 import Registration from './components/Authentication/Volunteer/Registration';
 
 // Dashboard layout
-import DashboardLayout from './layouts/DashboardLayout';
+import DashboardLayout from './components/Authentication/Volunteer/Dashboard/layouts/DashboardLayout';
 
 function App() {
   return (

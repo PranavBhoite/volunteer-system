@@ -1,4 +1,4 @@
-import HelpCards from "../components/HelpCards";
+import HelpCards from "../HelpCards.jsx";
 
 export default function Help() {
   return (
