@@ -51,7 +51,7 @@ const Registration = () => {
 
     setIsSubmitting(true);
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/register", formData);
+      await axios.post("http://localhost:5000/api/auth/register", formData);
       setServerMsg("Registration successful!");
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {

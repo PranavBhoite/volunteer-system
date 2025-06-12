@@ -1,24 +1,26 @@
-import logo from './logo.svg';
 import './App.css';
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Registration from './components/Authentication/Volunteer/Registration';
-import Login from './components/Authentication/Volunteer/Login';
-import Dashboard from './components/Authentication/Volunteer/Dashboard';
+import { BrowserRouter as Router, Routes, Route} from "react-router-dom";
+
+
+// Public pages
 import TMGFHomepage from './components/Home/TMGFHomepage';
-import VolunteerView from './components/Event/VolunteerView';
-import OrganizerView from './components/Event/OrganizerView';
+import Login from './components/Authentication/Volunteer/Login';
+import Registration from './components/Authentication/Volunteer/Registration';
+
+// Dashboard layout
+import DashboardLayout from './layouts/DashboardLayout';
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path = "/" element = {<TMGFHomepage/>}/>
-        <Route path="/login" element={<Login/>} />
-        <Route path="/Registration" element={<Registration/>} />
-        <Route path="/dashboard" element={<Dashboard/>} />
-        <Route path="/volunteer-view" element={<VolunteerView/>} />
-        <Route path="/organizer-view" element={<OrganizerView/>} />
+        {/* ✅ Public routes without layout */}
+        <Route path="/" element={<TMGFHomepage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/registration" element={<Registration />} />
 
+        {/* ✅ All dashboard-related routes go inside layout */}
+        <Route path="/*" element={<DashboardLayout />} />
       </Routes>
     </Router>
   );
