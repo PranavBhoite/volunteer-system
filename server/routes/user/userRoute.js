@@ -5,5 +5,6 @@ const usercontroller = require('../../controller/usercontroller/userdatacontroll
 
 router.get('/display/:id' , usercontroller.displayEvent) ;
 router.put('/update/:id' , usercontroller.updateEvent) ;
+router.get('/allusers', usercontroller.getAllUsers);
 
 module.exports = router;

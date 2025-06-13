@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-import { useParams } from "react-router-dom";
 
 const VolunteerView = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -10,7 +9,7 @@ const VolunteerView = () => {
   const [eventType, setEventType] = useState("Upcoming");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const {userId} = useParams();
+  const uid = "68480cf21888fc48a6a97093";
 
   // Fetch events when component mounts
   useEffect(() => {
@@ -22,7 +21,7 @@ const VolunteerView = () => {
     console.log(`Fetching type: ${type}`); 
 
     try {
-      const response = await axios.get(`http://localhost:5000/api/events/${userId}/${type}`);
+      const response = await axios.get(`http://localhost:5000/api/events/${uid}/${type}`);
       
       // Transform the data to match your frontend expectations
       const transformedEvents = response.data.map(event => ({
@@ -42,7 +41,7 @@ const VolunteerView = () => {
   const handleRegister = async (eventid) => {
     try {
       const registerType = eventType === "Upcoming" ? 'register' : 'unregister';
-      const response = await axios.post(`http://localhost:5000/api/events/${registerType}`, {userId : userId, eventId : eventid});
+      const response = await axios.post(`http://localhost:5000/api/events/${registerType}`, {userId : uid, eventId : eventid});
       fetchEvents(eventType);
       console.log(response);
     } catch (err) {

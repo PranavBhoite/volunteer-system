@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Table, Button, Container } from 'react-bootstrap';
 import axios from 'axios';
 
-const AdminDashboard = () => {
+const Help = () => {
   const { uid } = useParams();
   const [events, setEvents] = useState([]);
 
@@ -80,4 +80,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default Help;
