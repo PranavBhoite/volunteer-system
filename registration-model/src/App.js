@@ -1,20 +1,31 @@
 import './App.css';
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Registration from './components/Authentication/Volunteer/Registration';
-import Login from './components/Authentication/Volunteer/Login';
-import Dashboard from './components/Authentication/Volunteer/Dashboard';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import { BrowserRouter as Router, Routes, Route} from "react-router-dom";
+
+
+// Public pages
 import TMGFHomepage from './components/Home/TMGFHomepage';
+<<<<<<< HEAD
 import VolunteerView from './components/Event/VolunteerView';
 import OrganizerView from './components/Event/OrganizerView';
 import AdminRegister from './components/Authentication/Admin/AdminRegister';
 import AdminLogin from './components/Authentication/Admin/AdminLogin';
 import AdminDashboard from './components/Authentication/Admin/AdminDashboard';
 import HelpSection from './components/Help/HelpSection';
+=======
+import Login from './components/Authentication/Volunteer/Login';
+import Registration from './components/Authentication/Volunteer/Registration';
+
+// Dashboard layout
+import DashboardLayout from './components/Authentication/Volunteer/Dashboard/layouts/DashboardLayout';
+>>>>>>> caa20d14f0c5089db4c2764609c84d1b0860df31
 
 function App() {
   return (
     <Router>
       <Routes>
+<<<<<<< HEAD
         <Route path = "/" element = {<TMGFHomepage/>}/>
         <Route path="/login" element={<Login/>} />
         <Route path="/Registration" element={<Registration/>} />
@@ -25,6 +36,15 @@ function App() {
         <Route path="/admin/login" element={<AdminLogin />} />
          <Route path="/admin-dashboard/:uid" element={<AdminDashboard />} />
         <Route path="/help-section/:uid" element={<HelpSection />} />
+=======
+        {/* ✅ Public routes without layout */}
+        <Route path="/" element={<TMGFHomepage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/registration" element={<Registration />} />
+
+        {/* ✅ All dashboard-related routes go inside layout */}
+        <Route path="/*" element={<DashboardLayout />} />
+>>>>>>> caa20d14f0c5089db4c2764609c84d1b0860df31
       </Routes>
     </Router>
   );
