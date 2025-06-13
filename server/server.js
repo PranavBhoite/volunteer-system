@@ -28,7 +28,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/userdb', {
   useUnifiedTopology: true
 }).then(() => {
   console.log('MongoDB connected');
-}).catch((err) => {
+}).catch((err) => {   
   console.error('MongoDB connection error:', err);
 });
 
