@@ -1,4 +1,4 @@
-import HelpCards from "../HelpCards.jsx";
+import HelpCards from "../Layouts/HelpCards.jsx";
 
 export default function Help() {
   return (

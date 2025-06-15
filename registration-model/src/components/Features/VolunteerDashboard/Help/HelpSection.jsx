@@ -12,10 +12,6 @@ const HelpSection = () => {
     title: '', date: '', time: '', place: '', extraVolunteers: false
   });
 
-  useEffect(() => {
-    fetchEvents();
-  }, [statusFilter]);
-
   const fetchEvents = async () => {
     try {
       const query = statusFilter ? `?status=${statusFilter}` : '';
@@ -25,6 +21,10 @@ const HelpSection = () => {
       console.error("Error fetching events:", error);
     }
   };
+
+  useEffect(() => {
+    fetchEvents();
+  }, [statusFilter]);
 
   const handleCreate = async () => {
     try {

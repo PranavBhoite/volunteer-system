@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams } from "react-router-dom";
 
-const VolunteerView = () => {
+const VolunteerView = ({ userId }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [events, setEvents] = useState([]);
   const [eventType, setEventType] = useState("Upcoming");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const {userId} = useParams();
 
   // Fetch events when component mounts
   useEffect(() => {
     fetchEvents(eventType);
-  }, []);
+  });
 
   const fetchEvents = async (type) => {
     setLoading(true);
@@ -118,12 +116,12 @@ const VolunteerView = () => {
     return (volunteers / maxVolunteers) * 100;
   };
 
-  const getStatusBadge = (volunteers, maxVolunteers) => {
-    const percentage = getProgressPercentage(volunteers, maxVolunteers);
-    if (percentage >= 100) return 'Full';
-    if (percentage >= 80) return 'Almost Full';
-    return 'Open';
-  };
+  // const getStatusBadge = (volunteers, maxVolunteers) => {
+  //   const percentage = getProgressPercentage(volunteers, maxVolunteers);
+  //   if (percentage >= 100) return 'Full';
+  //   if (percentage >= 80) return 'Almost Full';
+  //   return 'Open';
+  // };
 
   const toggleEventType = (type) => {
     setEventType(type);
