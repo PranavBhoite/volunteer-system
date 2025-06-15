@@ -2,6 +2,8 @@ import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { BrowserRouter as Router, Routes, Route} from "react-router-dom";
+import Profile from './components/Profile/profile';
+
 
 
 // Public pages
@@ -35,6 +37,7 @@ function App() {
         
         
         <Route path="/help-section/:uid" element={<HelpSection/>} />
+
       </Routes>
     </Router>
   );
