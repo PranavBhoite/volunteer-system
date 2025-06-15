@@ -2,7 +2,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const userAuthRoutes = require('./routes/auth/userauth');
-const eventRoutes = require('./routes/events/eventsRoute')
+const eventRoutes = require('./routes/events/eventsRoute') ;
+const userRoutes = require('./routes/user/userRoute') ;
+const adminRoutes = require('./routes/auth/adminauth') ;
+const helpRoutes = require('./routes/help/helpRoute') ;
 
 const app = express();
 const PORT = 5000;
@@ -14,6 +17,9 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', userAuthRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/users' ,userRoutes) ;
+app.use('/api/auth/admin' , adminRoutes) ;
+app.use("/api/help", helpRoutes);
 
 
 // MongoDB connection
@@ -22,7 +28,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/userdb', {
   useUnifiedTopology: true
 }).then(() => {
   console.log('MongoDB connected');
-}).catch((err) => {
+}).catch((err) => {      
   console.error('MongoDB connection error:', err);
 });
 

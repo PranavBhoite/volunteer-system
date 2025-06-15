@@ -5,9 +5,9 @@ const { registerUser , loginUser, getActiveUsers, softDeleteUser, updateUser } =
 
 router.post('/register', registerUser);
 router.post('/login', loginUser);
-router.get("/users", getActiveUsers);
-router.put("/delete/:id", softDeleteUser);
-router.put("/update/:id", updateUser);
+
+
+
 
 
 

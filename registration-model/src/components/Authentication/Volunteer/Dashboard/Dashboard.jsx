@@ -1,92 +1,192 @@
 import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Card, Button, Modal, Form, Row, Col, Container } from "react-bootstrap";
+import { Container, Form, Button, Alert } from "react-bootstrap";
 
 const Dashboard = () => {
-  const [users, setUsers] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
-
-  const fetchUsers = async () => {
-    const res = await axios.get("http://localhost:5000/api/auth/users");
-    setUsers(res.data);
-  };
+  const { userId } = useParams();
+  const [user, setUser] = useState(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    console.log("Dashboard mounted with userId:", userId); // Debug log
 
-  const handleDelete = async (id) => {
-    await axios.put(`http://localhost:5000/api/auth/delete/${id}`);
-    fetchUsers();
-  };
+    if (!userId) {
+      setError("No user ID provided");
+      setLoading(false);
+      return;
+    }
 
-  const handleShowModal = (user) => {
-    setCurrentUser(user);
-    setShowModal(true);
-  };
+    const fetchUser = async () => {
+      try {
+        console.log("Fetching user data for ID:", userId); // Debug log
+        const response = await axios.get(
+          `http://localhost:5000/api/users/display/${userId}`
+        );
+        console.log("User data received:", response.data); // Debug log
+        setUser(response.data);
+        setError("");
+      } catch (err) {
+        console.error("Error fetching user:", err);
+        console.error("Error response:", err.response?.data); // Debug log
+        console.error("Error status:", err.response?.status); // Debug log
+        setError(err.response?.data?.message || "Failed to load user data");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleUpdate = async () => {
-    await axios.put(`http://localhost:5000/api/auth/update/${currentUser._id}`, currentUser);
-    setShowModal(false);
-    fetchUsers();
-  };
+    fetchUser();
+  }, [userId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setCurrentUser((prev) => ({ ...prev, [name]: value }));
+    setUser((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
+
+  const handleUpdate = async () => {
+    try {
+      setError("");
+      console.log("Updating user with data:", {
+        name: user.name,
+        address: user.address,
+        mobileNo: user.mobileNo,
+      }); // Debug log
+
+      const response = await axios.put(
+        `http://localhost:5000/api/users/update/${userId}`,
+        {
+          name: user.name,
+          address: user.address,
+          mobileNo: user.mobileNo,
+        }
+      );
+
+      console.log("Update response:", response.data); // Debug log
+      alert("User updated successfully");
+    } catch (err) {
+      console.error("Update error:", err);
+      console.error("Update error response:", err.response?.data); // Debug log
+      setError(err.response?.data?.message || "Failed to update user");
+    }
+  };
+
+  const handleVolunteerView = () => {
+          navigate(`/volunteer-view/${userId}`);
+  } ;
+
+  const handleHelpsection = () => {
+    navigate(`/help-section/${userId}`);
+  }
+
+  // Show loading state
+  if (loading) {
+    return (
+      <Container className="mt-5">
+        <div className="text-center">
+          <p>Loading user data...</p>
+          <p className="text-muted">User ID: {userId}</p>
+        </div>
+      </Container>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <Container className="mt-5">
+        <Alert variant="danger">
+          <Alert.Heading>Error</Alert.Heading>
+          <p>{error}</p>
+          <p className="text-muted">User ID: {userId}</p>
+        </Alert>
+      </Container>
+    );
+  }
+
+  // Show message if no user data
+  if (!user) {
+    return (
+      <Container className="mt-5">
+        <Alert variant="warning">
+          <Alert.Heading>No User Data</Alert.Heading>
+          <p>No user data found for ID: {userId}</p>
+        </Alert>
+      </Container>
+    );
+  }
 
   return (
     <Container className="mt-5">
-      <h2 className="text-center mb-4">User Dashboard</h2>
-      <Row>
-        {users.map((user) => (
-          <Col md={4} key={user._id} className="mb-4">
-            <Card>
-              <Card.Body>
-                <Card.Title>{user.name}</Card.Title>
-                <Card.Text>
-                  <strong>Email:</strong> {user.email} <br />
-                  <strong>Address:</strong> {user.address} <br />
-                  <strong>Mobile:</strong> {user.mobileNo}
-                </Card.Text>
-                <Button variant="warning" className="me-2" onClick={() => handleShowModal(user)}>Update</Button>
-                <Button variant="danger" onClick={() => handleDelete(user._id)}>Delete</Button>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
+      <h3>User Dashboard</h3>
+      <p className="text-muted mb-4">User ID: {userId}</p>
 
-      {/* Update Modal */}
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Update User</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {currentUser && (
-            <Form>
-              <Form.Group className="mb-3">
-                <Form.Label>Name</Form.Label>
-                <Form.Control type="text" name="name" value={currentUser.name} onChange={handleChange} />
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Label>Address</Form.Label>
-                <Form.Control type="text" name="address" value={currentUser.address} onChange={handleChange} />
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Label>Mobile</Form.Label>
-                <Form.Control type="text" name="mobileNo" value={currentUser.mobileNo} onChange={handleChange} />
-              </Form.Group>
-            </Form>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
-          <Button variant="primary" onClick={handleUpdate}>Update</Button>
-        </Modal.Footer>
-      </Modal>
+      <Form>
+        <Form.Group className="mb-3">
+          <Form.Label>Name</Form.Label>
+          <Form.Control
+            name="name"
+            value={user.name || ""}
+            onChange={handleChange}
+            placeholder="Enter name"
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Email (read only)</Form.Label>
+          <Form.Control
+            name="email"
+            value={user.email || ""}
+            readOnly
+            className="bg-light"
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Mobile No</Form.Label>
+          <Form.Control
+            name="mobileNo"
+            value={user.mobileNo || ""}
+            onChange={handleChange}
+            placeholder="Enter mobile number"
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Address</Form.Label>
+          <Form.Control
+            as="textarea"
+            rows={3}
+            name="address"
+            value={user.address || ""}
+            onChange={handleChange}
+            placeholder="Enter address"
+          />
+        </Form.Group>
+
+        <Button variant="primary" onClick={handleUpdate}>
+          Update Profile
+        </Button>
+        <Button
+  variant="success"
+  className="mt-3 ms-2"
+  onClick={handleVolunteerView}
+>
+  Go to Volunteer View
+</Button>
+              <Button
+  variant="success"
+  className="mt-3 ms-2"
+  onClick={handleHelpsection}
+>
+  Help Section
+</Button>
+      </Form>
     </Container>
   );
 };

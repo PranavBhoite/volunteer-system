@@ -14,22 +14,27 @@ const Login = () => {
     setError("");
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (!formData.email || !formData.password) {
-      setError("Both email and password are required.");
-      return;
-    }
+  if (!formData.email || !formData.password) {
+    setError("Both email and password are required.");
+    return;
+  }
 
-    try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", formData);
-      alert(res.data.message);
-      navigate("/dashboard");
-    } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
-    }
-  };
+  try {
+    const res = await axios.post("http://localhost:5000/api/auth/login", formData);
+    alert(res.data.message);
+
+    // ✅ Store user ID locally (you can use sessionStorage too)
+    localStorage.setItem("userId", res.data.userId);
+
+    // Navigate to dashboard
+    navigate(`/dashboard/${res.data.userId}`);
+  } catch (err) {
+    setError(err.response?.data?.message || "Login failed");
+  }
+};
 
   return (
     <Container className="mt-5">
