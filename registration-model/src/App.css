@@ -27,6 +27,12 @@
 .App-link {
   color: #61dafb;
 }
+.hover-bg:hover {
+  background-color: #1d7fa5 !important;
+  border-radius: 5px;
+}
+
+
 
 @keyframes App-logo-spin {
   from {
