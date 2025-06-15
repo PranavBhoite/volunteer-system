@@ -10,6 +10,7 @@ import AdminRegister from './components/Authentication/Admin/AdminRegister';
 import AdminLogin from './components/Authentication/Admin/AdminLogin';
 import AdminDashboard from './components/Authentication/Admin/AdminDashboard';
 import HelpSection from './components/Help/HelpSection';
+import AllVolunteers from './components/Features/AdminDashboard/AllVolunteers/AllVolunteers';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path="/admin/login" element={<AdminLogin />} />
          <Route path="/admin-dashboard/:uid" element={<AdminDashboard />} />
         <Route path="/help-section/:uid" element={<HelpSection />} />
+        <Route path="/allvolunteers" element={<AllVolunteers />} />
       </Routes>
     </Router>
   );
