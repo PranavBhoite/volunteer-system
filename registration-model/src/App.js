@@ -16,6 +16,7 @@ import Profile from './components/Features/VolunteerDashboard/Profile/Profile';
 import HelpSection from './components/Features/VolunteerDashboard/Help/HelpSection';
 import OrganizerView from './components/Features/AdminDashboard/Event/OrganizerView';
 import AllVolunteers from './components/Features/AdminDashboard/VolunteerList/AllVolunteers';
+import Help from './components/Features/AdminDashboard/Help/Help';
 
 
 function App() {
@@ -32,7 +33,7 @@ function App() {
           <Route path="/admin-dashboard/:uid" element={<AdminDashboard />} >
             <Route path= "organizer-view" element={<OrganizerView />} />
             <Route path="allvolunteers" element={<AllVolunteers />} />
-            <Route path="help" element={<HelpSection />} />
+            <Route path="help" element={<Help/>} />
             <Route index element={<Navigate to= "allvolunteers" replace />} />
           </Route>
 
