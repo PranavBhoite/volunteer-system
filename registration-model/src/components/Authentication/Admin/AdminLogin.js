@@ -1,43 +1,23 @@
-import React, { useState } from "react";
-import { Form, Button, Container, Row, Col, Alert, FormCheck } from "react-bootstrap";
-import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useState } from 'react';
+import axios from 'axios';
+import { Container, Form, Button, Alert, Row, Col } from 'react-bootstrap';
+import { useNavigate, Link } from 'react-router-dom';
 
-const Login = () => {
-  const [formData, setFormData] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
+function AdminLogin() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    setError("");
-  };
-
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-
-    if (!formData.email || !formData.password) {
-      setError("Both email and password are required.");
-      return;
-    }
-
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", formData);
-      alert(res.data.message);
-
-      // Store user ID locally (using localStorage or sessionStorage based on rememberMe)
-      if (rememberMe) {
-        localStorage.setItem("userId", res.data.userId);
-      } else {
-        sessionStorage.setItem("userId", res.data.userId);
-      }
-
-      // Navigate to dashboard
-      navigate(`/dashboard/${res.data.userId}`);
+      const res = await axios.post('http://localhost:5000/api/auth/admin/login', { email, password });
+      const uid = res.data.uid;
+      setError('');
+      navigate(`/admin-dashboard/${uid}`);
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+      setError(err.response?.data?.message || 'Login failed');
     }
   };
 
@@ -59,19 +39,18 @@ const Login = () => {
               borderRadius: "10px",
               boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)"
             }}>
-              <h2 className="mb-4" style={{ color: "#2c3e50", fontWeight: "bold" }}>Account Login</h2>
+              <h2 className="mb-4" style={{ color: "#2c3e50", fontWeight: "bold" }}>Admin Login</h2>
               
               {error && <Alert variant="danger" className="text-center">{error}</Alert>}
               
-              <Form onSubmit={handleSubmit}>
+              <Form onSubmit={handleLogin}>
                 <Form.Group className="mb-4">
                   <Form.Label style={{ fontWeight: "600", color: "#555" }}>Email Address</Form.Label>
                   <Form.Control
                     type="email"
                     placeholder="Enter your email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
                     style={{ 
                       padding: "12px",
                       borderRadius: "6px",
@@ -86,9 +65,8 @@ const Login = () => {
                   <Form.Control
                     type="password"
                     placeholder="Enter your password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
                     style={{ 
                       padding: "12px",
                       borderRadius: "6px",
@@ -98,21 +76,8 @@ const Login = () => {
                   />
                 </Form.Group>
 
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                  <FormCheck>
-                    <FormCheck.Input 
-                      type="checkbox" 
-                      id="rememberMe"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
-                    />
-                    <FormCheck.Label htmlFor="rememberMe" style={{ color: "#555" }}>Remember Me</FormCheck.Label>
-                  </FormCheck>
-                  <Link to="/forgot-password" style={{ color: "#3498db", textDecoration: "none" }}>Forgot Password?</Link>
-                </div>
-
                 <Button 
-                  variant="primary" 
+                  variant="success" 
                   type="submit" 
                   style={{
                     width: "100%",
@@ -129,7 +94,7 @@ const Login = () => {
               </Form>
 
               <p className="mt-4 text-center" style={{ color: "#666" }}>
-                Don't have an account? <Link to="/" style={{ color: "#3498db", textDecoration: "none" }}>Register</Link>
+                Go to <Link to="/login" style={{ color: "#3498db", textDecoration: "none" }}>Registration</Link>
               </p>
             </div>
           </Col>
@@ -137,6 +102,6 @@ const Login = () => {
       </Container>
     </div>
   );
-};
+}
 
-export default Login;
+export default AdminLogin;
