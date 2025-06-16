@@ -1,6 +1,9 @@
-const Profile = ({ userId }) => {
+import { useParams } from "react-router-dom";
+const Profile = () => {
+  const {uid} = useParams();
+
   return <>
-    <h1>User ID : {userId}</h1> 
+    <h1>User ID : ${uid}</h1> 
   </>;
 }
 
