@@ -11,25 +11,20 @@ const VolunteerView = () => {
   const [error, setError] = useState(null);
   const {uid} = useParams();
 
-  // Fetch events when component mounts
   useEffect(() => {
     fetchEvents(eventType);
   }, []);
 
   const fetchEvents = async (type) => {
     setLoading(true);
-    console.log(`Fetching type: ${type}`); 
-
     try {
       const response = await axios.get(`http://localhost:5000/api/events/${uid}/${type}`);
-      
-      // Transform the data to match your frontend expectations
       const transformedEvents = response.data.map(event => ({
         ...event,
-        id: event._id, 
+        id: event._id,
       }));
-      
       setEvents(transformedEvents);
+      setError(null);
     } catch (err) {
       setError('Failed to fetch events');
       console.error('Error fetching events:', err.response ? err.response.data : err.message);
@@ -43,7 +38,6 @@ const VolunteerView = () => {
       const registerType = eventType === "Upcoming" ? 'register' : 'unregister';
       const response = await axios.post(`http://localhost:5000/api/events/${registerType}`, {userId : uid, eventId : eventid});
       fetchEvents(eventType);
-      console.log(response);
     } catch (err) {
       console.error('Registration failed:', err);
       alert(err.response?.data?.message || 'Failed to register for event');
@@ -57,86 +51,27 @@ const VolunteerView = () => {
     return matchesSearch && matchesCategory;
   });
 
-  if (loading) {
-    return (
-      <div style={{
-        minHeight: '100vh',
-        background: '#f8f9fa',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-      }}>
-        <div style={{
-          textAlign: 'center',
-          padding: '40px',
-          borderRadius: '12px',
-          background: 'white',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-        }}>
-          <div style={{
-            width: '50px',
-            height: '50px',
-            border: '4px solid #e2e8f0',
-            borderTop: '4px solid #0891b2',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 20px'
-          }}></div>
-          <div style={{ color: '#64748b', fontSize: '1.1rem' }}>Loading events...</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div style={{
-        minHeight: '100vh',
-        background: '#f8f9fa',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-      }}>
-        <div style={{
-          textAlign: 'center',
-          padding: '40px',
-          borderRadius: '12px',
-          background: 'white',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-          border: '1px solid #fecaca',
-          color: '#dc2626'
-        }}>
-          {error}
-        </div>
-      </div>
-    );
-  }
-
   const getProgressPercentage = (volunteers, maxVolunteers) => {
     return (volunteers / maxVolunteers) * 100;
   };
-
-  // const getStatusBadge = (volunteers, maxVolunteers) => {
-  //   const percentage = getProgressPercentage(volunteers, maxVolunteers);
-  //   if (percentage >= 100) return 'Full';
-  //   if (percentage >= 80) return 'Almost Full';
-  //   return 'Open';
-  // };
 
   const toggleEventType = (type) => {
     setEventType(type);
     fetchEvents(type);
   }
 
+  // ----- START Adjusted styles -----
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: '#f8f9fa',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      padding: '24px'
-    }}>
+    <div
+      style={{
+        // Remove full viewport height, just fill container
+        padding: '24px',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        backgroundColor: 'transparent', // Let dashboard background show
+        minWidth: 0, // for better flexbox support inside dashboard content
+        overflowY: 'auto',
+      }}
+    >
       {/* Header */}
       <div style={{
         background: 'white',
@@ -248,7 +183,31 @@ const VolunteerView = () => {
       </div>
 
       {/* Events Grid */}
-      {filteredEvents.length > 0 ? (
+      {loading ? (
+        <div style={{
+          textAlign: 'center',
+          padding: '40px',
+          borderRadius: '12px',
+          background: 'white',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          color: '#64748b',
+          fontSize: '1.1rem'
+        }}>
+          Loading events...
+        </div>
+      ) : error ? (
+        <div style={{
+          textAlign: 'center',
+          padding: '40px',
+          borderRadius: '12px',
+          background: '#fee2e2',
+          color: '#b91c1c',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          border: '1px solid #fecaca',
+        }}>
+          {error}
+        </div>
+      ) : filteredEvents.length > 0 ? (
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
@@ -384,7 +343,7 @@ const VolunteerView = () => {
                     style={{
                       flex: 1,
                       padding: '10px 16px',
-                      background: eventType === "Upcoming" 
+                      background: eventType === "Upcoming"
                         ? '#be185d'
                         : '#dc2626',
                       color: 'white',
@@ -406,7 +365,7 @@ const VolunteerView = () => {
                     {eventType === "Upcoming" ? 'Register' : 'Unregister'}
                   </button>
                 )}
-                
+
                 {eventType === "Registered" && (
                   <button
                     onClick={() => {}}

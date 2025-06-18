@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { Form, Button, Container, Row, Col, Alert, Spinner } from "react-bootstrap";
+import { Form, Button, Container, Alert, Spinner } from "react-bootstrap";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 const Registration = () => {
   const [formData, setFormData] = useState({
@@ -9,144 +8,103 @@ const Registration = () => {
     email: "",
     password: "",
     address: "",
-    mobileNo: ""
+    mobileNo: "",
   });
-
-  const [errors, setErrors] = useState({});
-  const [serverMsg, setServerMsg] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
-
-  const validateForm = () => {
-    const newErrors = {};
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const mobileRegex = /^[6-9]\d{9}$/;
-
-    if (!formData.name.trim()) newErrors.name = "Name is required";
-    if (!emailRegex.test(formData.email)) newErrors.email = "Invalid email";
-    if (formData.password.length < 8) newErrors.password = "Minimum 8 characters";
-    if (!formData.address.trim()) newErrors.address = "Address is required";
-    if (!mobileRegex.test(formData.mobileNo)) newErrors.mobileNo = "Invalid mobile number";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
 
   const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-    setErrors((prev) => ({
-      ...prev,
-      [e.target.name]: ""
-    }));
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setServerMsg("");
+    setLoading(true);
+    setErrorMsg("");
+    setSuccessMsg("");
 
-    if (!validateForm()) return;
-
-    setIsSubmitting(true);
     try {
-      await axios.post("http://localhost:5000/api/auth/register", formData);
-      setServerMsg("Registration successful!");
-      setTimeout(() => navigate("/login"), 1500);
-    } catch (err) {
-      setServerMsg(err.response?.data?.message || "Registration failed.");
+      const response = await axios.post("http://localhost:5000/api/auth/register", formData);
+      setSuccessMsg(response.data.message || "Registration successful!");
+      setFormData({ name: "", email: "", password: "", address: "", mobileNo: "" });
+    } catch (error) {
+      setErrorMsg(error.response?.data?.message || "Registration failed. Please try again.");
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
   return (
-    <Container className="mt-5">
-      <Row className="justify-content-md-center">
-        <Col md={6}>
-          <h2 className="mb-4 text-center">User Registration</h2>
+    <Container style={{ maxWidth: "500px", marginTop: "40px" }}>
+      <h3 className="mb-4">Register</h3>
+      {errorMsg && <Alert variant="danger">{errorMsg}</Alert>}
+      {successMsg && <Alert variant="success">{successMsg}</Alert>}
 
-          {serverMsg && (
-            <Alert variant={serverMsg.includes("successful") ? "success" : "danger"}>
-              {serverMsg}
-            </Alert>
-          )}
+      <Form onSubmit={handleSubmit}>
+        <Form.Group className="mb-3" controlId="formName">
+          <Form.Label>Name</Form.Label>
+          <Form.Control
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="Enter your full name"
+            required
+          />
+        </Form.Group>
 
-          <Form onSubmit={handleSubmit}>
-            <Form.Group className="mb-3" controlId="formName">
-              <Form.Label>Full Name</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                isInvalid={!!errors.name}
-              />
-              <Form.Control.Feedback type="invalid">{errors.name}</Form.Control.Feedback>
-            </Form.Group>
+        <Form.Group className="mb-3" controlId="formEmail">
+          <Form.Label>Email address</Form.Label>
+          <Form.Control
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Enter your email"
+            required
+          />
+        </Form.Group>
 
-            <Form.Group className="mb-3" controlId="formEmail">
-              <Form.Label>Email address</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="Enter email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                isInvalid={!!errors.email}
-              />
-              <Form.Control.Feedback type="invalid">{errors.email}</Form.Control.Feedback>
-            </Form.Group>
+        <Form.Group className="mb-3" controlId="formPassword">
+          <Form.Label>Password</Form.Label>
+          <Form.Control
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="Enter password"
+            required
+          />
+        </Form.Group>
 
-            <Form.Group className="mb-3" controlId="formPassword">
-              <Form.Label>Password</Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="Password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                isInvalid={!!errors.password}
-              />
-              <Form.Control.Feedback type="invalid">{errors.password}</Form.Control.Feedback>
-            </Form.Group>
+        <Form.Group className="mb-3" controlId="formAddress">
+          <Form.Label>Address</Form.Label>
+          <Form.Control
+            type="text"
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            placeholder="Your address"
+          />
+        </Form.Group>
 
-            <Form.Group className="mb-3" controlId="formAddress">
-              <Form.Label>Address</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter address"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                isInvalid={!!errors.address}
-              />
-              <Form.Control.Feedback type="invalid">{errors.address}</Form.Control.Feedback>
-            </Form.Group>
+        <Form.Group className="mb-3" controlId="formMobileNo">
+          <Form.Label>Mobile Number</Form.Label>
+          <Form.Control
+            type="text"
+            name="mobileNo"
+            value={formData.mobileNo}
+            onChange={handleChange}
+            placeholder="Enter your mobile number"
+          />
+        </Form.Group>
 
-            <Form.Group className="mb-3" controlId="formMobileNo">
-              <Form.Label>Mobile Number</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter mobile number"
-                name="mobileNo"
-                value={formData.mobileNo}
-                onChange={handleChange}
-                isInvalid={!!errors.mobileNo}
-              />
-              <Form.Control.Feedback type="invalid">{errors.mobileNo}</Form.Control.Feedback>
-            </Form.Group>
-
-            <div className="d-grid gap-2">
-              <Button variant="primary" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? <Spinner animation="border" size="sm" /> : "Register"}
-              </Button>
-            </div>
-          </Form>
-        </Col>
-      </Row>
+        <Button variant="primary" type="submit" disabled={loading} className="w-100">
+          {loading ? <Spinner animation="border" size="sm" /> : "Register"}
+        </Button>
+      </Form>
     </Container>
   );
 };

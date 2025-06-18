@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Card, Dropdown, Container, Row, Col } from 'react-bootstrap';
+import { Button, Card, Dropdown, Container, Row, Col, Spinner, Alert } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
 
-const App = () => {
+const Profile = () => {
+  const { uid } = useParams();
+
+  const [user, setUser] = useState(null);
   const [showCard, setShowCard] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [domToImageLoaded, setDomToImageLoaded] = useState(false);
   const [jsPDFLoaded, setJsPDFLoaded] = useState(false);
 
-  const user = {
-    name: 'John Doe',
-    id: '123456',
-    email: 'john@example.com',
-    mobileNo: '9876543210',
-    address: '123 Main Street, City, State, ZIP',
-  };
-
+  // Load external scripts for dom-to-image and jsPDF
   useEffect(() => {
     const loadScript = (src, id, onLoadCallback) => {
       if (document.getElementById(id)) {
@@ -42,6 +42,23 @@ const App = () => {
     );
   }, []);
 
+  // Fetch user info by ID on mount and when uid changes
+  useEffect(() => {
+    setLoading(true);
+    setError("");
+    axios.get(`http://localhost:5000/api/users/display/${uid}`)
+      .then(res => {
+        setUser(res.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("User fetch error:", err);
+        setError("Failed to load user info.");
+        setLoading(false);
+      });
+  }, [uid]);
+
+  // PDF download handler
   const handleDownloadPdf = async () => {
     const input = document.getElementById('virtual-id-card');
     if (!input || !window.domtoimage || !window.jspdf) {
@@ -102,6 +119,22 @@ const App = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '50vh' }}>
+        <Spinner animation="border" variant="primary" />
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container className="mt-4">
+        <Alert variant="danger" className="text-center">{error}</Alert>
+      </Container>
+    );
+  }
+
   return (
     <Container className="py-5 bg-light min-vh-100">
       <Row className="justify-content-end mb-4">
@@ -119,7 +152,7 @@ const App = () => {
       </Row>
 
       <AnimatePresence>
-        {showCard && (
+        {showCard && user && (
           <Row className="justify-content-center mt-5">
             <Col xs="auto">
               <motion.div
@@ -155,11 +188,11 @@ const App = () => {
                   <Card.Body className="text-center">
                     <Card.Subtitle className="mb-2 text-white-50">Virtual ID Card</Card.Subtitle>
                     <Card.Title as="h3" className="mb-3 fw-bold">{user.name}</Card.Title>
-                    <Card.Text className="mb-4">ID: {user.id}</Card.Text>
+                    <Card.Text className="mb-4">ID: {user._id}</Card.Text>
                     <Card.Text className="text-start">
                       <strong>Email:</strong> {user.email} <br />
-                      <strong>Contact:</strong> {user.mobileNo} <br />
-                      <strong>Address:</strong> {user.address}
+                      <strong>Contact:</strong> {user.mobileNo || 'N/A'} <br />
+                      <strong>Address:</strong> {user.address || 'N/A'}
                     </Card.Text>
                   </Card.Body>
                 </Card>
@@ -172,4 +205,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default Profile;
