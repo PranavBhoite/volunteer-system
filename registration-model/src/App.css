@@ -27,12 +27,199 @@
 .App-link {
   color: #61dafb;
 }
-.hover-bg:hover {
-  background-color: #1d7fa5 !important;
-  border-radius: 5px;
+
+/* Sidebar Button Style (for Profile & Event) */
+.sidebar-button {
+  background: 
+  linear-gradient(
+    to right bottom, #a70a4a, #b41454, #c01c5e, #cd2468, #da2b73
+  );
+
+  border: none;
+  border-radius: 12px;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: -apple-system, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 2.5;
+  padding: 0 1rem;
+  text-decoration: none;
+  transition: box-shadow 0.2s ease-in-out;
 }
 
+.sidebar-button:hover,
+.sidebar-button:focus {
+  box-shadow: 0 0 .25rem rgba(0, 0, 0, 0.5),
+              -0.125rem -0.125rem 1rem rgba(239, 71, 101, 0.5),
+               0.125rem 0.125rem 1rem rgba(255, 154, 90, 0.5);
+  text-decoration: none;
+  color: white;
+}
+/* Custom button styles for Create,Approved and Disapproved */
+.btn-outline-primary {
+  border-color: #5555e8 !important; /* Sky blue border */
+  color: #5555e8 !important;
+}
 
+.btn-outline-primary:hover {
+  background-color: #5555e8 !important; /* Yellow on hover */
+  border-color: #5555e8 !important;
+  color: white !important;
+}
+
+.btn-outline-success:hover {
+  background-color: #4CAF50 !important; /* Green on hover */
+  color: white !important;
+}
+
+.btn-outline-danger:hover {
+  background-color: #F44336 !important; /* Red on hover */
+  color: white !important;
+}
+
+/* Active state styles */
+.active-create {
+  background-color: #5555e8 !important; /* Sky blue when active */
+  color: white !important;
+}
+
+.active-approved {
+  background-color: #4CAF50 !important; /* Green when active */
+  color: white !important;
+}
+
+.active-disapproved {
+  background-color: #F44336 !important; /* Red when active */
+  color: white !important;
+}
+
+/*  Table  */
+.table-hover tbody tr:hover {
+  background-color: #d0f0ff !important; /* Light sky blue */
+  transition: background-color 0.3s ease;
+}
+.table-header-maroon th {
+  background: linear-gradient(to right, #a70a4a, #da2b73) !important;
+  color: white !important;
+}
+.table-bordered-blue {
+  border: 1px solid #61dafb !important;
+}
+
+.table-bordered-blue th,
+.table-bordered-blue td {
+  border: 1px solid #61dafb !important;
+}
+.events-heading {
+  background: linear-gradient(
+    to right top, #5ecbea, #40b7d8
+  
+  );
+  color: white;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 1.8rem;
+  font-weight: 600;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  display: inline-block;
+  animation: fadeIn 0.5s ease-in-out;
+  margin-bottom: 20px;
+}
+.table-scroll-container {
+  max-height: 400px; 
+  overflow-y: auto;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin-top: 10px;
+}
+
+/* Sticky table header */
+.fixed-header-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: linear-gradient(to right, #a70a4a, #da2b73) !important;
+  color: white !important;
+}
+
+/*View Details */
+.glass-popup-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  max-width: 400px;
+  width: 100%;
+  color: #333;
+  animation: fadeIn 0.3s ease-in-out;
+}
+/* Form- Submit & Cancle Button */
+.custom-cancel-btn {
+  background-color: #ffeeee;
+  border: 2px solid #ffcccc;
+  color: #cc0000;
+  font-weight: 500;
+  padding: 8px 20px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.custom-cancel-btn:hover {
+  background-color: #ffdddd;
+  color: #990000;
+  border-color: #ff9999;
+}
+
+.custom-cancel-btn:active {
+  background-color: #cc0000;
+  color: white;
+  border-color: #990000;
+}
+
+.custom-submit-btn {
+  background-color: #eeffee;
+  border: 2px solid #ccffcc;
+  color: #006600;
+  font-weight: 500;
+  padding: 8px 20px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.custom-submit-btn:hover {
+  background-color: #ddffdd;
+  color: #004d00;
+  border-color: #99ff99;
+}
+
+.custom-submit-btn:active {
+  background-color: #008000;
+  color: white;
+  border-color: #006600;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 @keyframes App-logo-spin {
   from {

@@ -7,7 +7,7 @@ export default function HelpCards() {
         <div
           className="card shadow-sm p-3"
           style={{
-            backgroundColor: "#f4f2f2",
+            backgroundColor: "",
             borderRadius: "10px",
             width: "200px"
           }}
