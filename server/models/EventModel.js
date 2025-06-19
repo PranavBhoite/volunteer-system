@@ -1,44 +1,58 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
 
-const eventSchema = new mongoose.Schema({
+const Event = sequelize.define('Event', {
   title: {
-    type: String,
-    required: [true, 'Title is required'],
-    trim: true,
-    maxlength: [100, 'Title cannot exceed 100 characters']
+    type: DataTypes.STRING(100),
+    allowNull: false,
+    validate: {
+      notEmpty: true,
+      len: {
+        args: [1, 100],
+        msg: 'Title cannot exceed 100 characters',
+      },
+    },
   },
   description: {
-    type: String,
-    trim: true,
-    maxlength: [1000, 'Description cannot exceed 1000 characters']
+    type: DataTypes.STRING(1000),
+    validate: {
+      len: {
+        args: [0, 1000],
+        msg: 'Description cannot exceed 1000 characters',
+      },
+    },
   },
   date: {
-    type: String, 
-    required: [true, 'Date is required']
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   time: {
-    type: String, 
-    required: true
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   location: {
-    type: String,
+    type: DataTypes.STRING,
     trim: true,
   },
   category: {
-    type: String
+    type: DataTypes.STRING,
   },
   volunteersNeeded: {
-    type: Number,
-    default: 0,
-    required: [true, 'Number of Volunteers is required'],
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
   },
-  volunteersRegistered : {
-    type : Number,
-    default : 0
+  volunteersRegistered: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
   },
-  volunteers : {
-    type : [String],
-  }
+  volunteers: {
+    type: DataTypes.ARRAY(DataTypes.STRING),
+    defaultValue: [],
+  },
+}, {
+  tableName: 'events',
+  timestamps: false, // or true if you want `createdAt` and `updatedAt`
 });
 
-module.exports = mongoose.model('Event', eventSchema, 'events');
+module.exports = Event;

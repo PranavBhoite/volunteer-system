@@ -1,16 +1,47 @@
-const mongoose = require("mongoose");
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
 
-const helpSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  date: { type: String, required: true },
-  time: { type: String, required: true },
-  place: { type: String, required: true },
-  extraVolunteers: { type: Boolean, default: false },
-  status: { type: String, enum: ["approved", "disapproved"], default: "disapproved" },
-  userId: { type: String, required: true },
-  name: String,
-  email: String,
-  phone: String,
-}, { timestamps: true });
+const Help = sequelize.define('Help', {
+  title: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  date: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  time: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  place: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  extraVolunteers: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  status: {
+    type: DataTypes.ENUM("approved", "disapproved"),
+    defaultValue: "disapproved"
+  },
+  userId: {
+    type: DataTypes.STRING, // Can change to UUID if your users use UUID
+    allowNull: false
+  },
+  name: {
+    type: DataTypes.STRING
+  },
+  email: {
+    type: DataTypes.STRING
+  },
+  phone: {
+    type: DataTypes.STRING
+  }
+}, {
+  tableName: 'helps',
+  timestamps: true // Adds createdAt and updatedAt
+});
 
-module.exports = mongoose.model("Help", helpSchema);
+module.exports = Help;

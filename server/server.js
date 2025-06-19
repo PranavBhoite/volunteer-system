@@ -1,14 +1,18 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
-const userAuthRoutes = require('./routes/auth/userauth');
-const eventRoutes = require('./routes/events/eventsRoute') ;
-const userRoutes = require('./routes/user/userRoute') ;
-const adminRoutes = require('./routes/auth/adminauth') ;
-const helpRoutes = require('./routes/help/helpRoute') ;
+const dotenv = require('dotenv');
+const { syncDB } = require('./models'); // Sync Sequelize models
 
+// Route imports
+const userAuthRoutes = require('./routes/auth/userauth');
+const eventRoutes = require('./routes/events/eventsRoute');
+const userRoutes = require('./routes/user/userRoute');
+const adminRoutes = require('./routes/auth/adminauth');
+const helpRoutes = require('./routes/help/helpRoute');
+
+dotenv.config();
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
@@ -17,22 +21,14 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', userAuthRoutes);
 app.use('/api/events', eventRoutes);
-app.use('/api/users' ,userRoutes) ;
-app.use('/api/auth/admin' , adminRoutes) ;
-app.use("/api/help", helpRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/auth/admin', adminRoutes);
+app.use('/api/help', helpRoutes);
 
-
-// MongoDB connection
-mongoose.connect('mongodb://127.0.0.1:27017/userdb', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
-  console.log('MongoDB connected');
-}).catch((err) => {      
-  console.error('MongoDB connection error:', err);
-});
+// PostgreSQL connection via Sequelize
+syncDB(); // Syncs all models with DB
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
