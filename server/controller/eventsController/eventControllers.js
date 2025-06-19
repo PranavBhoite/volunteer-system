@@ -1,26 +1,59 @@
+const { EventUserMap } = require('../../models');
 const Event = require('../../models/EventModel');
 const User = require('../../models/User');
 
 exports.createEvent = async (req, res) => {
   try {
-    const event = new Event(req.body);
-    await event.save();
+    const {
+      title,
+      description,
+      startDate,
+      endDate,
+      startTime,
+      endTime,
+      location,
+      volunteersNeeded,
+      category,
+    } = req.body;
+
+    // Provide default values or extract from session/context
+    const event = await Event.create({
+      title,
+      description,
+      startDate,
+      endDate,
+      startTime,
+      endTime,
+      location,
+      volunteersNeeded,
+      category,
+      userIdForHelp: null,
+      isHelp: false,
+      extraVolunteersForHelp: false,
+      helpStatus: "disapproved",
+    });
+
     res.status(201).json(event);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
 
+
 exports.updateEvent = async (req, res) => {
   try {
-    const eventid = req.params.id;
-    await Event.findByIdAndUpdate(
-      eventid, 
-      req.body,
-      {new : true}
-    ).then(event => { 
-      res.status(201).json(event);
-    })
+    const eventId = req.params.id;
+
+    const [updated] = await Event.update(req.body, {
+      where: { id: eventId }
+    });
+
+    if (updated) {
+      const updatedEvent = await Event.findByPk(eventId);
+      res.status(200).json(updatedEvent);
+    } else {
+      res.status(404).json({ error: "Event not found" });
+    }
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -28,119 +61,106 @@ exports.updateEvent = async (req, res) => {
 
 exports.getAllEvents = async (req, res) => {
   try {
-    const events = await Event.find();
-    res.status(200).json(events);
-    } catch (err) {
-      res.status(500).json({ message: "Error fetching users" });
-    }
+    const events = await Event.findAll();
+
+    const filteredEvents = events.filter(event =>
+      !event.isHelp || (event.extraVolunteersForHelp && event.helpStatus === "approved")
+    );
+
+    res.status(200).json(filteredEvents);
+  } catch (err) {
+    console.error("Error fetching events:", err);
+    res.status(500).json({ message: "Error fetching events" });
+  }
 };
+
 
 exports.getUserSpecificEvents = async (req, res) => {
   try {
     const userId = req.params.id;
-    const eventType = req.params.event; // "Upcoming", "Registered", "Completed"
+    const eventType = req.params.event;
 
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
-    }
+    const user = await User.findByPk(userId);
+    if (!user) return res.status(404).json({ message: 'User not found.' });
 
     let eventsToReturn = [];
 
     if (eventType === "Upcoming") {
-      const allEvents = await Event.find();
+      const allEvents = await Event.findAll({ where: { status: "Upcoming" } });
 
-      // Ensure arrays are not null/undefined before concatenating
-      const registeredOrCompletedEvents = new Set(
-        (user.completedEvents || []).map(id => id.toString()) // Convert Mongoose ObjectIds to strings
-        .concat((user.registeredEvents || []).map(id => id.toString()))
+      const userEventMappings = await EventUserMap.findAll({
+        where: {
+          userId: userId,
+          isAttended: false,
+        }
+      });
+      const userEventIds = userEventMappings.map(e => e.eventId);
+
+      eventsToReturn = allEvents.filter(event =>
+        !userEventIds.includes(event.id) &&
+        (!event.isHelp || (event.extraVolunteersForHelp && event.helpStatus === "approved"))
       );
 
-      const now = new Date();
+    } else if (eventType === "Ongoing") {
+      const ongoingEvents = await Event.findAll({ where: { status: "Ongoing" } });
 
-      eventsToReturn = allEvents.filter(event => {
-        
-        const isNotRegisteredOrCompleted = !registeredOrCompletedEvents.has(event._id.toString());
-
-        const eventDateTimeString = `${event.date}T${event.time}:00`;
-        const eventDateTime = new Date(eventDateTimeString);
-
-        const isFutureEvent = eventDateTime.getTime() > now.getTime();
-
-        return isNotRegisteredOrCompleted && isFutureEvent;
-      });
+      eventsToReturn = ongoingEvents.filter(event =>
+        !event.isHelp || (event.extraVolunteersForHelp && event.helpStatus === "approved")
+      );
 
     } else {
-      // Determine which list of event IDs to use based on type
-      let eventList = [];
-      if (eventType === "Completed") {
-        eventList = user.completedEvents || [];
-      } else if (eventType === "Registered") {
-        eventList = user.registeredEvents || [];
-      } else {
-        return res.status(400).json({ message: 'Invalid event type provided.' });
-      }
+      const userEventMappings = await EventUserMap.findAll({
+        where: {
+          userId: userId,
+          isAttended: eventType === "Registered" ? false : true,
+        },
+        include: [Event]
+      });
 
-      if (eventList.length === 0) {
-        eventsToReturn = [];
-      }else {
-        // Fetch the actual event documents using Promise.all for efficiency
-      // Map each ID to a findById promise, then await all of them
-      const eventPromises = eventList.map(id => Event.findById(id));
-      eventsToReturn = await Promise.all(eventPromises);
-      }
-      
-      eventsToReturn = eventsToReturn.filter(event => event !== null);
+      eventsToReturn = userEventMappings
+        .map(mapping => mapping.Event)
+        .filter(event =>
+          !event.isHelp || (event.extraVolunteersForHelp && event.helpStatus === "approved")
+        );
     }
 
     res.json(eventsToReturn);
-
   } catch (error) {
-    console.error('Error fetching user specific events:', error); 
-    res.status(500).json({ message: "Error Fetching events", error: error.message }); 
+    console.error('Error fetching user specific events:', error);
+    res.status(500).json({ message: "Error Fetching events", error: error.message });
   }
 };
+
 
 exports.registerEvent = async (req, res) => {
   try {
     const userid = req.body.userId;
     const eventid = req.body.eventId;
 
-    // 1. Push user from registeredEvents on the User document
-    const updatedUser = await User.findByIdAndUpdate(
-      userid,
-      { $addToSet: { registeredEvents: eventid } },
-      { new: true } 
-    );
-    if (!updatedUser) {
-      return res.status(404).json({ message: "User not found." });
+    console.log(`userid ${userid} event id ${eventid}`);
+
+    const event = await Event.findByPk(eventid);
+    if(!event) {
+      return res.status(404).json({ message: "Event not found to register" });
     }
-    console.log('User Document Updated Successfully:', updatedUser);
-
-    // 2. Push user from volunteers array on the Event document and then update the count
-    const eventAfterVolunteerAdd = await Event.findByIdAndUpdate(
-      eventid,
-      { $addToSet: { volunteers: userid } }, 
-      { new: true } // Return the updated event document
-    );
-
-    if (!eventAfterVolunteerAdd) {
-      // If event not found after the first update, undo user registration
-      await User.findByIdAndUpdate(userid, { $pull: { registeredEvents: eventid } });
-      return res.status(404).json({ message: "Event not found for registration." });
+    if(event.volunteersNeeded <= 0) {
+      return res.status(404).json({ message: "Event is full, Not able to Register" });
     }
 
-    // update the volunteersRegistered count based on the actual array length
-    await Event.findByIdAndUpdate(
-      eventid,
-      { volunteersRegistered: eventAfterVolunteerAdd.volunteers.length },
-      { new: true } 
-    );
+    const entry = await EventUserMap.create({
+      userId: userid,
+      eventId: eventid,
+      isAttended: false,
+    });
+
+    console.log(entry);
+
+    if (event) {
+      await event.decrement('volunteersNeeded', { by: 1 });
+    }    
 
     console.log('Event volunteers and count updated successfully.');
-    res.status(200).json({ message: "Event Registered Successfully" });
-
+    res.status(200).json({ message: "Event Registered Successfully" }); 
   } catch (error) {
     console.error('Error during registerEvent:', error); 
     res.status(500).json({ message: "Error Registering for event: " + error.message });
@@ -152,45 +172,96 @@ exports.unRegisterEvent = async (req, res) => {
     const userid = req.body.userId;
     const eventid = req.body.eventId;
 
-    // 1. Pull user from registeredEvents on the User document
-    const updatedUser = await User.findByIdAndUpdate(
-      userid,
-      { $pull: { registeredEvents: eventid } },
-      { new: true }
-    );
-    if (!updatedUser) {
-      return res.status(404).json({ message: "User not found." });
-    }
-    console.log('User Document Updated Successfully (Unregister):', updatedUser);
-
-    // 2. Pull user from volunteers array on the Event document and then update the count
-    const eventAfterVolunteerPull = await Event.findByIdAndUpdate(
-      eventid,
-      { $pull: { volunteers: userid } }, 
-      { new: true }
-    );
-
-    if (!eventAfterVolunteerPull) {
-      return res.status(404).json({ message: "Event not found for unregistration." });
+    const event = await Event.findByPk(eventid);
+    if (!event) {
+      return res.status(404).json({ message: "Event not found to unregister" });
     }
 
-    // update the volunteersRegistered count based on the actual array length
-    await Event.findByIdAndUpdate(
-      eventid,
-      { volunteersRegistered: eventAfterVolunteerPull.volunteers.length },
-      { new: true } 
-    );
+    // Check if mapping exists
+    const entry = await EventUserMap.findOne({
+      where: {
+        userId: userid,
+        eventId: eventid,
+      },
+    });
 
-    console.log('Event volunteers and count updated successfully (Unregister).');
-    res.status(200).json({ message: "Event Unregistered Successfully" }); 
+    if (!entry) {
+      return res.status(404).json({ message: "You are not registered for this event" });
+    }
+
+    // Delete the entry
+    await entry.destroy();
+
+    // Increment volunteer count
+    await event.increment('volunteersNeeded', { by: 1 });
+
+    console.log('User unregistered and volunteer count updated successfully.');
+    res.status(200).json({ message: "Event unregistered successfully" });
 
   } catch (error) {
-    console.error('Error during unRegisterEvent:', error); // Log the actual error
-    res.status(500).json({ message: "Error Unregistering for event: " + error.message }); // Changed message
+    console.error('Error during unregisterEvent:', error); 
+    res.status(500).json({ message: "Error unregistering from event: " + error.message });
   }
 };
 
-exports.deleteEvent = async (req, res) => {
-  await Event.findByIdAndDelete(req.params.id);
-  res.json({ message: 'Deleted successfully' });
+exports.cancelEvent = async (req, res) => {
+  try {
+    const eventId = req.params.id;
+
+    const event = await Event.findByPk(eventId);
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    // Update the status to 'Cancelled'
+    event.status = "Cancelled";
+    await event.save();
+
+    // Delete all mappings for this event from EventUserMap
+    await EventUserMap.destroy({
+      where: {
+        eventId: eventId
+      }
+    });
+
+    res.status(200).json({ message: "Event cancelled successfully", event });
+  } catch (error) {
+    console.error("Error cancelling event:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
+
+exports.updateEventStatuses = async () => {
+  try {
+    const currentDate = new Date();
+
+    // Fetch all events
+    const events = await Event.findAll();
+
+    for (const event of events) {
+      const start = new Date(event.startDate);
+      const end = new Date(event.endDate);
+      let newStatus = event.status;
+
+      if (currentDate < start) {
+        newStatus = "Upcoming";
+      } else if (currentDate >= start && currentDate <= end) {
+        newStatus = "Ongoing";
+      } else if (currentDate > end) {
+        newStatus = "Completed";
+      }
+
+      // Update status only if changed
+      if (event.status !== newStatus) {
+        await Event.update(
+          { status: newStatus },
+          { where: { id: event.id } }
+        );
+      }
+    }
+
+    console.log("Event statuses updated.");
+  } catch (error) {
+    console.error("Error updating event statuses:", error);
+  }
 };

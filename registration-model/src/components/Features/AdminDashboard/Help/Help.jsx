@@ -33,39 +33,67 @@ const Help = () => {
     <Container className="mt-5">
       <h2>Admin Dashboard</h2>
       <p>Logged in as UID: {uid}</p>
-      <Table striped bordered>
+      <Table striped bordered responsive>
         <thead>
           <tr>
-            <th>Name</th><th>Email</th><th>Phone</th>
-            <th>Title</th><th>Date</th><th>Time</th><th>Place</th><th>Actions</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Location</th>
+            <th>Category</th>
+            <th>Volunteers Needed</th>
+            <th>Status</th>
+            <th>Help Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {events.map(ev => (
-            <tr key={ev._id}>
+            <tr key={ev.userId}>
               <td>{ev.userId?.name || '-'}</td>
               <td>{ev.userId?.email || '-'}</td>
               <td>{ev.userId?.mobileNo || '-'}</td>
               <td>{ev.title}</td>
-              <td>{ev.date}</td>
-              <td>{ev.time}</td>
-              <td>{ev.place}</td>
+              <td>{ev.description}</td>
+              <td>{ev.startDate}</td>
+              <td>{ev.endDate}</td>
+              <td>{ev.startTime}</td>
+              <td>{ev.endTime}</td>
+              <td>{ev.location}</td>
+              <td>{ev.category}</td>
+              <td>{ev.volunteersNeeded}</td>
+              <td>{ev.status}</td>
               <td>
-                {ev.status === 'approved' ? (
+                {ev.helpStatus === "approved" ? (
+                  <span className="text-success fw-bold">Approved</span>
+                ) : ev.helpStatus === 'disapproved' ? (
+                  <span className="text-danger fw-bold">Disapproved</span>
+                ) : (
+                  'Pending'
+                )}
+              </td>
+              <td>
+                {ev.helpStatus === "approved" ? (
                   <span className="text-success fw-bold">Approved</span>
                 ) : (
                   <>
                     <Button
                       variant="success"
                       size="sm"
-                      onClick={() => handleStatusChange(ev._id, 'approved')}
+                      onClick={() => handleStatusChange(ev.id, "approved")}
                     >
                       Approve
                     </Button>{' '}
                     <Button
                       variant="danger"
                       size="sm"
-                      onClick={() => handleStatusChange(ev._id, 'disapproved')}
+                      onClick={() => handleStatusChange(ev.id, "disapproved")}
                     >
                       Disapprove
                     </Button>

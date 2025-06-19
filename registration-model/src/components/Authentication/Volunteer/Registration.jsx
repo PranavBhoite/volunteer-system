@@ -9,7 +9,8 @@ const Registration = () => {
     email: "",
     password: "",
     address: "",
-    mobileNo: ""
+    mobileNo: "",
+    type: "Volunteer"
   });
 
   const [errors, setErrors] = useState({});
@@ -138,6 +139,21 @@ const Registration = () => {
               />
               <Form.Control.Feedback type="invalid">{errors.mobileNo}</Form.Control.Feedback>
             </Form.Group>
+
+            <Form.Group className="mb-3" controlId="formUserType">
+              <Form.Label>User Type</Form.Label>
+              <Form.Select
+                name="type"
+                value={formData.type}
+                onChange={handleChange}
+              >
+                <option value="Volunteer">Volunteer</option>
+                <option value="Intern">Intern</option>
+                <option value="Field Worker">Field Worker</option>
+                <option value="Other">Other</option>
+              </Form.Select>
+            </Form.Group>
+
 
             <div className="d-grid gap-2">
               <Button variant="primary" type="submit" disabled={isSubmitting}>

@@ -26,7 +26,6 @@ const VolunteerView = () => {
       // Transform the data to match your frontend expectations
       const transformedEvents = response.data.map(event => ({
         ...event,
-        id: event._id, 
       }));
       
       setEvents(transformedEvents);
@@ -40,8 +39,10 @@ const VolunteerView = () => {
 
   const handleRegister = async (eventid) => {
     try {
+      console.log("Started registration");
       const registerType = eventType === "Upcoming" ? 'register' : 'unregister';
       const response = await axios.post(`http://localhost:5000/api/events/${registerType}`, {userId : uid, eventId : eventid});
+      console.log("Response recieved");
       fetchEvents(eventType);
       console.log(response);
     } catch (err) {
@@ -114,9 +115,9 @@ const VolunteerView = () => {
     );
   }
 
-  const getProgressPercentage = (volunteers, maxVolunteers) => {
-    return (volunteers / maxVolunteers) * 100;
-  };
+  // const getProgressPercentage = (volunteers, maxVolunteers) => {
+  //   return (volunteers / maxVolunteers) * 100;
+  // };
 
   // const getStatusBadge = (volunteers, maxVolunteers) => {
   //   const percentage = getProgressPercentage(volunteers, maxVolunteers);
@@ -224,7 +225,7 @@ const VolunteerView = () => {
           display: 'flex',
           gap: '4px'
         }}>
-          {['Upcoming', 'Registered', 'Completed'].map(type => (
+          {['Ongoing','Upcoming', 'Registered', 'Completed'].map(type => (
             <button
               key={type}
               onClick={() => toggleEventType(type)}
@@ -321,8 +322,22 @@ const VolunteerView = () => {
                   fontSize: '14px'
                 }}>
                   <span style={{ marginRight: '8px' }}>📅</span>
-                  <span>{event.date}</span>
+                  <span style={{ fontWeight: '500', marginRight: '4px' }}>Start Date:</span>
+                  <span>{event.startDate}</span>
                 </div>
+
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginBottom: '8px',
+                  color: '#64748b',
+                  fontSize: '14px'
+                }}>
+                  <span style={{ marginRight: '8px' }}>📅</span>
+                  <span style={{ fontWeight: '500', marginRight: '4px' }}>End Date:</span>
+                  <span>{event.endDate}</span>
+                </div>
+                
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -331,8 +346,22 @@ const VolunteerView = () => {
                   fontSize: '14px'
                 }}>
                   <span style={{ marginRight: '8px' }}>🕒</span>
-                  <span>{event.time}</span>
+                  <span style={{ fontWeight: '500', marginRight: '4px' }}>Start Time:</span>
+                  <span>{event.startTime}</span>
                 </div>
+
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginBottom: '8px',
+                  color: '#64748b',
+                  fontSize: '14px'
+                }}>
+                  <span style={{ marginRight: '8px' }}>🕒</span>
+                  <span style={{ fontWeight: '500', marginRight: '4px' }}>End Time:</span>
+                  <span>{event.endTime}</span>
+                </div>
+
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -346,9 +375,9 @@ const VolunteerView = () => {
               </div>
 
               {/* Progress Bar */}
-              {eventType !== "Completed" && (
+              {eventType !== "Completed" && eventType !== "Ongoing" && (
                 <div style={{ marginBottom: '20px' }}>
-                  <div style={{
+                  {/* <div style={{
                     background: '#f1f5f9',
                     borderRadius: '4px',
                     height: '6px',
@@ -361,14 +390,14 @@ const VolunteerView = () => {
                       width: `${getProgressPercentage(event.volunteersRegistered, event.volunteersNeeded)}%`,
                       transition: 'width 0.3s ease'
                     }}></div>
-                  </div>
+                  </div> */}
                   <p style={{
-                    fontSize: '12px',
+                    fontSize: '16px',
                     color: '#64748b',
                     margin: 0,
                     textAlign: 'center'
                   }}>
-                    {event.volunteersRegistered} / {event.volunteersNeeded} volunteers registered
+                    {event.volunteersNeeded} volunteers Needed
                   </p>
                 </div>
               )}
@@ -378,32 +407,40 @@ const VolunteerView = () => {
                 display: 'flex',
                 gap: '8px'
               }}>
-                {eventType !== "Completed" && (
+                {eventType !== "Completed" && eventType !== "Ongoing" && (
                   <button
                     onClick={() => handleRegister(event.id)}
+                    disabled={eventType === "Upcoming" && event.volunteersNeeded <= 0}
                     style={{
                       flex: 1,
                       padding: '10px 16px',
-                      background: eventType === "Upcoming" 
-                        ? '#be185d'
+                      background: eventType === "Upcoming"
+                        ? (event.volunteersNeeded <= 0 ? '#9ca3af' : '#be185d')
                         : '#dc2626',
                       color: 'white',
                       border: 'none',
                       borderRadius: '8px',
                       fontSize: '14px',
                       fontWeight: '500',
-                      cursor: 'pointer',
+                      cursor: eventType === "Upcoming" && event.volunteersNeeded <= 0 ? 'not-allowed' : 'pointer',
                       transition: 'all 0.2s ease',
-                      fontFamily: 'inherit'
+                      fontFamily: 'inherit',
+                      opacity: eventType === "Upcoming" && event.volunteersNeeded <= 0 ? 0.7 : 1
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.opacity = '0.9';
+                      if (!(eventType === "Upcoming" && event.volunteersNeeded <= 0)) {
+                        e.currentTarget.style.opacity = '0.9';
+                      }
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.opacity = '1';
+                      if (!(eventType === "Upcoming" && event.volunteersNeeded <= 0)) {
+                        e.currentTarget.style.opacity = '1';
+                      }
                     }}
                   >
-                    {eventType === "Upcoming" ? 'Register' : 'Unregister'}
+                    {eventType === "Upcoming"
+                      ? (event.volunteersNeeded <= 0 ? 'Event Full' : 'Register')
+                      : 'Unregister'}
                   </button>
                 )}
                 

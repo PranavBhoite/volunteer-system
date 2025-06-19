@@ -6,8 +6,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const OrganizerView = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [upcomingEvents, setUpcomingEvents] = useState([]);
-  const [completedEvents, setCompletedEvents] = useState([]);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -16,54 +14,26 @@ const OrganizerView = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    date: '',
-    time: '',
+    startDate: '',
+    endDate: '',
+    startTime: '',
+    endTime: '',
     location: '',
     volunteersNeeded: 0,
     category: 'Environmental',
-    volunteersRegistered : 0,
-    volunteers : []
   });
   const [eventType, setEventType] = useState("Upcoming");
 
   const toggleEventType = (type) => {
     setEventType(type);
+    fetchEvents();
   }
-
-  useEffect(() => {
-    setEvents(eventType === "Upcoming" ? upcomingEvents : completedEvents);
-  }, [eventType]);
 
   const fetchEvents = async () => {
     setLoading(true);
     try {
       const response = await axios.get('http://localhost:5000/api/events');
-  
-      const now = new Date(); 
-
-      const upcomingEvents = [];
-      const completedEvents = [];
-
-      const allSortedEvents = response.data.sort((a, b) => {
-        const aDateTime = new Date(`${a.date}T${a.time}:00`);
-        const bDateTime = new Date(`${b.date}T${b.time}:00`);
-        return aDateTime.getTime() - bDateTime.getTime(); 
-      });
-  
-      allSortedEvents.forEach(event => {
-        const eventDateTime = new Date(`${event.date}T${event.time}:00`);
-  
-        if (eventDateTime.getTime() > now.getTime()) {
-          upcomingEvents.push(event);
-        } else {
-          completedEvents.push(event);
-        }
-      });
-  
-      setUpcomingEvents(upcomingEvents);
-      setCompletedEvents(completedEvents);
-      setEvents(eventType === "Upcoming" ? upcomingEvents : completedEvents);
-  
+      setEvents(response.data);
     } catch (err) {
       setError('Failed to fetch events');
       console.error('Error:', err);
@@ -81,22 +51,57 @@ const OrganizerView = () => {
     setFormData({
       title: '',
       description: '',
-      date: '',
-      time: '',
+      startDate: '',
+      endDate: '',
+      startTime: '',
+      endTime: '',
       location: '',
       volunteersNeeded: 0,
       category: 'Environmental',
-      volunteersRegistered : 0,
-      volunteers : []
     });
   };
 
+
+  const validateForm = () => {
+    const today = new Date().setHours(0, 0, 0, 0);
+    const start = new Date(formData.startDate).setHours(0, 0, 0, 0);
+    const end = new Date(formData.endDate).setHours(0, 0, 0, 0);
+  
+    if (start < today) {
+      alert('Start date cannot be in the past.');
+      return false;
+    }
+  
+    if (end < start) {
+      alert('End date cannot be before start date.');
+      return false;
+    }
+  
+    if (formData.startDate === formData.endDate) {
+      const [startHour, startMin] = formData.startTime.split(':').map(Number);
+      const [endHour, endMin] = formData.endTime.split(':').map(Number);
+      const startMinutes = startHour * 60 + startMin;
+      const endMinutes = endHour * 60 + endMin;
+  
+      if (endMinutes <= startMinutes) {
+        alert('End time must be after start time on the same day.');
+        return false;
+      }
+    }
+  
+    return true;
+  };
+  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validateForm()) return; 
+
     let response = null;
     try {
       if (editingEvent) {
-        response = await axios.put(`http://localhost:5000/api/events/${editingEvent._id}`, {
+        response = await axios.put(`http://localhost:5000/api/events/${editingEvent.id}`, {
           ...formData,
         });
         console.log(response.data);      
@@ -120,7 +125,7 @@ const OrganizerView = () => {
   const handleDeleteEvent = async (eventId) => {
     if (window.confirm('Are you sure you want to delete this event?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/events/${eventId}`);
+        await axios.put(`http://localhost:5000/api/events/cancel/${eventId}`);
         fetchEvents();
       } catch (err) {
         console.error('Error deleting event:', err);
@@ -134,8 +139,10 @@ const OrganizerView = () => {
     setFormData({
       title: event.title,
       description: event.description,
-      date: event.date.split('T')[0],
-      time: event.time,
+      startDate: event.startDate.split('T')[0],
+      endDate: event.endDate.split('T')[0],
+      startTime: event.startTime,
+      endTime: event.endTime,
       location: event.location,
       volunteersNeeded: event.volunteersNeeded.toString(),
       category: event.category,
@@ -151,14 +158,19 @@ const OrganizerView = () => {
 
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         event.description.toLowerCase().includes(searchTerm.toLowerCase());
+                          event.description.toLowerCase().includes(searchTerm.toLowerCase());
+  
     const matchesCategory = selectedCategory === 'all' || event.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+  
+    const matchesEventType = eventType === 'all' || event.status === eventType;
+  
+    return matchesSearch && matchesCategory && matchesEventType;
   });
+  
 
-  const getProgressPercentage = (volunteers, maxVolunteers) => {
-    return (volunteers / maxVolunteers) * 100;
-  };
+  // const getProgressPercentage = (volunteers, maxVolunteers) => {
+  //   return (volunteers / maxVolunteers) * 100;
+  // };
 
   if (loading) {
     return (
@@ -349,7 +361,7 @@ const OrganizerView = () => {
           display: 'flex',
           gap: '4px'
         }}>
-          {['Upcoming', 'Completed'].map(type => (
+          {['Ongoing', 'Upcoming', 'Completed', 'Cancelled'].map(type => (
             <button
               key={type}
               onClick={() => toggleEventType(type)}
@@ -437,13 +449,13 @@ const OrganizerView = () => {
                   color: '#374151',
                   marginBottom: '8px'
                 }}>
-                  Date *
+                  Start Date *
                 </label>
                 <input
                   type="date"
                   required
-                  value={formData.date}
-                  onChange={(e) => setFormData({...formData, date: e.target.value})}
+                  value={formData.startDate}
+                  onChange={(e) => setFormData({...formData, startDate: e.target.value})}
                   style={{
                     width: '100%',
                     padding: '12px 16px',
@@ -468,13 +480,75 @@ const OrganizerView = () => {
                   color: '#374151',
                   marginBottom: '8px'
                 }}>
-                  Time *
+                  End Date *
+                </label>
+                <input
+                  type="date"
+                  required
+                  value={formData.endDate}
+                  onChange={(e) => setFormData({...formData, endDate: e.target.value})}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    outline: 'none',
+                    transition: 'border-color 0.2s ease',
+                    fontFamily: 'inherit',
+                    boxSizing: 'border-box'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#0891b2'}
+                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                />
+              </div>
+
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                  marginBottom: '8px'
+                }}>
+                  Start Time *
                 </label>
                 <input
                   type="time"
                   required
-                  value={formData.time}
-                  onChange={(e) => setFormData({...formData, time: e.target.value})}
+                  value={formData.startTime}
+                  onChange={(e) => setFormData({...formData, startTime: e.target.value})}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    outline: 'none',
+                    transition: 'border-color 0.2s ease',
+                    fontFamily: 'inherit',
+                    boxSizing: 'border-box'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#0891b2'}
+                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                />
+              </div>
+
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                  marginBottom: '8px'
+                }}>
+                  End Time *
+                </label>
+                <input
+                  type="time"
+                  required
+                  value={formData.endTime}
+                  onChange={(e) => setFormData({...formData, endTime: e.target.value})}
                   style={{
                     width: '100%',
                     padding: '12px 16px',
@@ -691,7 +765,7 @@ const OrganizerView = () => {
         }}>
           {filteredEvents.map(event => (
             <div
-              key={event._id}
+              key={event.id}
               style={{
                 background: 'white',
                 borderRadius: '12px',
@@ -748,6 +822,23 @@ const OrganizerView = () => {
 
               {/* Event Details */}
               <div style={{ marginBottom: '20px' }}>
+              <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginBottom: '8px',
+                  color: '#64748b',
+                  fontSize: '14px'
+                }}>
+                  <Calendar size={16} style={{ marginRight: '8px', color: '#0891b2' }} />
+                  <span style={{ fontWeight: '500', marginRight: '4px' }}>Start Date:</span>
+                  <span>{new Date(event.startDate).toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  })}</span>
+                </div>
+
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -756,13 +847,16 @@ const OrganizerView = () => {
                   fontSize: '14px'
                 }}>
                   <Calendar size={16} style={{ marginRight: '8px', color: '#0891b2' }} />
-                  <span>{new Date(event.date).toLocaleDateString('en-US', { 
+                  <span style={{ fontWeight: '500', marginRight: '4px' }}>End Date:</span>
+                  <span>{new Date(event.endDate).toLocaleDateString('en-US', { 
                     weekday: 'long', 
                     year: 'numeric', 
                     month: 'long', 
                     day: 'numeric' 
                   })}</span>
                 </div>
+
+
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -771,12 +865,30 @@ const OrganizerView = () => {
                   fontSize: '14px'
                 }}>
                   <Clock size={16} style={{ marginRight: '8px', color: '#0891b2' }} />
-                  <span>{new Date(`2000-01-01T${event.time}`).toLocaleTimeString('en-US', {
+                  <span style={{ fontWeight: '500', marginRight: '4px' }}>Start Time:</span>
+                  <span>{new Date(`2000-01-01T${event.startTime}`).toLocaleTimeString('en-US', {
                     hour: 'numeric',
                     minute: '2-digit',
                     hour12: true
                   })}</span>
                 </div>
+
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginBottom: '8px',
+                  color: '#64748b',
+                  fontSize: '14px'
+                }}>
+                  <Clock size={16} style={{ marginRight: '8px', color: '#0891b2' }} />
+                  <span style={{ fontWeight: '500', marginRight: '4px' }}>End Time:</span>
+                  <span>{new Date(`2000-01-01T${event.endTime}`).toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                  })}</span>
+                </div>
+
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -796,13 +908,13 @@ const OrganizerView = () => {
                     fontSize: '14px'
                   }}>
                     <Users size={16} style={{ marginRight: '8px', color: '#0891b2' }} />
-                    <span>{event.volunteersRegistered} / {event.volunteersNeeded} volunteers registered</span>
+                    <span>{event.volunteersNeeded} volunteers Needed</span>
                   </div>
                 )}
               </div>
 
               {/* Progress Bar */}
-              {eventType === "Upcoming" && (
+              {/* {eventType === "Upcoming" && (
                 <div style={{ marginBottom: '20px' }}>
                   <div style={{
                     background: '#f1f5f9',
@@ -827,9 +939,9 @@ const OrganizerView = () => {
                     {Math.round(getProgressPercentage(event.volunteersRegistered, event.volunteersNeeded))}% registered
                   </p>
                 </div>
-              )}
+              )} */}
 
-              {/* Status Badge */}
+              {/* //Status Badge
               <div style={{
                 marginBottom: '20px',
                 textAlign: 'center'
@@ -864,7 +976,9 @@ const OrganizerView = () => {
                     ? 'Almost Full'
                     : 'Open for Registration'}
                 </span>
-              </div>
+              </div> */}
+
+
               {/* Action Buttons - Only for Upcoming Events */}
               {eventType === "Upcoming" && 
                 <div style={{
@@ -904,7 +1018,7 @@ const OrganizerView = () => {
                   </button>
 
                   <button
-                    onClick={() => handleDeleteEvent(event._id)}
+                    onClick={() => handleDeleteEvent(event.id)}
                     style={{
                       flex: '1',
                       padding: '10px 16px',
@@ -932,7 +1046,7 @@ const OrganizerView = () => {
                     }}
                   >
                     <Trash2 size={16} />
-                    Delete
+                    Cancel
                   </button>
                 </div>
               }

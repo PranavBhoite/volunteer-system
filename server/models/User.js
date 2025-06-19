@@ -2,6 +2,12 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
 const User = sequelize.define('User', {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true,
+    allowNull: false,
+  },
   name: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -22,18 +28,14 @@ const User = sequelize.define('User', {
   mobileNo: {
     type: DataTypes.STRING,
   },
-  status: {
-    type: DataTypes.STRING,
-    defaultValue: 'active',
+  isActive: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
   },
-  registeredEvents: {
-    type: DataTypes.ARRAY(DataTypes.STRING), // PostgreSQL array
-    defaultValue: [],
-  },
-  completedEvents: {
-    type: DataTypes.ARRAY(DataTypes.STRING), // PostgreSQL array
-    defaultValue: [],
-  },
+  type: {
+    type: DataTypes.ENUM("Volunteer", "Intern", "Field Worker", "Other"),
+    defaultValue: "Volunteer"
+  }
 }, {
   tableName: 'users',
   timestamps: false, // or true if you want createdAt/updatedAt

@@ -1,4 +1,5 @@
 const User = require("../../models/User");
+const eventController = require("../eventsController/eventControllers");
 
 exports.registerUser = async (req, res) => {
   const {
@@ -7,32 +8,30 @@ exports.registerUser = async (req, res) => {
     password,
     address,
     mobileNo,
-    completedEvents,
-    registeredEvents,
+    type,
   } = req.body;
 
   try {
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ where: { email } });
 
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    const newUser = new User({
+    const newUser = await User.create({
       name,
       email,
-      password,
+      password, // You can hash it if needed
       address,
       mobileNo,
-      status: "active",
-      completedEvents,
-      registeredEvents,
+      type: type || "Volunteer", // default handled by model
     });
 
-    await newUser.save();
     res.status(201).json({ message: "User registered successfully" });
+
   } catch (error) {
-    res.status(500).json({ message: "Registration failed", error });
+    console.error("Error in registerUser:", error);
+    res.status(500).json({ message: "Registration failed", error: error.message });
   }
 };
 
@@ -40,21 +39,17 @@ exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ where: { email } });
 
-    if (!user) {
+    if (!user || user.password !== password) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // Direct string comparison (⚠ only okay for dev/testing)
-    if (user.password !== password) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
+    await eventController.updateEventStatuses();
 
-    // Success: return userId
     res.json({
       message: "Login successful",
-      userId: user._id, // MongoDB _id
+      userId: user.id, // Sequelize uses 'id' (UUID)
     });
 
   } catch (err) {
@@ -62,4 +57,3 @@ exports.loginUser = async (req, res) => {
     res.status(500).json({ message: "Server error during login" });
   }
 };
-

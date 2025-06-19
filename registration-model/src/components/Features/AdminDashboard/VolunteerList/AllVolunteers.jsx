@@ -29,9 +29,9 @@ const AllVolunteers = () => {
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = activeTab === "active" ? user.status === "active" : user.status !== "active";
+    const matchesStatus = activeTab === "active" ? user.isActive === true : user.isActive === false;
     return matchesSearch && matchesStatus;
-  });
+  });  
 
   return (
     <Container fluid className="px-4 py-3" style={{ backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
@@ -126,14 +126,14 @@ const AllVolunteers = () => {
                     <div>
                       <h5 style={{ color: '#3a3a3a', fontWeight: '600' }}>{user.name}</h5>
                       <Badge 
-                        bg={user.status === "active" ? "success" : "secondary"}
+                        bg={user.isActive ? "success" : "secondary"}
                         style={{ 
                           fontSize: '0.75rem',
                           fontWeight: '500',
                           padding: '4px 8px'
                         }}
                       >
-                        {user.status === "active" ? "Active" : "Inactive"}
+                        {user.isActive ? "Active" : "Inactive"}
                       </Badge>
                     </div>
                     <span className="text-muted" style={{ fontSize: '0.875rem' }}>

@@ -2,6 +2,12 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
 const Event = sequelize.define('Event', {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true,
+    allowNull: false,
+  },
   title: {
     type: DataTypes.STRING(100),
     allowNull: false,
@@ -22,17 +28,29 @@ const Event = sequelize.define('Event', {
       },
     },
   },
-  date: {
+  startDate: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  time: {
+  endDate: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  startTime: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  endTime: {
     type: DataTypes.STRING,
     allowNull: false,
   },
   location: {
     type: DataTypes.STRING,
     trim: true,
+  },
+  status: {
+    type: DataTypes.ENUM("Upcoming", "Completed", "Ongoing", "Cancelled"),
+    defaultValue: "Upcoming"
   },
   category: {
     type: DataTypes.STRING,
@@ -42,17 +60,25 @@ const Event = sequelize.define('Event', {
     allowNull: false,
     defaultValue: 0,
   },
-  volunteersRegistered: {
-    type: DataTypes.INTEGER,
-    defaultValue: 0,
+  isHelp:{
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   },
-  volunteers: {
-    type: DataTypes.ARRAY(DataTypes.STRING),
-    defaultValue: [],
+  extraVolunteersForHelp:{
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  userIdForHelp: {
+    type: DataTypes.UUID,
+    allowNull: true
+  },
+  helpStatus: {
+    type: DataTypes.ENUM("approved", "disapproved"),
+    defaultValue: "disapproved"
   },
 }, {
   tableName: 'events',
-  timestamps: false, // or true if you want `createdAt` and `updatedAt`
+  timestamps: true, 
 });
 
 module.exports = Event;

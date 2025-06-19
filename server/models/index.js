@@ -1,8 +1,8 @@
 const sequelize = require('../config/db');
 const User = require('./User');
-const Admin = require('./Admin');
-const Help = require('./Help');
 const Event = require('./EventModel');
+const EventUserMap = require('./EventUserMapModel');
+const Admin = require('./Admin');
 
 // Define associations if needed (example):
 // User.hasMany(Event); // if user creates events
@@ -17,11 +17,24 @@ const syncDB = async () => {
   }
 };
 
+//associate users and events registered and completed by them
+User.hasMany(EventUserMap, { foreignKey: 'userId' });
+EventUserMap.belongsTo(User, { foreignKey: 'userId' });
+
+//associate events with users that are registered to it
+Event.hasMany(EventUserMap, { foreignKey: 'eventId' });
+EventUserMap.belongsTo(Event, { foreignKey: 'eventId' });
+
+// for help section to associate users and help created by them 
+User.hasMany(Event, { foreignKey: 'userIdForHelp' });
+Event.belongsTo(User, { foreignKey: 'userIdForHelp' });
+
+
 module.exports = {
   sequelize,
   User,
-  Admin,
-  Help,
   Event,
+  EventUserMap,
+  Admin,
   syncDB,
 };

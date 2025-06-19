@@ -8,6 +8,6 @@ router.get('/', eventController.getAllEvents);
 router.post('/register', eventController.registerEvent);
 router.post('/unregister', eventController.unRegisterEvent);
 router.get('/:id/:event', eventController.getUserSpecificEvents);
-router.delete('/:id', eventController.deleteEvent);
+router.put('/cancel/:id', eventController.cancelEvent);
 
 module.exports = router;
