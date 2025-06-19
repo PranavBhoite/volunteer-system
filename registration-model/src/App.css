@@ -116,7 +116,7 @@
 }
 .events-heading {
   background: linear-gradient(
-    to right top, #5ecbea, #40b7d8
+    to right top, #6cd7f4, #70d4f0
   
   );
   color: white;
@@ -128,6 +128,7 @@
   display: inline-block;
   animation: fadeIn 0.5s ease-in-out;
   margin-bottom: 20px;
+  
 }
 .table-scroll-container {
   max-height: 400px; 
@@ -215,6 +216,23 @@
   color: white;
   border-color: #006600;
 }
+
+/*Admin Help */
+.events-heading {
+  color: #7a003c;
+  font-weight: 600;
+}
+
+.table-bordered-blue {
+  border: 2px solid #aad4f5;
+}
+
+.table-header-maroon th {
+  background-color: #89123e;
+  color: white;
+  text-align: center;
+}
+
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-20px); }

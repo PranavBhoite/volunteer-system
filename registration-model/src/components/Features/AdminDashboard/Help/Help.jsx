@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Table, Button, Container } from 'react-bootstrap';
+import { Table, Button, Container, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
+import { BsCalendarEvent } from 'react-icons/bs';
+import { BsCheck2Circle, BsXCircle } from 'react-icons/bs';
 
-const Help = () => {
+
+const AdminHelp = () => {
   const { uid } = useParams();
   const [events, setEvents] = useState([]);
 
@@ -31,53 +34,72 @@ const Help = () => {
 
   return (
     <Container className="mt-5">
-      <h2>Admin Dashboard</h2>
-      <p>Logged in as UID: {uid}</p>
-      <Table striped bordered>
-        <thead>
-          <tr>
-            <th>Name</th><th>Email</th><th>Phone</th>
-            <th>Title</th><th>Date</th><th>Time</th><th>Place</th><th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {events.map(ev => (
-            <tr key={ev._id}>
-              <td>{ev.userId?.name || '-'}</td>
-              <td>{ev.userId?.email || '-'}</td>
-              <td>{ev.userId?.mobileNo || '-'}</td>
-              <td>{ev.title}</td>
-              <td>{ev.date}</td>
-              <td>{ev.time}</td>
-              <td>{ev.place}</td>
-              <td>
-                {ev.status === 'approved' ? (
-                  <span className="text-success fw-bold">Approved</span>
-                ) : (
-                  <>
-                    <Button
-                      variant="success"
-                      size="sm"
-                      onClick={() => handleStatusChange(ev._id, 'approved')}
-                    >
-                      Approve
-                    </Button>{' '}
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => handleStatusChange(ev._id, 'disapproved')}
-                    >
-                      Disapprove
-                    </Button>
-                  </>
-                )}
-              </td>
+      <Row className="align-items-center justify-content-between mb-4">
+        <Col>
+          <h3 className="events-heading">
+            <BsCalendarEvent style={{ marginRight: '10px' }} />
+            Help Requests
+          </h3>
+        </Col>
+        <Col className="text-end fw-semibold text-muted">
+          UID: {uid}
+        </Col>
+      </Row>
+
+      <div style={{ maxHeight: '450px', overflowY: 'auto' }}>
+        <Table bordered responsive className="table-bordered-blue">
+          <thead className="table-header-maroon">
+            <tr>
+              <th>Name</th><th>Email</th><th>Phone</th>
+              <th>Title</th><th>Date</th><th>Time</th><th>Place</th><th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {events.map((ev, index) => {
+              const rowColor = index % 2 === 0 ? '#ffffff' : '#e6f7ff';
+              return (
+                <tr key={ev._id}>
+                  <td style={{ backgroundColor: rowColor }}>{ev.userId?.name || '-'}</td>
+                  <td style={{ backgroundColor: rowColor }}>{ev.userId?.email || '-'}</td>
+                  <td style={{ backgroundColor: rowColor }}>{ev.userId?.mobileNo || '-'}</td>
+                  <td style={{ backgroundColor: rowColor }}>{ev.title}</td>
+                  <td style={{ backgroundColor: rowColor }}>{ev.date}</td>
+                  <td style={{ backgroundColor: rowColor }}>{ev.time}</td>
+                  <td style={{ backgroundColor: rowColor }}>{ev.place}</td>
+                  <td style={{ backgroundColor: rowColor }}>
+                  <td style={{ backgroundColor: rowColor }}>
+                   <div className="d-flex gap-2">
+                    <Button
+                    variant={ev.status === 'approved' ? 'success' : 'outline-success'}
+                    size="sm"
+                    className={ev.status === 'approved' ? 'fw-bold' : 'border-2'}
+                    onClick={() => handleStatusChange(ev._id, 'approved')}
+                    >
+                    <BsCheck2Circle className="me-1" />
+                    {ev.status === 'approved' ? 'Approved' : 'Approve'}
+                    </Button>
+
+                    <Button
+                    variant={ev.status === 'disapproved' ? 'danger' : 'outline-danger'}
+                    size="sm"
+                    className={ev.status === 'disapproved' ? 'fw-bold' : 'border-2'}
+                    onClick={() => handleStatusChange(ev._id, 'disapproved')}
+                    >
+                    <BsXCircle className="me-1" />
+                  {ev.status === 'disapproved' ? 'Disapproved' : 'Disapprove'}
+               </Button>
+                 </div>
+                 </td>
+                 </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </Table>
+      </div>
     </Container>
   );
 };
 
-export default Help;
+export default AdminHelp;
+
