@@ -13,8 +13,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const Profile = () => {
   const { uid } = useParams();
-
-  const pinkColor = "#e91e63"; // Pink color for headings and highlights
+  const pinkColor = "#e91e63";
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -30,7 +29,6 @@ const Profile = () => {
   const [saveError, setSaveError] = useState("");
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
-
   const [registeredEvents, setRegisteredEvents] = useState([]);
   const [completedEvents, setCompletedEvents] = useState([]);
 
@@ -128,10 +126,7 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <Container
-        className="d-flex justify-content-center align-items-center"
-        style={{ minHeight: "50vh" }}
-      >
+      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "50vh" }}>
         <Spinner animation="border" variant="primary" />
       </Container>
     );
@@ -148,195 +143,175 @@ const Profile = () => {
   }
 
   return (
-    <Container
-      className="py-5 min-vh-100"
-      fluid
-      style={{
-        maxWidth: "100%",
-        paddingLeft: "20px",
-        paddingRight: "20px",
-        boxSizing: "border-box",
-      }}
-    >
-      <h2
-        className="mb-4"
-        style={{ fontWeight: "700", color: pinkColor, textAlign: "left" }}
-      >
-        User Profile
-      </h2>
+    <div style={{ position: "relative", backgroundColor: "#fff" }}>
+      {/* Background with Torn Paper Effect */}
+      <div style={{
+        backgroundImage: "url('/tmgf-children.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center center",
+        height: "55vh",
+        position: "relative",
+        filter: "brightness(0.95)",
+      }}>
+        <svg
+          viewBox="0 0 1440 150"
+          preserveAspectRatio="none"
+          style={{ display: "block", width: "100%", height: "80px", position: "absolute", bottom: 0, left: 0 }}
+        >
+          <path
+            d="M0,96L60,106.7C120,117,240,139,360,122.7C480,107,600,53,720,42.7C840,32,960,64,1080,69.3C1200,75,1320,53,1380,42.7L1440,32V150H0Z"
+            fill="#fff"
+          />
+        </svg>
+      </div>
 
-      <Card
-        className="shadow-sm rounded-4 border-0 mb-4"
-        style={{ border: `2px solid ${pinkColor}` }}
-      >
-        <Card.Body>
-          {["name", "email", "address", "mobileNo"].map((field) => (
-            <div key={field} className="mb-4">
-              <h5 style={{ color: pinkColor, fontWeight: "600" }}>
-                {field.charAt(0).toUpperCase() + field.slice(1)}
-              </h5>
-              {editMode ? (
-                <Form.Control
-                  type={
-                    field === "email"
-                      ? "email"
-                      : field === "mobileNo"
-                      ? "tel"
-                      : field === "address"
-                      ? "textarea"
-                      : "text"
-                  }
-                  name={field}
-                  value={formData[field]}
-                  onChange={handleChange}
-                  placeholder={`Enter ${field}`}
-                  isInvalid={!!validationErrors[field]}
-                  as={field === "address" ? "textarea" : "input"}
-                  rows={field === "address" ? 3 : undefined}
-                  style={{ boxShadow: `inset 0 0 8px ${pinkColor}80` }}
-                />
-              ) : (
-                <p className="fs-5 text-secondary">{user[field] || "N/A"}</p>
-              )}
-              <Form.Control.Feedback type="invalid">
-                {validationErrors[field]}
-              </Form.Control.Feedback>
-            </div>
-          ))}
+      {/* Content Area with 95% opacity */}
+      <div style={{
+        marginTop: "-20px",
+        padding: "30px 20px",
+        backgroundColor: "rgba(255, 255, 255, 0.95)",
+        borderRadius: "20px 20px 0 0"
+      }}>
+        <Container>
+          <h2 style={{ fontWeight: "700", color: pinkColor, marginBottom: "30px" }}>User Profile</h2>
 
-          <div className="d-flex justify-content-center gap-3 mt-4">
-            {editMode ? (
-              <>
-                <Button
-                  variant="pink"
-                  style={{ backgroundColor: pinkColor, borderColor: pinkColor }}
-                  onClick={handleSave}
-                  disabled={saving || !isFormChanged()}
-                >
-                  {saving ? (
-                    <>
-                      <Spinner animation="border" size="sm" className="me-2" />
-                      Saving...
-                    </>
+          <Card className="shadow-sm rounded-4 border-0 my-4" style={{ border: `2px solid ${pinkColor}` }}>
+            <Card.Body>
+              {["name", "email", "address", "mobileNo"].map((field) => (
+                <div key={field} className="mb-4">
+                  <h5 style={{ color: pinkColor, fontWeight: "600" }}>
+                    {field.charAt(0).toUpperCase() + field.slice(1)}
+                  </h5>
+                  {editMode ? (
+                    <Form.Control
+                      type={field === "email" ? "email" : field === "mobileNo" ? "tel" : "text"}
+                      name={field}
+                      value={formData[field]}
+                      onChange={handleChange}
+                      placeholder={`Enter ${field}`}
+                      isInvalid={!!validationErrors[field]}
+                      as={field === "address" ? "textarea" : "input"}
+                      rows={field === "address" ? 3 : undefined}
+                    />
                   ) : (
-                    "Save Changes"
+                    <p className="fs-5 text-secondary">{user[field] || "N/A"}</p>
                   )}
-                </Button>
-                <Button
-                  variant="outline-secondary"
-                  onClick={() => {
-                    setEditMode(false);
-                    setFormData({
-                      name: user.name,
-                      email: user.email,
-                      address: user.address,
-                      mobileNo: user.mobileNo,
-                    });
-                    setSaveError("");
-                    setSaveSuccess(false);
-                    setValidationErrors({});
-                  }}
-                >
-                  Cancel
-                </Button>
-              </>
-            ) : (
-              <Button
-                variant="primary"
-                style={{ backgroundColor: pinkColor, borderColor: pinkColor }}
-                onClick={() => setEditMode(true)}
-              >
-                Edit Details
-              </Button>
-            )}
-          </div>
+                  <Form.Control.Feedback type="invalid">
+                    {validationErrors[field]}
+                  </Form.Control.Feedback>
+                </div>
+              ))}
 
-          {saveError && (
-            <Alert variant="danger" className="mt-4 text-center">
-              {saveError}
-            </Alert>
-          )}
+              <div className="d-flex justify-content-center gap-3 mt-4">
+                {editMode ? (
+                  <>
+                    <Button
+                      variant="pink"
+                      style={{ backgroundColor: pinkColor, borderColor: pinkColor }}
+                      onClick={handleSave}
+                      disabled={saving || !isFormChanged()}
+                    >
+                      {saving ? (
+                        <>
+                          <Spinner animation="border" size="sm" className="me-2" />
+                          Saving...
+                        </>
+                      ) : (
+                        "Save Changes"
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline-secondary"
+                      onClick={() => {
+                        setEditMode(false);
+                        setFormData({
+                          name: user.name,
+                          email: user.email,
+                          address: user.address,
+                          mobileNo: user.mobileNo,
+                        });
+                        setSaveError("");
+                        setSaveSuccess(false);
+                        setValidationErrors({});
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    variant="primary"
+                    style={{ backgroundColor: pinkColor, borderColor: pinkColor }}
+                    onClick={() => setEditMode(true)}
+                  >
+                    Edit Details
+                  </Button>
+                )}
+              </div>
 
-          <AnimatePresence>
-            {saveSuccess && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.7, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.7, y: 20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Alert
-                  variant="success"
-                  className="mt-4 text-center shadow-lg"
-                  style={{ borderRadius: "12px", fontWeight: "600" }}
-                >
-                  Changes saved successfully!
-                </Alert>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </Card.Body>
-      </Card>
+              {saveError && (
+                <Alert variant="danger" className="mt-4 text-center">{saveError}</Alert>
+              )}
 
-      <Card
-        className="shadow-sm rounded-4 border-0"
-        style={{ border: `2px solid ${pinkColor}` }}
-      >
-        <Card.Body>
-          <h4 style={{ color: pinkColor }}>Registered Events</h4>
-          {registeredEvents.length === 0 ? (
-            <p className="text-muted">No registered events found.</p>
-          ) : (
-            registeredEvents.map((event) => (
-              <Card
-                key={event._id}
-                className="border-0 shadow-sm rounded-4 mb-3"
-              >
-                <Card.Body>
-                  <Card.Title style={{ fontWeight: "600", color: pinkColor }}>
-                    {event.title}
-                  </Card.Title>
-                  <Card.Text className="text-secondary">
-                    {event.description}
-                  </Card.Text>
-                  <div className="text-muted small">
-                    {event.date} at {event.time}
-                  </div>
-                  <div className="text-muted small">Location: {event.location}</div>
-                </Card.Body>
-              </Card>
-            ))
-          )}
+              <AnimatePresence>
+                {saveSuccess && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.7, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.7, y: 20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Alert
+                      variant="success"
+                      className="mt-4 text-center shadow-lg"
+                      style={{ borderRadius: "12px", fontWeight: "600" }}
+                    >
+                      Changes saved successfully!
+                    </Alert>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </Card.Body>
+          </Card>
 
-          <h4 className="mt-4" style={{ color: pinkColor }}>
-            Completed Events
-          </h4>
-          {completedEvents.length === 0 ? (
-            <p className="text-muted">No completed events yet.</p>
-          ) : (
-            completedEvents.map((event) => (
-              <Card
-                key={event._id}
-                className="border-0 shadow-sm rounded-4 bg-light mb-3"
-              >
-                <Card.Body>
-                  <Card.Title style={{ fontWeight: "600", color: pinkColor }}>
-                    {event.title}
-                  </Card.Title>
-                  <Card.Text className="text-secondary">
-                    {event.description}
-                  </Card.Text>
-                  <div className="text-muted small">
-                    {event.date} at {event.time}
-                  </div>
-                  <div className="text-muted small">Location: {event.location}</div>
-                </Card.Body>
-              </Card>
-            ))
-          )}
-        </Card.Body>
-      </Card>
-    </Container>
+          <Card className="shadow-sm rounded-4 border-0" style={{ border: `2px solid ${pinkColor}` }}>
+            <Card.Body>
+              <h4 style={{ color: pinkColor }}>Registered Events</h4>
+              {registeredEvents.length === 0 ? (
+                <p className="text-muted">No registered events found.</p>
+              ) : (
+                registeredEvents.map((event) => (
+                  <Card key={event._id} className="border-0 shadow-sm rounded-4 mb-3">
+                    <Card.Body>
+                      <Card.Title style={{ fontWeight: "600", color: pinkColor }}>{event.title}</Card.Title>
+                      <Card.Text className="text-secondary">{event.description}</Card.Text>
+                      <div className="text-muted small">{event.date} at {event.time}</div>
+                      <div className="text-muted small">Location: {event.location}</div>
+                    </Card.Body>
+                  </Card>
+                ))
+              )}
+
+              <h4 className="mt-4" style={{ color: pinkColor }}>Completed Events</h4>
+              {completedEvents.length === 0 ? (
+                <p className="text-muted">No completed events yet.</p>
+              ) : (
+                completedEvents.map((event) => (
+                  <Card key={event._id} className="border-0 shadow-sm rounded-4 bg-light mb-3">
+                    <Card.Body>
+                      <Card.Title style={{ fontWeight: "600", color: pinkColor }}>{event.title}</Card.Title>
+                      <Card.Text className="text-secondary">{event.description}</Card.Text>
+                      <div className="text-muted small">{event.date} at {event.time}</div>
+                      <div className="text-muted small">Location: {event.location}</div>
+                    </Card.Body>
+                  </Card>
+                ))
+              )}
+            </Card.Body>
+          </Card>
+        </Container>
+      </div>
+    </div>
   );
 };
 
