@@ -73,9 +73,13 @@ const Event = sequelize.define('Event', {
     allowNull: true
   },
   helpStatus: {
-    type: DataTypes.ENUM("approved", "disapproved"),
-    defaultValue: "disapproved"
+    type: DataTypes.ENUM("pending", "approved", "disapproved"),
+    defaultValue: "pending"
   },
+  helpFeedback: {
+    type: DataTypes.JSON,
+    defaultValue: []
+  }
 }, {
   tableName: 'events',
   timestamps: true, 

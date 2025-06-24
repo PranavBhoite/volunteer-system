@@ -139,7 +139,7 @@ const VolunteerView = () => {
       padding: '24px'
     }}>
       {/* Header */}
-      <div style={{
+      {/* <div style={{
         background: 'white',
         borderRadius: '12px',
         padding: '32px',
@@ -162,7 +162,7 @@ const VolunteerView = () => {
         }}>
           Building stronger communities through dedicated volunteers
         </p>
-      </div>
+      </div> */}
 
       {/* Search and Filter Section */}
       <div style={{

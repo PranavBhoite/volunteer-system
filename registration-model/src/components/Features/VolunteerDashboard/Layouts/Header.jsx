@@ -1,7 +1,24 @@
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom"
+import axios from "axios";
 
 export default function Header() {
   const {uid} = useParams();
+  const [userData, setUserData] = useState([]);
+
+  const fetchUserData = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/users/display/${uid}`);
+      
+      setUserData(response.data);
+    } catch (err) {
+      console.error('Error fetching events:', err.response ? err.response.data : err.message);
+    }
+  }
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
   
   return <>
     <div style={{
@@ -16,7 +33,7 @@ export default function Header() {
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <span style={{ marginRight: '10px', fontSize: '18px' }}>☰</span>
             <h2 style={{ margin: '0', fontSize: '20px', color: '#333' }}>
-              Hello..! {uid || 'User'}
+              Hello {userData.name || 'User'} ..!
             </h2>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
@@ -31,9 +48,9 @@ export default function Header() {
               color: 'white',
               fontWeight: 'bold'
             }}>
-              {uid ? uid.charAt(0).toUpperCase() : 'U'}
+              {userData.name ? userData.name.charAt(0).toUpperCase() : 'U'}
             </div>
-            <span style={{ fontWeight: '500', color: '#333' }}>{uid || 'User'}</span>
+            <span style={{ fontWeight: '500', color: '#333' }}>{userData.name || 'User'}</span>
           </div>
         </div>
   </>

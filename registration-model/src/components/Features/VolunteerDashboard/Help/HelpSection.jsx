@@ -11,32 +11,65 @@ const HelpSection = () => {
   const [formData, setFormData] = useState({
     title: '', description: '', startDate: '', endDate: '',
     startTime: '', endTime: '', location: '', category: 'Environmental',
-    volunteersNeeded: 0, extraVolunteers: false
+    volunteersNeeded: 0, extraVolunteersForHelp: false
   });
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [eventid, setEventId] = useState();
   
 
   const fetchEvents = async () => {
     try {
       const res = await axios.get(`http://localhost:5000/api/help/user/${uid}/${statusFilter}`);
-      console.log(res.data);
-      setEvents(res.data);
+  
+      const sortedData = res.data.sort((a, b) => {
+        // Assign status priority
+        const statusPriority = status => {
+          if (status?.toLowerCase() === 'cancelled') return 2;     // lowest priority
+          if (status?.toLowerCase() === 'completed') return 1;     // medium priority
+          return 0;                                                 // highest priority
+        };
+  
+        const priA = statusPriority(a.status);
+        const priB = statusPriority(b.status);
+  
+        // First: compare status priority
+        if (priA !== priB) return priA - priB;
+  
+        // Then: sort by startDate ascending
+        const dateA = new Date(a.startDate);
+        const dateB = new Date(b.startDate);
+        return dateA - dateB;
+      });
+  
+      setEvents(sortedData);
     } catch (error) {
       console.error("Error fetching events:", error);
     }
-  };
+  };  
+  
+  
+  useEffect(() => {
+    fetchEvents();
+  }, [statusFilter]);
 
   const validateForm = () => {
     const today = new Date().setHours(0, 0, 0, 0);
     const start = new Date(formData.startDate).setHours(0, 0, 0, 0);
     const end = new Date(formData.endDate).setHours(0, 0, 0, 0);
-  
+    console.log(`Time : ${formData.startTime} End Date : ${formData.endTime}`);
+
     if (start < today) {
       alert("Start date cannot be in the past.");
       return false;
     }
-  
+    
     if (end < start) {
       alert("End date cannot be before start date.");
+      return false;
+    }
+    
+    if(!formData.startTime || !formData.endTime) {
+      alert("Please enter Accurate Time");
       return false;
     }
   
@@ -52,27 +85,29 @@ const HelpSection = () => {
     return true;
   };  
 
-  useEffect(() => {
-    fetchEvents();
-  }, [statusFilter]);
 
-  const handleCreate = async () => {
+  const handleCreateOrUpdate = async () => {
     if (!validateForm()) return;
 
-    console.log(`UID: ${uid}`)
+    console.log(`UID: ${uid} event id : ${eventid}`)
   
     try {
-      await axios.post('http://localhost:5000/api/help/create', {
-        ...formData,
-        userIdForHelp: uid,
-        isHelp: true,
-        extraVolunteersForHelp: formData.extraVolunteers,
-      });
+      if(isUpdating){
+        await axios.put(`http://localhost:5000/api/help/update/${eventid}`, {
+          ...formData,
+          userIdForHelp: uid,
+        });
+      }else {
+        await axios.post('http://localhost:5000/api/help/create', {
+          ...formData,
+          userIdForHelp: uid,
+        });
+      }
       setFormVisible(false);
       setFormData({
         title: '', description: '', startDate: '', endDate: '',
         startTime: '', endTime: '', location: '', category: 'Environmental',
-        volunteersNeeded: 0, extraVolunteers: false
+        volunteersNeeded: 0, extraVolunteersForHelp: false
       });
       fetchEvents();
     } catch (err) {
@@ -80,6 +115,17 @@ const HelpSection = () => {
     }
   };
   
+  const handleCancelEvent = async (eventId) => {
+    if (window.confirm('Are you sure you want to delete this event?')) {
+      try {
+        await axios.put(`http://localhost:5000/api/events/cancel/${eventId}`);
+        fetchEvents();
+      } catch (err) {
+        console.error('Error Canceling event:', err);
+        alert('Failed to cancel event');
+      }
+    }
+  };
 
   return (
     <Container className="mt-5">
@@ -181,11 +227,11 @@ const HelpSection = () => {
         <Form.Check
           type="checkbox"
           label="Extra Volunteers Required"
-          checked={formData.extraVolunteers}
-          onChange={e => setFormData({ ...formData, extraVolunteers: e.target.checked })}
+          checked={formData.extraVolunteersForHelp}
+          onChange={e => setFormData({ ...formData, extraVolunteersForHelp: e.target.checked })}
         />
       
-        {formData.extraVolunteers && (
+        {formData.extraVolunteersForHelp && (
           <Form.Group className="mt-2">
             <Form.Label>Volunteers Needed</Form.Label>
             <Form.Control
@@ -197,7 +243,7 @@ const HelpSection = () => {
           </Form.Group>
         )}
       
-        <Button onClick={handleCreate} className="mt-3">Submit</Button>
+        <Button onClick={handleCreateOrUpdate} className="mt-3">Submit</Button>
       </Form>
       
       )}
@@ -210,16 +256,13 @@ const HelpSection = () => {
             <th>Description</th>
             <th>Start Date</th>
             <th>End Date</th>
-            <th>Start Time</th>
-            <th>End Time</th>
             <th>Location</th>
-            <th>Status</th>
-            <th>Category</th>
+            <th>Event Status</th>
             <th>Volunteers Needed</th>
-            <th>Is Help</th>
-            <th>Extra Volunteers For Help</th>
             <th>Help Status</th>
-            <th>Created By</th>
+            <th>Feedback from Admin</th>
+            <th>Edit Event</th>
+            <th>Cancel Event</th>
           </tr>
         </thead>
         <tbody>
@@ -229,16 +272,34 @@ const HelpSection = () => {
               <td>{ev.description}</td>
               <td>{ev.startDate}</td>
               <td>{ev.endDate}</td>
-              <td>{ev.startTime}</td>
-              <td>{ev.endTime}</td>
               <td>{ev.location}</td>
               <td>{ev.status}</td>
-              <td>{ev.category}</td>
               <td>{ev.volunteersNeeded}</td>
-              <td>{ev.isHelp ? 'Yes' : 'No'}</td>
-              <td>{ev.extraVolunteersForHelp ? 'Yes' : 'No'}</td>
               <td>{ev.helpStatus}</td>
-              <td>{ev.User ? ev.User.name : 'N/A'}</td>
+              <td>
+                {ev.helpStatus === 'pending' ? (
+                  <span className="text-muted fst-italic">Event not yet reviewed</span>
+                ) : (
+                  <span>{ev.helpFeedback || '—'}</span>
+                )}
+              </td>
+              <td>
+                <Button 
+                disabled={ev.helpStatus === 'approved' || ev.status === "Cancelled" || ev.status === "Completed" ? true : false}
+                onClick={() => {
+                  setEventId(ev.id);
+                  setFormVisible(true);
+                  setIsUpdating(true);
+                  setFormData({...ev})
+                }}>Edit</Button>
+              </td>
+              <td>
+              <Button 
+                disabled={ev.helpStatus === 'approved' || ev.status === "Cancelled" || ev.status === "Completed" ? true : false}
+                onClick={() => {handleCancelEvent(ev.id)}}>
+                  Cancel
+              </Button>
+              </td>
             </tr>
           ))}
         </tbody>

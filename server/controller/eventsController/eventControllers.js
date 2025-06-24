@@ -243,7 +243,9 @@ exports.updateEventStatuses = async () => {
       const end = new Date(event.endDate);
       let newStatus = event.status;
 
-      if (currentDate < start) {
+      if(event.status === "Cancelled"){
+        newStatus = "Cancelled";
+      } else if (currentDate < start) {
         newStatus = "Upcoming";
       } else if (currentDate >= start && currentDate <= end) {
         newStatus = "Ongoing";

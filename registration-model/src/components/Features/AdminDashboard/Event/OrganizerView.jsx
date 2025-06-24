@@ -76,6 +76,11 @@ const OrganizerView = () => {
       alert('End date cannot be before start date.');
       return false;
     }
+
+    if(!formData.startTime || !formData.endTime) {
+      alert("Please enter Accurate Time");
+      return false;
+    }
   
     if (formData.startDate === formData.endDate) {
       const [startHour, startMin] = formData.startTime.split(':').map(Number);

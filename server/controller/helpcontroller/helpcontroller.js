@@ -18,27 +18,40 @@ exports.getAllHelpEvents = async (req, res) => {
       ]
     });
 
-    const enrichedEvents = helpEvents.map(event => ({
-      id: event.id,
-      title: event.title,
-      startDate: event.startDate, 
-      endDate: event.endDate,
-      startTime: event.startTime,
-      endTime: event.endTime,
-      place: event.location,
-      description: event.description,
-      location: event.location,
-      category: event.category,
-      volunteersNeeded: event.volunteersNeeded,
-      extraVolunteers: event.extraVolunteersForHelp,
-      status: event.helpStatus,
-      userId: {
-        id: event.User?.id || null,
-        name: event.User?.name || 'N/A',
-        email: event.User?.email || 'N/A',
-        mobileNo: event.User?.mobileNo || 'N/A'
+    const enrichedEvents = helpEvents.map(event => {
+      const feedbacks = event.helpFeedback || [];
+      let feedback = null;
+
+      if (feedbacks.length > 0) {
+        feedback = feedbacks.reduce((latest, current) => {
+          return new Date(current.timeStamp) > new Date(latest.timeStamp) ? current : latest;
+        });
       }
-    }));
+
+      return {
+        id: event.id,
+        title: event.title,
+        startDate: event.startDate, 
+        endDate: event.endDate,
+        startTime: event.startTime,
+        endTime: event.endTime,
+        place: event.location,
+        description: event.description,
+        location: event.location,
+        category: event.category,
+        volunteersNeeded: event.volunteersNeeded,
+        extraVolunteers: event.extraVolunteersForHelp,
+        status: event.status,
+        helpStatus : event.helpStatus,
+        helpFeedback : !feedback ? '' : feedback.message, 
+        userId: {
+          id: event.User?.id || null,
+          name: event.User?.name || 'N/A',
+          email: event.User?.email || 'N/A',
+          mobileNo: event.User?.mobileNo || 'N/A'
+        }
+      };
+    });
 
     res.status(200).json(enrichedEvents);
   } catch (err) {
@@ -53,7 +66,7 @@ exports.createHelpEvent = async (req, res) => {
     const {
       title, description, startDate, endDate,
       startTime, endTime, location,
-      category, extraVolunteers, volunteersNeeded, userIdForHelp
+      category, extraVolunteersForHelp, volunteersNeeded, userIdForHelp
     } = req.body;
 
     const newEvent = await Event.create({
@@ -65,11 +78,12 @@ exports.createHelpEvent = async (req, res) => {
       endTime,
       location,
       category,
-      volunteersNeeded: extraVolunteers ? volunteersNeeded : 0,
+      volunteersNeeded,
+      extraVolunteersForHelp,
+      userIdForHelp,
       isHelp: true,
-      extraVolunteersForHelp: extraVolunteers,
-      userIdForHelp: userIdForHelp,
-      helpStatus: 'disapproved',
+      helpFeedback: [],
+      helpStatus: 'pending',
       status: 'Upcoming'
     });
 
@@ -80,23 +94,53 @@ exports.createHelpEvent = async (req, res) => {
   }
 };
 
-exports.updateHelpEventStatus = async (req, res) => {
+exports.updateEventFromUserSide = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    console.log(`Event id : ${id}`);
+
+    const event = await Event.findByPk(id);
+    if (!event) return res.status(404).json({ error: 'Event not found' });
+    if (!event.isHelp) return res.status(400).json({ error: 'Not a user initiated event' });
+
+    event.set({
+      ...req.body,
+      helpFeedback: event.helpFeedback,  // preserve old feedback
+      isHelp: true,
+      helpStatus: 'pending',
+      status: 'Upcoming',
+    });
+
+    await event.save();
+
+    res.status(200).json({ message: 'Help event updated', event });
+  } catch (err) {
+    console.error('Error Updating help event:', err);
+    res.status(500).json({ error: 'Failed to update help event' });
+  }
+};
+
+exports.updateHelpEventStatusFromAdminSide = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, message } = req.body;
 
-    // Fetch the event
     const event = await Event.findByPk(id);
+    if (!event) return res.status(404).json({ error: 'Event not found' });
+    if (!event.isHelp) return res.status(400).json({ error: 'Not a user initiated event' });
 
-    if (!event) {
-      return res.status(404).json({ error: 'Event not found' });
-    }
+    const newFeedback = {
+      timeStamp: new Date().toISOString(),
+      message: message,
+    };
 
-    if (!event.isHelp) {
-      return res.status(400).json({ error: 'Not a help event' });
-    }
+    // Make a fresh array to ensure Sequelize tracks the change
+    const updatedFeedback = [...(event.helpFeedback || []), newFeedback];
 
+    event.helpFeedback = updatedFeedback;
     event.helpStatus = status;
+
     await event.save();
 
     res.status(200).json({ message: 'Status updated successfully' });
@@ -119,7 +163,7 @@ exports.getUserHelpEvents = async (req, res) => {
     if (status && status !== "all") {
       whereClause.helpStatus = status;
     } else {
-      whereClause.helpStatus = ["approved", "disapproved"];
+      whereClause.helpStatus = ["pending", "approved", "disapproved"];
     }
 
     const events = await Event.findAll({
@@ -131,7 +175,24 @@ exports.getUserHelpEvents = async (req, res) => {
       order: [['startDate', 'ASC'], ['endDate', 'ASC']]
     });
 
-    res.status(200).json(events);
+    // Attach only the latest feedback
+    const enrichedEvents = events.map(event => {
+      const feedbacks = event.helpFeedback || [];
+      let feedback = null;
+
+      if (feedbacks.length > 0) {
+        feedback = feedbacks.reduce((latest, current) => {
+          return new Date(current.timeStamp) > new Date(latest.timeStamp) ? current : latest;
+        });
+      }
+
+      return {
+        ...event.toJSON(),
+        helpFeedback : !feedback ? "" : feedback.message,
+      };
+    });
+
+    res.status(200).json(enrichedEvents);
   } catch (error) {
     console.error('Error fetching user help events:', error);
     res.status(500).json({ message: 'Server error while fetching user events' });
