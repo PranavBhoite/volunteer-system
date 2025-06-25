@@ -7,33 +7,40 @@ export default function Header() {
 
   useEffect(() => {
     fetch(`http://localhost:5000/api/users/display/${uid}`)
-      .then(res => res.json())
-      .then(data => setUser(data))
-      .catch(err => console.error("User fetch error:", err));
+      .then((res) => res.json())
+      .then((data) => setUser(data))
+      .catch((err) => console.error("User fetch error:", err));
   }, [uid]);
 
   return (
-    <header
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        height: "80px",            // Increased height
-        backgroundColor: "#fff",
-        borderBottom: "1px solid #e9ecef",
-        display: "flex",
-        alignItems: "center",
-        padding: "0 20px",
-        zIndex: 1000,
-        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-        fontWeight: "600",
-        fontSize: "1.1rem",
-        color: "#333",
-        marginLeft: "250px",       // Same as sidebar width
-      }}
-    >
-      Hello, {user?.name || "User"} :)
+    <header className="main-header">
+      Hello, {user?.name || "User"} :
+
+      <style>{`
+        .main-header {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 80px;
+          background-color: #fff;
+          border-bottom: 1px solid #e9ecef;
+          display: flex;
+          align-items: center;
+          padding: 0 20px;
+          z-index: 1000;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          font-weight: 600;
+          font-size: 1.1rem;
+          color: #333;
+        }
+
+        @media (min-width: 769px) {
+          .main-header {
+            margin-left: 250px;
+          }
+        }
+      `}</style>
     </header>
   );
 }

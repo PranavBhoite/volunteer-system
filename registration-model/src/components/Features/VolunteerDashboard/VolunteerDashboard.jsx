@@ -10,9 +10,12 @@ const VolunteerDashboard = () => {
   const [user, setUser] = useState(null);
   const [showCard, setShowCard] = useState(false);
   const [flipped, setFlipped] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const sidebarWidth = '250px';
-  const headerHeight = '60px';
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  const sidebarWidth = "250px";
+  const headerHeight = "60px";
 
   useEffect(() => {
     const loadScript = (src, id, callback) => {
@@ -28,16 +31,24 @@ const VolunteerDashboard = () => {
       document.head.appendChild(script);
     };
 
-    loadScript("https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js", "dom-to-image-script", () => {});
-    loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js", "jspdf-script", () => {});
+    loadScript(
+      "https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js",
+      "dom-to-image-script",
+      () => {}
+    );
+    loadScript(
+      "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
+      "jspdf-script",
+      () => {}
+    );
   }, []);
 
   useEffect(() => {
     if (!uid) return;
     fetch(`http://localhost:5000/api/users/display/${uid}`)
-      .then(res => res.json())
-      .then(data => setUser(data))
-      .catch(err => console.error("User fetch error:", err));
+      .then((res) => res.json())
+      .then((data) => setUser(data))
+      .catch((err) => console.error("User fetch error:", err));
   }, [uid]);
 
   const handleDownloadPdf = async () => {
@@ -49,7 +60,10 @@ const VolunteerDashboard = () => {
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF("landscape", "mm", "a4");
 
-      for (const [el, label] of [[frontEl, "Front"], [backEl, "Back"]]) {
+      for (const [el, label] of [
+        [frontEl, "Front"],
+        [backEl, "Back"],
+      ]) {
         el.querySelector(".download-button")?.classList.add("d-none");
 
         const scale = 2;
@@ -70,8 +84,8 @@ const VolunteerDashboard = () => {
 
         await new Promise((resolve) => {
           img.onload = () => {
-            let imgWidthMm = img.width * (25.4 / 96);
-            let imgHeightMm = img.height * (25.4 / 96);
+            let imgWidthMm = (img.width * 25.4) / 96;
+            let imgHeightMm = (img.height * 25.4) / 96;
             const pageWidth = pdf.internal.pageSize.getWidth();
             const pageHeight = pdf.internal.pageSize.getHeight();
             const aspectRatio = imgWidthMm / imgHeightMm;
@@ -132,19 +146,42 @@ const VolunteerDashboard = () => {
 
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
-      <Sidebar />
-      <div style={{ flex: 1, marginLeft: sidebarWidth, paddingTop: headerHeight }}>
-        <div style={{ position: "fixed", top: 0, left: sidebarWidth, right: 0, height: headerHeight, zIndex: 1000 }}>
-          <Header />
+      <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+      <div style={{ flex: 1, marginLeft: window.innerWidth > 768 ? sidebarWidth : 0 }}>
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: sidebarWidth,
+            right: 0,
+            height: headerHeight,
+            zIndex: 1000,
+          }}
+        >
+          <Header toggleSidebar={toggleSidebar} />
         </div>
 
         <div style={{ position: "fixed", top: 15, right: 20, zIndex: 13000 }}>
           <Dropdown align="end">
             <Dropdown.Toggle as={CustomToggle} id="dropdown-custom-toggle" />
             <Dropdown.Menu>
-              <Dropdown.Item onClick={() => { setShowCard(true); setFlipped(false); }}>View Virtual ID</Dropdown.Item>
+              <Dropdown.Item
+                onClick={() => {
+                  setShowCard(true);
+                  setFlipped(false);
+                }}
+              >
+                View Virtual ID
+              </Dropdown.Item>
               <Dropdown.Divider />
-              <Dropdown.Item onClick={() => { localStorage.clear(); window.location.href = "/login"; }}>Logout</Dropdown.Item>
+              <Dropdown.Item
+                onClick={() => {
+                  localStorage.clear();
+                  window.location.href = "/login";
+                }}
+              >
+                Logout
+              </Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
         </div>
@@ -166,7 +203,7 @@ const VolunteerDashboard = () => {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                zIndex: 12000
+                zIndex: 12000,
               }}
               onClick={() => setShowCard(false)}
             >
@@ -177,40 +214,66 @@ const VolunteerDashboard = () => {
                   transition={{ duration: 0.8 }}
                   style={{
                     transformStyle: "preserve-3d",
-                    width: "460px",
-                    height: "280px",
+                    width: "520px",
+                    height: "350px",
+                    maxWidth: "95vw",
                     position: "relative",
                     cursor: "pointer",
                     borderRadius: "0.5rem",
                     border: "5px solid #0000FF",
+                    background: "white",
                   }}
+                  className="virtual-card-container"
                 >
                   {/* FRONT */}
                   <Card
                     id="virtual-id-front"
                     className="p-3 border-0"
                     style={{
-                      background: "white",
                       color: "#000080",
                       width: "100%",
                       height: "100%",
                       position: "absolute",
                       backfaceVisibility: "hidden",
-                      borderRadius: "0.5rem"
+                      borderRadius: "0.5rem",
+                      overflowWrap: "break-word",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      padding: "20px",
+                      fontSize: "0.9rem",
+                      lineHeight: "1.3rem",
                     }}
                   >
-                    <Card.Body className="text-center">
-                      <img src="/LOGO.png" alt="TMGF Logo" style={{ height: "40px", marginBottom: "0.4rem" }} />
-                      <h6 style={{ color: "#C71585" }}>Volunteer ID Card</h6>
-                      <h5 className="fw-bold">{user?.name}</h5>
-                      <p>ID: {user?._id}</p>
-                      <p style={{ fontSize: "0.8rem", textAlign: "left", lineHeight: "1.5rem" }}>
-                        <span style={{ fontWeight: "bold", color: "#000080" }}>Name:</span> {user?.name}<br />
-                        <span style={{ fontWeight: "bold", color: "#000080" }}>Email ID:</span> {user?.email}<br />
-                        <span style={{ fontWeight: "bold", color: "#000080" }}>Mobile No:</span> {user?.mobileNo || "N/A"}<br />
-                        <span style={{ fontWeight: "bold", color: "#000080" }}>Address:</span> {user?.address || "N/A"}
-                      </p>
-                      <Button onClick={handleDownloadPdf} variant="light" size="sm" className="mt-2 download-button">
+                    <Card.Body className="text-center" style={{ padding: 0 }}>
+                      <img
+                        src="/LOGO.png"
+                        alt="TMGF Logo"
+                        style={{ height: "40px", marginBottom: "0.5rem" }}
+                      />
+                      <h6 style={{ color: "#C71585", marginBottom: "0.3rem" }}>
+                        Volunteer ID Card
+                      </h6>
+                      <h5 className="fw-bold" style={{ fontSize: "1.3rem", marginBottom: "0.3rem" }}>
+                        {user?.name}
+                      </h5>
+                      <p style={{ marginBottom: "0.6rem" }}>ID: {user?._id}</p>
+                      <div style={{ textAlign: "left", fontSize: "0.85rem", lineHeight: "1.2rem" }}>
+                        <b>Name:</b> {user?.name}
+                        <br />
+                        <b>Email ID:</b> {user?.email}
+                        <br />
+                        <b>Mobile No:</b> {user?.mobileNo || "N/A"}
+                        <br />
+                        <b>Address:</b> {user?.address || "N/A"}
+                      </div>
+                      <Button
+                        onClick={handleDownloadPdf}
+                        variant="light"
+                        size="sm"
+                        className="mt-2 download-button"
+                        style={{ alignSelf: "center" }}
+                      >
                         Download PDF
                       </Button>
                     </Card.Body>
@@ -221,29 +284,44 @@ const VolunteerDashboard = () => {
                     id="virtual-id-back"
                     className="p-3 border-0"
                     style={{
-                      background: "white",
                       width: "100%",
                       height: "100%",
                       position: "absolute",
                       backfaceVisibility: "hidden",
                       transform: "rotateY(180deg)",
                       borderRadius: "0.5rem",
-                      color: "#000080"
+                      color: "#000080",
+                      background: "white",
                     }}
                   >
-                    <Card.Body style={{ fontSize: "0.75rem" }}>
+                    <Card.Body style={{ fontSize: "0.8rem" }}>
                       <div style={{ display: "flex", justifyContent: "center" }}>
-                        <img src="/LOGO.png" alt="TMGF Logo" style={{ height: "40px", marginBottom: "0.4rem" }} />
+                        <img
+                          src="/LOGO.png"
+                          alt="TMGF Logo"
+                          style={{ height: "40px", marginBottom: "0.4rem" }}
+                        />
                       </div>
-                      <p style={{ color: "#C71585", marginBottom: "2px" }}>We are an NGO focused on uplifting orphaned children and destitutes.</p>
-                      <p style={{ color: "#C71585", marginBottom: "2px" }}>We run orphanages to support children to become self-sufficient and stable.</p>
-                      <hr style={{ margin: "6px 0" }} />
-                      <p style={{ marginBottom: "2px" }}><strong>Contact:</strong></p>
-                      <p style={{ marginBottom: "2px" }}>info@tmgf.in</p>
-                      <p style={{ marginBottom: "2px" }}>+91 9881337914 / +91 8600760014</p>
-                      <p style={{ marginBottom: "2px" }}>
-                        Plot No 100,101,102, S.N. 1300/1316, Maainagari,<br />
-                        Babanrao More Nagar, Bhorade Mala,<br />
+                      <p style={{ color: "#C71585", marginBottom: "3px" }}>
+                        We are an NGO focused on uplifting orphaned children and destitutes.
+                      </p>
+                      <p style={{ color: "#C71585", marginBottom: "3px" }}>
+                        We run orphanages to support children to become self-sufficient and stable.
+                      </p>
+                      <hr style={{ margin: "8px 0" }} />
+                      <p>
+                        <strong>Contact:</strong>
+                      </p>
+                      <p>
+                        info@tmgf.in
+                        <br />
+                        +91 9881337914 / +91 8600760014
+                      </p>
+                      <p>
+                        Plot No 100,101,102, S.N. 1300/1316, Maainagari,
+                        <br />
+                        Babanrao More Nagar, Bhorade Mala,
+                        <br />
                         Shirur, Maharashtra 412210
                       </p>
                     </Card.Body>
@@ -254,7 +332,7 @@ const VolunteerDashboard = () => {
           )}
         </AnimatePresence>
 
-        <div style={{ margin: 30 }}>
+        <div style={{ margin: 30, marginTop: headerHeight }}>
           <Outlet />
         </div>
       </div>
