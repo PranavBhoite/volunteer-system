@@ -1,263 +1,264 @@
-import React, { useState } from "react";
-import { Link, useParams, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import {
+  Card,
+  Container,
+  Spinner,
+  Button,
+  Form,
+  Row,
+  Col,
+} from "react-bootstrap";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import { FaUserCircle } from "react-icons/fa";
 
-export default function Sidebar({ isOpen, toggleSidebar }) {
-  const [showHelpDropdown, setShowHelpDropdown] = useState(false);
+const Profile = () => {
   const { uid } = useParams();
-  const location = useLocation();
 
-  const isActive = (path) => location.pathname.includes(path);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
 
-  const activeStyle = {
-    background:
-      "linear-gradient(90deg, rgba(150, 50, 85, 1) 24%, rgba(204, 47, 112, 1) 45%, rgba(171, 24, 85, 1) 62%)",
-    boxShadow: "0 0 8px rgba(204, 47, 112, 0.4)",
-    color: "white",
-    width: "100%",
-    padding: "6px 15px",
-    boxSizing: "border-box",
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    address: "",
+    mobileNo: "",
+    type: "",
+    interest: "",
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const userRes = await axios.get(
+          `http://localhost:5000/api/users/display/${uid}`
+        );
+        setUser(userRes.data);
+        setFormData({
+          name: userRes.data.name || "",
+          email: userRes.data.email || "",
+          address: userRes.data.address || "",
+          mobileNo: userRes.data.mobileNo || "",
+          type: userRes.data.type || "",
+          interest: userRes.data.interest || "",
+        });
+      } catch {
+        alert("Failed to load user info.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [uid]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const triggerHelpAction = (action) => {
-    const event = new CustomEvent("help-action", { detail: action });
-    window.dispatchEvent(event);
+  const handleEditToggle = async () => {
+    if (isEditing) {
+      try {
+        await axios.put(
+          `http://localhost:5000/api/users/update/${uid}`,
+          formData
+        );
+        alert("Profile updated successfully");
+      } catch {
+        alert("Failed to update profile.");
+      }
+    }
+    setIsEditing(!isEditing);
+  };
+
+  if (loading) {
+    return (
+      <Container fluid
+        className="d-flex justify-content-center align-items-center"
+        style={{ minHeight: "60vh" }}
+      >
+        <Spinner animation="border" variant="primary" />
+      </Container>
+    );
+  }
+
+  const fieldBoxStyle = {
+    padding: "12px 16px",
+    border: "none",
+    borderBottom: "1px solid #e0e0e0",
+    backgroundColor: "#fff",
+    borderRadius: "6px",
+  };
+
+  const inputStyle = {
+    border: "none",
+    outline: "none",
+    boxShadow: "none",
+    fontSize: "1rem",
+    backgroundColor: "transparent",
+    paddingLeft: "0",
   };
 
   return (
-    <>
-      {/* Hamburger button for mobile */}
-      <button
-        aria-label="Toggle sidebar"
-        onClick={toggleSidebar}
-        className={`hamburger-btn ${isOpen ? "open" : ""}`}
-      >
-        <span />
-        <span />
-        <span />
-      </button>
-
-      {/* Sidebar container */}
-      <div
-        className={`sidebar d-flex flex-column p-3 bg-info text-white ${
-          isOpen ? "sidebar-open" : ""
-        }`}
-      >
-        {/* Logo */}
-        <div className="text-center mb-4">
-          <img
-            src="/LOGO.png"
-            alt="Logo"
-            className="rounded"
-            style={{ width: "120px", height: "auto" }}
-          />
-        </div>
-
-        <ul className="nav flex-column gap-2 flex-grow-1">
-          <li className="nav-item">
-            <Link
-              to={`/dashboard/${uid}/profile`}
-              className="sidebar-button"
-              style={
-                location.pathname === `/dashboard/${uid}/profile`
-                  ? activeStyle
-                  : {}
-              }
-              onClick={() => isOpen && toggleSidebar()}
-            >
-              Profile
-            </Link>
-          </li>
-
-          <li className="nav-item">
-            <Link
-              to={`/dashboard/${uid}/volunteer-view`}
-              className="sidebar-button"
-              style={
-                location.pathname === `/dashboard/${uid}/volunteer-view`
-                  ? activeStyle
-                  : {}
-              }
-              onClick={() => isOpen && toggleSidebar()}
-            >
-              Event
-            </Link>
-          </li>
-
-          <li className="nav-item">
-            <button
-              className="sidebar-button btn text-start w-100"
-              onClick={() => setShowHelpDropdown(!showHelpDropdown)}
-              style={isActive("help") ? activeStyle : {}}
-            >
-              Help
-            </button>
-            {showHelpDropdown && (
-              <div className="d-flex flex-column gap-2 mt-2 ps-3">
-                {["create", "approved", "disapproved"].map((action) => (
-                  <button
-                    key={action}
-                    className="custom-tab-button text-start"
-                    onClick={() => triggerHelpAction(action)}
-                  >
-                    {action.charAt(0).toUpperCase() + action.slice(1)}
-                  </button>
-                ))}
-              </div>
-            )}
-          </li>
-        </ul>
-
-        {/* Mobile-only: Logout and Virtual ID inside sidebar */}
-        <div className="mobile-extra-buttons mt-auto pt-3 border-top">
-          <button
-            className="sidebar-button"
-            onClick={() => {
-              alert("Virtual ID clicked! Implement your logic.");
-              if (isOpen) toggleSidebar();
-            }}
-          >
-            Virtual ID
-          </button>
-          <button
-            className="sidebar-button"
-            onClick={() => {
-              alert("Logout clicked! Implement your logic.");
-              if (isOpen) toggleSidebar();
-            }}
-          >
-            Logout
-          </button>
-        </div>
+   <div className="main-content-container">
+    <div style={{ background: "#fff" }}>
+      <div className="text-center mt-4">
+        <img src="/LOGO.png" alt="TMGF" style={{ width: 120,marginTop: 20 }} />
+        <h2 style={{ fontWeight: "bold", marginTop: 20, marginBottom: 24 }}>
+          <span style={{ color: "#0599C2" }}>The </span>
+          <span style={{ color: "#a70a4a" }}>Mother </span>
+          <span style={{ color: "#0599C2" }}>Global Foundation</span>
+        </h2>
       </div>
 
-      <style>{`
-        /* Sidebar styles */
-        .sidebar {
-          width: 250px;
-          height: 100vh;
-          position: fixed;
-          top: 0;
-          left: 0;
-          overflow-y: auto;
-          transition: transform 0.3s ease;
-          z-index: 999;
-          background: #15b1d3;
-          color: white;
-          display: flex;
-          flex-direction: column;
-        }
+      <Container className="mb-5">
+        <Card
+          className="p-4"
+          style={{
+            border: "1px solid #ccc",
+            borderRadius: "16px",
+            background: "#f9f9f9",
+          }}
+        >
+          <h4
+            className="mb-4 d-flex align-items-center"
+            style={{
+              background: "white",
+              color: "#a70a4a" ,
+              padding: "10px 24px",
+              fontSize: "1.5rem",
+              fontWeight: "bold",
+              borderRadius: "10px",
+              display: "inline-flex",
+              alignItems: "center",
+              border: "2px solid #8ee8ff",
+              marginBottom: "20px",
+              maxWidth: "290px",
+            }}
+          >
+            <FaUserCircle size={24} style={{ marginRight: "10px", color: "#a70a4a"  }} />
+            Personal Details
+          </h4>
 
-        /* Sidebar buttons */
-        .sidebar-button {
-          text-decoration: none;
-          color: white;
-          padding: 6px 15px;
-          display: flex;
-          align-items: center;
-          border-radius: 8px;
-          transition: background 0.3s, transform 0.2s;
-          cursor: pointer;
-          font-weight: 600;
-          width: 100%;
-          box-sizing: border-box;
-          background: transparent;
-          border: none;
-        }
+          <Row>
+            <Col md={6} className="mb-3">
+              <div style={fieldBoxStyle}>
+                <Form.Group>
+                  <Form.Label style={{ fontWeight: "bold" }}>Name</Form.Label>
+                  <Form.Control
+                    name="name"
+                    type="text"
+                    value={formData.name}
+                    onChange={handleChange}
+                    readOnly={!isEditing}
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </div>
+            </Col>
 
-        .sidebar-button:hover {
-          background-color: rgba(255, 255, 255, 0.2);
-          transform: translateX(4px);
-          color: white;
-          text-decoration: none;
-        }
+            <Col md={6} className="mb-3">
+              <div style={fieldBoxStyle}>
+                <Form.Group>
+                  <Form.Label style={{ fontWeight: "bold" }}>
+                    Address
+                  </Form.Label>
+                  <Form.Control
+                    name="address"
+                    type="text"
+                    value={formData.address}
+                    onChange={handleChange}
+                    readOnly={!isEditing}
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </div>
+            </Col>
 
-        .custom-tab-button {
-          background: transparent;
-          border: none;
-          color: white;
-          font-weight: 500;
-          padding: 8px 12px;
-          border-bottom: 2px solid white;
-          border-radius: 12px;
-          transition: all 0.3s ease;
-          cursor: pointer;
-          text-transform: capitalize;
-        }
+            <Col md={6} className="mb-3">
+              <div style={fieldBoxStyle}>
+                <Form.Group>
+                  <Form.Label style={{ fontWeight: "bold" }}>Email</Form.Label>
+                  <Form.Control
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    readOnly={!isEditing}
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </div>
+            </Col>
 
-        .custom-tab-button:hover {
-          background-color: rgba(106, 75, 207, 0.35);
-          transform: translateX(6px);
-          color: white;
-        }
+            <Col md={6} className="mb-3">
+              <div style={fieldBoxStyle}>
+                <Form.Group>
+                  <Form.Label style={{ fontWeight: "bold" }}>
+                    Contact No
+                  </Form.Label>
+                  <Form.Control
+                    name="mobileNo"
+                    type="tel"
+                    value={formData.mobileNo}
+                    onChange={handleChange}
+                    readOnly={!isEditing}
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </div>
+            </Col>
 
-        /* Hamburger button */
-        .hamburger-btn {
-          display: none;
-          position: fixed;
-          top: 15px;
-          left: 15px;
-          width: 40px;
-          height: 30px;
-          flex-direction: column;
-          justify-content: space-between;
-          background: transparent;
-          border: none;
-          cursor: pointer;
-          z-index: 1100;
-          padding: 0;
-        }
-        .hamburger-btn span {
-          display: block;
-          height: 4px;
-          background: #15b1d3;
-          border-radius: 2px;
-          transition: all 0.3s ease;
-          transform-origin: 4px 2px;
-          width: 100%;
-        }
-        .hamburger-btn.open span:nth-child(1) {
-          transform: rotate(45deg) translate(5px, 5px);
-          background: #a70a4a;
-        }
-        .hamburger-btn.open span:nth-child(2) {
-          opacity: 0;
-        }
-        .hamburger-btn.open span:nth-child(3) {
-          transform: rotate(-45deg) translate(6px, -6px);
-          background: #a70a4a;
-        }
+            <Col md={6} className="mb-3">
+              <div style={fieldBoxStyle}>
+                <Form.Group>
+                  <Form.Label style={{ fontWeight: "bold" }}>Type</Form.Label>
+                  <Form.Control
+                    name="type"
+                    type="text"
+                    value={formData.type}
+                    onChange={handleChange}
+                    readOnly={!isEditing}
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </div>
+            </Col>
 
-        /* Responsive behavior */
-        @media (max-width: 768px) {
-          .sidebar {
-            transform: translateX(-100%);
-            width: 80vw;
-            max-width: 300px;
-            background: #15b1d3;
-          }
-          .sidebar.sidebar-open {
-            transform: translateX(0);
-            box-shadow: 4px 0 12px rgba(0,0,0,0.2);
-          }
-          .hamburger-btn {
-            display: flex;
-          }
-          /* Mobile-only extra buttons */
-          .mobile-extra-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(255,255,255,0.3);
-          }
-        }
+            <Col md={6} className="mb-3">
+              <div style={fieldBoxStyle}>
+                <Form.Group>
+                  <Form.Label style={{ fontWeight: "bold" }}>
+                    Interest
+                  </Form.Label>
+                  <Form.Control
+                    name="interest"
+                    type="text"
+                    value={formData.interest}
+                    onChange={handleChange}
+                    readOnly={!isEditing}
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </div>
+            </Col>
+          </Row>
 
-        @media (min-width: 769px) {
-          .mobile-extra-buttons {
-            display: none;
-          }
-        }
-      `}</style>
-    </>
+          <div className="text-center mt-3">
+            <Button
+              variant="primary"
+              onClick={handleEditToggle}
+              style={{ backgroundColor: "#15b1d3", borderRadius: "8px" }}
+            >
+              {isEditing ? "Save Details" : "Edit Details"}
+            </Button>
+          </div>
+        </Card>
+      </Container>
+    </div>
+    </div>
   );
-}
+};
+
+export default Profile;
