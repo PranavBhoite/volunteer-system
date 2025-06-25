@@ -162,34 +162,42 @@ const OrganizerView = () => {
 
   if (loading) {
     return (
+  <div style={{
+    height: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    background: '#f8f9fa',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+  }}>
+    {/* Scrollable content */}
+    <div style={{
+      flex: 1,
+      overflowY: 'auto',
+      padding: '24px'
+    }}>
       <div style={{
-        minHeight: '100vh',
-        background: '#f8f9fa',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+        textAlign: 'center',
+        padding: '40px',
+        borderRadius: '12px',
+        background: 'white',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
       }}>
         <div style={{
-          textAlign: 'center',
-          padding: '40px',
-          borderRadius: '12px',
-          background: 'white',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-        }}>
-          <div style={{
-            width: '50px',
-            height: '50px',
-            border: '4px solid #e2e8f0',
-            borderTop: '4px solid #0891b2',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 20px'
-          }}></div>
-          <div style={{ color: '#64748b', fontSize: '1.1rem' }}>Loading events...</div>
+          width: '50px',
+          height: '50px',
+          border: '4px solid #e2e8f0',
+          borderTop: '4px solid #0891b2',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite',
+          margin: '0 auto 20px'
+        }}></div>
+        <div style={{ color: '#64748b', fontSize: '1.1rem' }}>
+          Loading events...
         </div>
       </div>
-    );
+    </div> 
+  </div>
+);
   }
 
   if (error) {
@@ -1008,6 +1016,7 @@ const OrganizerView = () => {
         }
       `}</style>
     </div>
+    
   );
 };
 

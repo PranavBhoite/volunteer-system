@@ -103,7 +103,7 @@ const App = () => {
   };
 
   return (
-    <Container className="py-5 bg-light min-vh-100">
+    <Container className="py-5 bg-light min-vh-100,main-content-container">
       <Row className="justify-content-end mb-4">
         <Col xs="auto">
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>

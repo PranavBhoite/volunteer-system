@@ -38,12 +38,12 @@ const AllVolunteers = () => {
       {/* Header Section */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h2 className="mb-0" style={{ color: '#3a3a3a', fontWeight: '600' }}>Volunteer Management</h2>
+          <h2 className="mb-0" style={{ color: '#a70a4a', fontWeight: '600' }}>Volunteer Management</h2>
           <p className="text-muted mb-0">Manage your volunteer community</p>
         </div>
         <Button 
           variant="primary" 
-          style={{ backgroundColor: '#4a6ee0', border: 'none' }}
+          style={{ backgroundColor: 'rgb(44, 181, 219)', border: 'none' }}
           onClick={fetchUsers}
         >
           + Add Volunteer
@@ -61,28 +61,32 @@ const AllVolunteers = () => {
         />
         
         <div className="btn-group" role="group">
+         <Button
+  variant={activeTab === "active" ? "success" : "outline-secondary"}
+  onClick={() => setActiveTab("active")}
+  style={{ 
+    backgroundColor: activeTab === "active" ? 'rgb(25, 135, 84)' : 'transparent',  // Bootstrap green
+    borderColor: '#ddd',
+    color: activeTab === "active" ? 'white' : 'rgb(25, 135, 84)',
+    fontWeight: '500'
+  }}
+>
+  Active
+</Button>
+
           <Button
-            variant={activeTab === "active" ? "primary" : "outline-secondary"}
-            onClick={() => setActiveTab("active")}
-            style={{ 
-              backgroundColor: activeTab === "active" ? '#4a6ee0' : 'transparent',
-              borderColor: '#ddd',
-              color: activeTab === "active" ? 'white' : '#6c757d'
-            }}
-          >
-            Active
-          </Button>
-          <Button
-            variant={activeTab === "inactive" ? "primary" : "outline-secondary"}
-            onClick={() => setActiveTab("inactive")}
-            style={{ 
-              backgroundColor: activeTab === "inactive" ? '#4a6ee0' : 'transparent',
-              borderColor: '#ddd',
-              color: activeTab === "inactive" ? 'white' : '#6c757d'
-            }}
-          >
-            Inactive
-          </Button>
+  variant={activeTab === "inactive" ? "secondary" : "outline-secondary"}
+  onClick={() => setActiveTab("inactive")}
+  style={{ 
+    backgroundColor: activeTab === "inactive" ? '#ef5a5a' : 'transparent',
+    borderColor: '#ddd',
+    color: activeTab === "inactive" ? 'white' : '#ef5a5a',
+    fontWeight: '500'
+  }}
+>
+  Inactive
+</Button>
+
         </div>
       </div>
 
