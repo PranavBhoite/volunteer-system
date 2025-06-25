@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import './VolunteerView.css';
 
 const VolunteerView = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -11,23 +12,17 @@ const VolunteerView = () => {
   const [error, setError] = useState(null);
   const {uid} = useParams();
 
-  // Fetch events when component mounts
   useEffect(() => {
     fetchEvents(eventType);
   }, []);
 
   const fetchEvents = async (type) => {
     setLoading(true);
-    console.log(`Fetching type: ${type}`); 
-
     try {
       const response = await axios.get(`http://localhost:5000/api/events/${uid}/${type}`);
-      
-      // Transform the data to match your frontend expectations
       const transformedEvents = response.data.map(event => ({
         ...event,
       }));
-      
       setEvents(transformedEvents);
     } catch (err) {
       setError('Failed to fetch events');
@@ -39,12 +34,9 @@ const VolunteerView = () => {
 
   const handleRegister = async (eventid) => {
     try {
-      console.log("Started registration");
       const registerType = eventType === "Upcoming" ? 'register' : 'unregister';
       const response = await axios.post(`http://localhost:5000/api/events/${registerType}`, {userId : uid, eventId : eventid});
-      console.log("Response recieved");
       fetchEvents(eventType);
-      console.log(response);
     } catch (err) {
       console.error('Registration failed:', err);
       alert(err.response?.data?.message || 'Failed to register for event');
@@ -58,33 +50,17 @@ const VolunteerView = () => {
     return matchesSearch && matchesCategory;
   });
 
+  const toggleEventType = (type) => {
+    setEventType(type);
+    fetchEvents(type);
+  }
+
   if (loading) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        background: '#f8f9fa',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-      }}>
-        <div style={{
-          textAlign: 'center',
-          padding: '40px',
-          borderRadius: '12px',
-          background: 'white',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-        }}>
-          <div style={{
-            width: '50px',
-            height: '50px',
-            border: '4px solid #e2e8f0',
-            borderTop: '4px solid #0891b2',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 20px'
-          }}></div>
-          <div style={{ color: '#64748b', fontSize: '1.1rem' }}>Loading events...</div>
+      <div className="loading-container">
+        <div className="loading-box">
+          <div className="spinner"></div>
+          <div className="loading-text">Loading events...</div>
         </div>
       </div>
     );
@@ -92,448 +68,550 @@ const VolunteerView = () => {
 
   if (error) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        background: '#f8f9fa',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-      }}>
-        <div style={{
-          textAlign: 'center',
-          padding: '40px',
-          borderRadius: '12px',
-          background: 'white',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-          border: '1px solid #fecaca',
-          color: '#dc2626'
-        }}>
+      <div className="loading-container">
+        <div className="error-box">
           {error}
         </div>
       </div>
     );
   }
 
-  // const getProgressPercentage = (volunteers, maxVolunteers) => {
-  //   return (volunteers / maxVolunteers) * 100;
-  // };
-
-  // const getStatusBadge = (volunteers, maxVolunteers) => {
-  //   const percentage = getProgressPercentage(volunteers, maxVolunteers);
-  //   if (percentage >= 100) return 'Full';
-  //   if (percentage >= 80) return 'Almost Full';
-  //   return 'Open';
-  // };
-
-  const toggleEventType = (type) => {
-    setEventType(type);
-    fetchEvents(type);
-  }
-
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: '#f8f9fa',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      padding: '24px'
-    }}>
-      {/* Header */}
-      {/* <div style={{
-        background: 'white',
-        borderRadius: '12px',
-        padding: '32px',
-        marginBottom: '24px',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-        textAlign: 'center'
-      }}>
-        <h1 style={{
-          fontSize: '2rem',
-          fontWeight: '600',
-          color: '#1e293b',
-          margin: '0 0 8px 0'
-        }}>
-          Volunteer Events
-        </h1>
-        <p style={{
-          fontSize: '1rem',
-          color: '#64748b',
-          margin: 0
-        }}>
-          Building stronger communities through dedicated volunteers
-        </p>
-      </div> */}
-
-      {/* Search and Filter Section */}
-      <div style={{
-        background: 'white',
-        borderRadius: '12px',
-        padding: '24px',
-        marginBottom: '24px',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-      }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 200px',
-          gap: '16px',
-          alignItems: 'center',
-          marginBottom: '20px'
-        }}>
-          <input
-            type="text"
-            placeholder="Search"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              padding: '12px 16px',
-              borderRadius: '8px',
-              border: '1px solid #d1d5db',
-              fontSize: '14px',
-              outline: 'none',
-              transition: 'border-color 0.2s ease',
-              fontFamily: 'inherit',
-              background: '#f9fafb'
-            }}
-            onFocus={(e) => e.target.style.borderColor = '#0891b2'}
-            onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-          />
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            style={{
-              padding: '12px 16px',
-              borderRadius: '8px',
-              border: '1px solid #d1d5db',
-              fontSize: '14px',
-              outline: 'none',
-              cursor: 'pointer',
-              background: 'white',
-              fontFamily: 'inherit'
-            }}
-          >
-            <option value="all">All Categories</option>
-            <option value="Environmental">Environmental</option>
-            <option value="Social Service">Social Service</option>
-            <option value="Education">Education</option>
-            <option value="Healthcare">Healthcare</option>
-            <option value="Community">Community</option>
-          </select>
-        </div>
-
-        {/* Event Type Tabs */}
-        <div style={{
-          display: 'flex',
-          gap: '4px'
-        }}>
-          {['Ongoing','Upcoming', 'Registered', 'Completed'].map(type => (
-            <button
-              key={type}
-              onClick={() => toggleEventType(type)}
-              style={{
-                padding: '10px 20px',
-                background: eventType === type ? '#be185d' : 'transparent',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: eventType === type ? 'white' : '#64748b',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                fontFamily: 'inherit'
-              }}
+    <div className='main-content'>
+      <div className="volunteer-container">
+        <div className="search-section">
+          <div className="search-row">
+            <input
+              type="text"
+              placeholder="Search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="category-select"
             >
-              {type}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Events Grid */}
-      {filteredEvents.length > 0 ? (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-          gap: '20px'
-        }}>
-          {filteredEvents.map(event => (
-            <div
-              key={event.id}
-              style={{
-                background: 'white',
-                borderRadius: '12px',
-                padding: '24px',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.2s ease',
-                border: '1px solid #f1f5f9',
-                position: 'relative'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              {/* Category Badge */}
-              <div style={{
-                position: 'absolute',
-                top: '16px',
-                right: '16px',
-                background: '#0891b2',
-                color: 'white',
-                padding: '4px 12px',
-                borderRadius: '12px',
-                fontSize: '12px',
-                fontWeight: '500'
-              }}>
-                {event.category}
-              </div>
-
-              {/* Event Content */}
-              <div style={{ marginBottom: '16px', paddingRight: '80px' }}>
-                <h3 style={{
-                  fontSize: '1.25rem',
-                  fontWeight: '600',
-                  color: '#1e293b',
-                  margin: '0 0 8px 0',
-                  lineHeight: '1.4'
-                }}>
-                  {event.title}
-                </h3>
-                <p style={{
-                  color: '#64748b',
-                  fontSize: '14px',
-                  margin: 0,
-                  lineHeight: '1.5'
-                }}>
-                  {event.description}
-                </p>
-              </div>
-
-              {/* Event Details */}
-              <div style={{ marginBottom: '20px' }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginBottom: '8px',
-                  color: '#64748b',
-                  fontSize: '14px'
-                }}>
-                  <span style={{ marginRight: '8px' }}>📅</span>
-                  <span style={{ fontWeight: '500', marginRight: '4px' }}>Start Date:</span>
-                  <span>{event.startDate}</span>
-                </div>
-
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginBottom: '8px',
-                  color: '#64748b',
-                  fontSize: '14px'
-                }}>
-                  <span style={{ marginRight: '8px' }}>📅</span>
-                  <span style={{ fontWeight: '500', marginRight: '4px' }}>End Date:</span>
-                  <span>{event.endDate}</span>
-                </div>
-                
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginBottom: '8px',
-                  color: '#64748b',
-                  fontSize: '14px'
-                }}>
-                  <span style={{ marginRight: '8px' }}>🕒</span>
-                  <span style={{ fontWeight: '500', marginRight: '4px' }}>Start Time:</span>
-                  <span>{event.startTime}</span>
-                </div>
-
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginBottom: '8px',
-                  color: '#64748b',
-                  fontSize: '14px'
-                }}>
-                  <span style={{ marginRight: '8px' }}>🕒</span>
-                  <span style={{ fontWeight: '500', marginRight: '4px' }}>End Time:</span>
-                  <span>{event.endTime}</span>
-                </div>
-
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginBottom: '8px',
-                  color: '#64748b',
-                  fontSize: '14px'
-                }}>
-                  <span style={{ marginRight: '8px' }}>📍</span>
-                  <span>{event.location}</span>
-                </div>
-              </div>
-
-              {/* Progress Bar */}
-              {eventType !== "Completed" && eventType !== "Ongoing" && (
-                <div style={{ marginBottom: '20px' }}>
-                  {/* <div style={{
-                    background: '#f1f5f9',
-                    borderRadius: '4px',
-                    height: '6px',
-                    overflow: 'hidden',
-                    marginBottom: '8px'
-                  }}>
-                    <div style={{
-                      background: '#0891b2',
-                      height: '100%',
-                      width: `${getProgressPercentage(event.volunteersRegistered, event.volunteersNeeded)}%`,
-                      transition: 'width 0.3s ease'
-                    }}></div>
-                  </div> */}
-                  <p style={{
-                    fontSize: '16px',
-                    color: '#64748b',
-                    margin: 0,
-                    textAlign: 'center'
-                  }}>
-                    {event.volunteersNeeded} volunteers Needed
-                  </p>
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              <div style={{
-                display: 'flex',
-                gap: '8px'
-              }}>
-                {eventType !== "Completed" && eventType !== "Ongoing" && (
-                  <button
-                    onClick={() => handleRegister(event.id)}
-                    disabled={eventType === "Upcoming" && event.volunteersNeeded <= 0}
-                    style={{
-                      flex: 1,
-                      padding: '10px 16px',
-                      background: eventType === "Upcoming"
-                        ? (event.volunteersNeeded <= 0 ? '#9ca3af' : '#be185d')
-                        : '#dc2626',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      cursor: eventType === "Upcoming" && event.volunteersNeeded <= 0 ? 'not-allowed' : 'pointer',
-                      transition: 'all 0.2s ease',
-                      fontFamily: 'inherit',
-                      opacity: eventType === "Upcoming" && event.volunteersNeeded <= 0 ? 0.7 : 1
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!(eventType === "Upcoming" && event.volunteersNeeded <= 0)) {
-                        e.currentTarget.style.opacity = '0.9';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!(eventType === "Upcoming" && event.volunteersNeeded <= 0)) {
-                        e.currentTarget.style.opacity = '1';
-                      }
-                    }}
-                  >
-                    {eventType === "Upcoming"
-                      ? (event.volunteersNeeded <= 0 ? 'Event Full' : 'Register')
-                      : 'Unregister'}
-                  </button>
-                )}
-                
-                {eventType === "Registered" && (
-                  <button
-                    onClick={() => {}}
-                    style={{
-                      padding: '10px 16px',
-                      background: '#0891b2',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '6px',
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      transition: 'all 0.2s ease',
-                      fontFamily: 'inherit'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.opacity = '0.9';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.opacity = '1';
-                    }}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                      <line x1="16" y1="2" x2="16" y2="6"></line>
-                      <line x1="8" y1="2" x2="8" y2="6"></line>
-                      <line x1="3" y1="10" x2="21" y2="10"></line>
-                    </svg>
-                    Schedule
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div style={{
-          background: 'white',
-          borderRadius: '12px',
-          padding: '60px 20px',
-          textAlign: 'center',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-        }}>
-          <div style={{
-            fontSize: '3rem',
-            marginBottom: '16px',
-            opacity: 0.5
-          }}>
-            📋
+              <option value="all">All Categories</option>
+              <option value="Environmental">Environmental</option>
+              <option value="Social Service">Social Service</option>
+              <option value="Education">Education</option>
+              <option value="Healthcare">Healthcare</option>
+              <option value="Community">Community</option>
+            </select>
           </div>
-          <h3 style={{
-            fontSize: '1.25rem',
-            marginBottom: '8px',
-            fontWeight: '600',
-            color: '#1e293b'
-          }}>
-            No events found
-          </h3>
-          <p style={{
-            fontSize: '14px',
-            color: '#64748b',
-            margin: 0
-          }}>
-            Try adjusting your search or filter criteria
-          </p>
+          <div className="event-type-buttons">
+            {['Ongoing','Upcoming', 'Registered', 'Completed'].map(type => (
+              <button
+                key={type}
+                onClick={() => toggleEventType(type)}
+                className={`event-type-btn ${eventType === type ? 'active' : ''}`}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
         </div>
-      )}
 
-      <style jsx>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
+        {filteredEvents.length > 0 ? (
+          <div className="events-grid">
+            {filteredEvents.map(event => (
+              <div key={event.id} className="event-card">
+                <div className="event-category">{event.category}</div>
+                <div className="event-header">
+                  <h3>{event.title}</h3>
+                  <p>{event.description}</p>
+                </div>
+                <div className="event-details">
+                  <div>📅 <strong>Start Date:</strong> {event.startDate}</div>
+                  <div>📅 <strong>End Date:</strong> {event.endDate}</div>
+                  <div>🕒 <strong>Start Time:</strong> {event.startTime}</div>
+                  <div>🕒 <strong>End Time:</strong> {event.endTime}</div>
+                  <div>📍 {event.location}</div>
+                </div>
+                {eventType !== "Completed" && eventType !== "Ongoing" && (
+                  <p className="progress-text">{event.volunteersNeeded} volunteers Needed</p>
+                )}
+                <div className="event-actions">
+                  {eventType !== "Completed" && eventType !== "Ongoing" && (
+                    <button
+                      onClick={() => handleRegister(event.id)}
+                      disabled={eventType === "Upcoming" && event.volunteersNeeded <= 0}
+                      className={`action-btn ${eventType === "Upcoming" && event.volunteersNeeded <= 0 ? 'disabled' : eventType === 'Upcoming' ? 'register' : 'unregister'}`}
+                    >
+                      {eventType === "Upcoming"
+                        ? (event.volunteersNeeded <= 0 ? 'Event Full' : 'Register')
+                        : 'Unregister'}
+                    </button>
+                  )}
+                  {eventType === "Registered" && (
+                    <button className="schedule-btn">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                      </svg>
+                      Schedule
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="no-events">
+            <div className="no-events-icon">📋</div>
+            <h3>No events found</h3>
+            <p>Try adjusting your search or filter criteria</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
 export default VolunteerView;
+
+
+// import React, { useState, useEffect } from 'react';
+// import axios from 'axios';
+// import { useParams } from 'react-router-dom';
+
+// const VolunteerView = () => {
+//   const [searchTerm, setSearchTerm] = useState('');
+//   const [selectedCategory, setSelectedCategory] = useState('all');
+//   const [events, setEvents] = useState([]);
+//   const [eventType, setEventType] = useState("Upcoming");
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
+//   const [clickedButton, setClickedButton] = useState(null);
+//   const { uid } = useParams();
+
+//   useEffect(() => {
+//     fetchEvents(eventType);
+//   }, []);
+
+//   const fetchEvents = async (type) => {
+//     setLoading(true);
+//     console.log(`Fetching type: ${type}`); 
+
+//     try {
+//       const response = await axios.get(`http://localhost:5000/api/events/${uid}/${type}`);
+      
+//       // Transform the data to match your frontend expectations
+//       const transformedEvents = response.data.map(event => ({
+//         ...event,
+//       }));
+      
+//       setEvents(transformedEvents);
+//     } catch (err) {
+//       setError('Failed to fetch events');
+//       console.error('Error fetching events:', err.response ? err.response.data : err.message);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleRegister = async (eventid) => {
+//     try {
+//       console.log("Started registration");
+//       const registerType = eventType === "Upcoming" ? 'register' : 'unregister';
+//       const response = await axios.post(`http://localhost:5000/api/events/${registerType}`, {userId : uid, eventId : eventid});
+//       console.log("Response recieved");
+//       fetchEvents(eventType);
+//       console.log(response);
+//     } catch (err) {
+//       console.error('Registration failed:', err);
+//       alert(err.response?.data?.message || 'Failed to register for event');
+//     }
+//   };
+
+//   const filteredEvents = events.filter(event => {
+//     const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+//                          event.description.toLowerCase().includes(searchTerm.toLowerCase());
+//     const matchesCategory = selectedCategory === 'all' || event.category === selectedCategory;
+//     return matchesSearch && matchesCategory;
+//   });
+
+//   const toggleEventType = (type) => {
+//     setEventType(type);
+//     fetchEvents(type);
+//   }
+
+//   if (loading) {
+//     return (
+//       <div className="loading-container">
+//         <div className="loading-box">
+//           <div className="spinner"></div>
+//           <div className="loading-text">Loading events...</div>
+//         </div>
+
+//         <style>{`
+//           .loading-container {
+//             min-height: 100vh;
+//             background: #f8f9fa;
+//             display: flex;
+//             align-items: center;
+//             justify-content: center;
+//             font-family: sans-serif;
+//             padding: 20px;
+//           }
+//           .loading-box {
+//             text-align: center;
+//             padding: 40px;
+//             border-radius: 12px;
+//             background: white;
+//             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+//             width: 100%;
+//             max-width: 320px;
+//           }
+//           .spinner {
+//             width: 50px;
+//             height: 50px;
+//             border: 4px solid #e2e8f0;
+//             border-top: 4px solid #0891b2;
+//             border-radius: 50%;
+//             animation: spin 1s linear infinite;
+//             margin: 0 auto 20px;
+//           }
+//           .loading-text {
+//             color: #64748b;
+//             font-size: 1.1rem;
+//           }
+//           @keyframes spin {
+//             0% { transform: rotate(0deg); }
+//             100% { transform: rotate(360deg); }
+//           }
+//         `}</style>
+//       </div>
+//     );
+//   }
+
+//   if (error) {
+//     return (
+//       <div className="error-container">
+//         <div className="error-box">
+//           {error}
+//         </div>
+//         <style>{`
+//           .error-container {
+//             min-height: 100vh;
+//             background: #f8f9fa;
+//             display: flex;
+//             align-items: center;
+//             justify-content: center;
+//             font-family: sans-serif;
+//             padding: 20px;
+//           }
+//           .error-box {
+//             text-align: center;
+//             padding: 40px;
+//             border-radius: 12px;
+//             background: white;
+//             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+//             border: 1px solid #fecaca;
+//             color: #dc2626;
+//             width: 100%;
+//             max-width: 320px;
+//           }
+//         `}</style>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="volunteer-view-container, main-content">
+  
+//       {/* Search & Filters */}
+//       <div className="search-filters">
+//         <div className="search-filter-row">
+//           <input
+//             type="text"
+//             placeholder="Search"
+//             value={searchTerm}
+//             onChange={(e) => setSearchTerm(e.target.value)}
+//             className="search-input"
+//           />
+//           <select
+//             value={selectedCategory}
+//             onChange={(e) => setSelectedCategory(e.target.value)}
+//             className="category-select"
+//           >
+//             <option value="all">All Categories</option>
+//             <option value="Environmental">Environmental</option>
+//             <option value="Social Service">Social Service</option>
+//             <option value="Education">Education</option>
+//             <option value="Healthcare">Healthcare</option>
+//             <option value="Community">Community</option>
+//           </select>
+//         </div>
+  
+//         <div className="event-type-buttons">
+//           {['Ongoing', 'Upcoming', 'Registered', 'Completed'].map(type => (
+//             <button
+//               key={type}
+//               onClick={() => toggleEventType(type)}
+//               className={`event-type-btn ${eventType === type ? 'active' : ''} ${clickedButton === type ? 'clicked' : ''}`}
+//             >
+//               {type}
+//             </button>
+//           ))}
+//         </div>
+//       </div>
+  
+//       {/* Events */}
+//       {filteredEvents.length > 0 ? (
+//         <div className="events-grid">
+//           {filteredEvents.map(event => (
+//             <div key={event.id} className="event-card">
+//               <div className="event-category">{event.category}</div>
+  
+//               <div className="event-header">
+//                 <h3>{event.title}</h3>
+//                 <p>{event.description}</p>
+//               </div>
+  
+//               <div className="event-details">
+//                 <div>📅 Start Date: {event.startDate}</div>
+//                 <div>📅 End Date: {event.endDate}</div>
+//                 <div>🕒 Start Time: {event.startTime}</div>
+//                 <div>🕒 End Time: {event.endTime}</div>
+//                 <div>📍 {event.location}</div>
+//               </div>
+  
+//               {eventType !== "Completed" && eventType !== "Ongoing" && (
+//                 <>
+//                   <p className="progress-text">
+//                     {event.volunteersNeeded} volunteers Needed
+//                   </p>
+//                 </>
+//               )}
+  
+//               <div className="event-action-buttons">
+//                 {eventType !== "Completed" && eventType !== "Ongoing" && (
+//                   <button
+//                     onClick={() => handleRegister(event.id)}
+//                     disabled={eventType === "Upcoming" && event.volunteersNeeded <= 0}
+//                     className={`register-btn ${eventType === "Upcoming" ? 'register' : 'unregister'}`}
+//                   >
+//                     {eventType === "Upcoming"
+//                       ? (event.volunteersNeeded <= 0 ? 'Event Full' : 'Register')
+//                       : 'Unregister'}
+//                   </button>
+//                 )}
+  
+//                 {eventType === "Registered" && (
+//                   <button
+//                     onClick={() => {}}
+//                     className="schedule-btn"
+//                   >
+//                     <svg
+//                       xmlns="http://www.w3.org/2000/svg"
+//                       width="16"
+//                       height="16"
+//                       viewBox="0 0 24 24"
+//                       fill="none"
+//                       stroke="currentColor"
+//                       strokeWidth="2"
+//                       strokeLinecap="round"
+//                       strokeLinejoin="round"
+//                     >
+//                       <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+//                       <line x1="16" y1="2" x2="16" y2="6"></line>
+//                       <line x1="8" y1="2" x2="8" y2="6"></line>
+//                       <line x1="3" y1="10" x2="21" y2="10"></line>
+//                     </svg>
+//                     Schedule
+//                   </button>
+//                 )}
+//               </div>
+//             </div>
+//           ))}
+//         </div>
+//       ) : (
+//         <div className="no-events">
+//           <div className="no-events-icon">📋</div>
+//           <h3>No events found</h3>
+//           <p>Try adjusting your search or filter criteria</p>
+//         </div>
+//       )}
+
+//       {/* Styles */}
+//       <style>{`
+//         .volunteer-view-container {
+//           min-height: 100vh;
+//           background: #f8f9fa;
+//           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+//           padding: 24px;
+//           box-sizing: border-box;
+//         }
+//         /* Search & Filters */
+//         .search-filters {
+//           background: white;
+//           border-radius: 12px;
+//           padding: 24px;
+//           margin-bottom: 24px;
+//           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+//         }
+//         .search-filter-row {
+//           display: grid;
+//           grid-template-columns: 1fr 200px;
+//           gap: 16px;
+//           align-items: center;
+//           margin-bottom: 20px;
+//         }
+//         .search-input, .category-select {
+//           padding: 12px 16px;
+//           border-radius: 8px;
+//           border: 1px solid #d1d5db;
+//           font-size: 14px;
+//           background: #f9fafb;
+//           box-sizing: border-box;
+//           width: 100%;
+//         }
+//         .category-select {
+//           background: white;
+//         }
+//         .event-type-buttons {
+//           display: flex;
+//           gap: 4px;
+//           flex-wrap: wrap;
+//         }
+//         .event-type-btn {
+//           padding: 10px 20px;
+//           background: transparent;
+//           border-radius: 8px;
+//           font-size: 14px;
+//           font-weight: 500;
+//           color: #64748b;
+//           border: none;
+//           cursor: pointer;
+//           user-select: none;
+//           transition: transform 0.2s ease, background 0.2s ease;
+//         }
+//         .event-type-btn.active {
+//           background: #be185d;
+//           color: white;
+//         }
+//         .event-type-btn.clicked {
+//           transform: scale(0.95);
+//         }
+//         /* Events Grid */
+//         .events-grid {
+//           display: grid;
+//           grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+//           gap: 20px;
+//         }
+//         .event-card {
+//           background: white;
+//           border-radius: 12px;
+//           padding: 24px;
+//           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+//           border: 1px solid #f1f5f9;
+//           position: relative;
+//           display: flex;
+//           flex-direction: column;
+//         }
+//         .event-category {
+//           position: absolute;
+//           top: 16px;
+//           right: 16px;
+//           background: #0891b2;
+//           color: white;
+//           padding: 4px 12px;
+//           border-radius: 12px;
+//           font-size: 12px;
+//           white-space: nowrap;
+//         }
+//         .event-header h3 {
+//           font-size: 1.25rem;
+//           font-weight: 600;
+//           color: #1e293b;
+//           margin: 0 0 8px 0;
+//         }
+//         .event-header p {
+//           font-size: 14px;
+//           color: #64748b;
+//           margin: 0 0 16px 0;
+//         }
+//         .event-details {
+//           font-size: 14px;
+//           color: #64748b;
+//           margin-bottom: 16px;
+//           display: flex;
+//           flex-wrap: wrap;
+//           gap: 12px;
+//         }
+//         .volunteer-progress-bar {
+//           background: #f1f5f9;
+//           height: 6px;
+//           border-radius: 4px;
+//           overflow: hidden;
+//           margin-bottom: 6px;
+//           width: 100%;
+//         }
+//         .progress-fill {
+//           height: 100%;
+//           background: #0891b2;
+//           transition: width 0.3s ease;
+//         }
+//         .progress-text {
+//           font-size: 12px;
+//           color: #64748b;
+//           text-align: center;
+//           margin: 0 0 12px 0;
+//         }
+//         .register-btn {
+//           width: 100%;
+//           padding: 10px;
+//           color: white;
+//           border-radius: 8px;
+//           border: none;
+//           cursor: pointer;
+//           font-weight: 600;
+//           transition: background 0.3s ease;
+//         }
+//         .register-btn.register {
+//           background: #be185d;
+//         }
+//         .register-btn.unregister {
+//           background: #dc2626;
+//         }
+//         .register-btn:hover {
+//           filter: brightness(0.9);
+//         }
+//         .no-events {
+//           background: white;
+//           border-radius: 12px;
+//           padding: 60px 20px;
+//           text-align: center;
+//           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+//         }
+//         .no-events-icon {
+//           font-size: 3rem;
+//           margin-bottom: 16px;
+//           opacity: 0.5;
+//         }
+
+//         /* Responsive */
+//         @media (max-width: 768px) {
+//           .search-filter-row {
+//             grid-template-columns: 1fr;
+//             gap: 12px;
+//           }
+//           .event-details {
+//             flex-direction: column;
+//             gap: 6px;
+//           }
+//           .events-grid {
+//             grid-template-columns: 1fr;
+//           }
+//         }
+//       `}</style>
+//       </div>
+//   )
+// };
+
+// export default VolunteerView;

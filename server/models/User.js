@@ -1,12 +1,28 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
+const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 
+/**
+ * User Model Definition
+ *
+ * This model defines the schema for the 'users' table in the database.
+ * It includes fields for user details, credentials, and the newly added
+ * virtualId and interests fields.
+ */
 const User = sequelize.define('User', {
+  // Standard UUID for the primary key
   id: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
     allowNull: false,
+  },
+  // virtualId is now generated in the controller before creation
+  virtualId: {
+    type: DataTypes.STRING,
+    unique: true,
+    allowNull: true,
   },
   name: {
     type: DataTypes.STRING,
@@ -28,6 +44,10 @@ const User = sequelize.define('User', {
   mobileNo: {
     type: DataTypes.STRING,
   },
+  interests: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   isActive: {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
@@ -38,7 +58,7 @@ const User = sequelize.define('User', {
   }
 }, {
   tableName: 'users',
-  timestamps: false, // or true if you want createdAt/updatedAt
+  timestamps: false, // Disabling createdAt/updatedAt columns
 });
 
 module.exports = User;

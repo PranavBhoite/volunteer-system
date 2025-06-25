@@ -10,6 +10,11 @@ import AdminDashboard from './components/Features/AdminDashboard/AdminDashboard'
 import AdminRegister from './components/Authentication/Admin/AdminRegister';
 import AdminLogin from './components/Authentication/Admin/AdminLogin';
 
+
+
+
+
+
 // Import your actual components
 import VolunteerView from './components/Features/VolunteerDashboard/Event/VolunteerView';
 import Profile from './components/Features/VolunteerDashboard/Profile/Profile';
@@ -17,6 +22,11 @@ import HelpSection from './components/Features/VolunteerDashboard/Help/HelpSecti
 import OrganizerView from './components/Features/AdminDashboard/Event/OrganizerView';
 import AllVolunteers from './components/Features/AdminDashboard/VolunteerList/AllVolunteers';
 import Help from './components/Features/AdminDashboard/Help/Help';
+import HelpMe from './components/Features/VolunteerDashboard/HelpMe/HelpMe';
+import Home from './components/Features/VolunteerDashboard/Home/Home';
+
+
+
 
 
 function App() {
@@ -41,9 +51,14 @@ function App() {
         <Route path="/dashboard/:uid" element={<VolunteerDashboard />}>
           {/* These are the nested routes that will render in the Outlet */}
           <Route path="profile" element={<Profile />} />
+          <Route path="home" element={<Home/>}/>
           <Route path="volunteer-view" element={<VolunteerView />} />
           <Route path="help" element={<HelpSection />} />
-          <Route index element={<Navigate to="profile" replace />} />
+          <Route path="help-me" element={<HelpMe />} />
+
+
+
+          <Route index element={<Navigate to="Home" replace />} />
         </Route>
       </Routes>
     </Router>

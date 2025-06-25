@@ -1,0 +1,242 @@
+/* VolunteerView.css */
+
+.main-content {
+    padding: 24px;
+    background: #f8f9fa;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  
+  .volunteer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .search-section {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .search-row {
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .search-input,
+  .category-select {
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+    background: #f9fafb;
+  }
+  
+  .category-select {
+    background: white;
+  }
+  
+  .event-type-buttons {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  
+  .event-type-btn {
+    padding: 10px 20px;
+    background: transparent;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #64748b;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s ease;
+  }
+  
+  .event-type-btn.active {
+    background: #be185d;
+    color: white;
+  }
+  
+  .events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+  }
+  
+  .event-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #f1f5f9;
+    position: relative;
+    transition: all 0.2s ease;
+  }
+  
+  .event-card:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+  
+  .event-category {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: #0891b2;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  
+  .event-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 8px 0;
+  }
+  
+  .event-header p {
+    color: #64748b;
+    font-size: 14px;
+    margin: 0;
+  }
+  
+  .event-details {
+    margin: 20px 0;
+    color: #64748b;
+    font-size: 14px;
+  }
+  
+  .progress-text {
+    font-size: 16px;
+    color: #64748b;
+    text-align: center;
+  }
+  
+  .event-actions {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .action-btn {
+    flex: 1;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .action-btn.register {
+    background: #be185d;
+  }
+  
+  .action-btn.unregister {
+    background: #dc2626;
+  }
+  
+  .action-btn.disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  
+  .schedule-btn {
+    padding: 10px 16px;
+    background: #0891b2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  
+  .no-events {
+    background: white;
+    border-radius: 12px;
+    padding: 60px 20px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .no-events-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+  
+  .loading-container {
+    min-height: 100vh;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  
+  .loading-box {
+    text-align: center;
+    padding: 40px;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #e2e8f0;
+    border-top: 4px solid #0891b2;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+  }
+  
+  .loading-text {
+    color: #64748b;
+    font-size: 1.1rem;
+  }
+  
+  .error-box {
+    padding: 40px;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid #fecaca;
+    color: #dc2626;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  @media (max-width: 768px) {
+    .search-row {
+      grid-template-columns: 1fr;
+    }
+  
+    .events-grid {
+      grid-template-columns: 1fr;
+    }
+  
+    .event-actions {
+      flex-direction: column;
+    }
+  }
+  

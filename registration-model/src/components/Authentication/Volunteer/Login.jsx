@@ -43,7 +43,7 @@ const Login = () => {
 
   return (
     <div style={{
-      backgroundImage: "url('/Login.png')", // Replace with your image path
+      backgroundImage: "url('/images/Login.png')", // Replace with your image path
       backgroundSize: "cover",
       backgroundPosition: "center",
       minHeight: "100vh",
@@ -129,7 +129,7 @@ const Login = () => {
               </Form>
 
               <p className="mt-4 text-center" style={{ color: "#666" }}>
-                Don't have an account? <Link to="/" style={{ color: "#3498db", textDecoration: "none" }}>Register</Link>
+                Don't have an account? <Link to="/Registration" style={{ color: "#3498db", textDecoration: "none" }}>Register</Link>
               </p>
             </div>
           </Col>

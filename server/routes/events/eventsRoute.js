@@ -9,5 +9,6 @@ router.post('/register', eventController.registerEvent);
 router.post('/unregister', eventController.unRegisterEvent);
 router.get('/:id/:event', eventController.getUserSpecificEvents);
 router.put('/cancel/:id', eventController.cancelEvent);
+router.get('/getall' , eventController.getEventsForHome);
 
 module.exports = router;

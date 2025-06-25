@@ -267,3 +267,16 @@ exports.updateEventStatuses = async () => {
     console.error("Error updating event statuses:", error);
   }
 };
+
+exports.getEventsForHome = async (req, res) => {
+  try {
+    const events = await Event.findAll({
+      order: [['createdAt', 'DESC']],
+      attributes: ['id', 'title', 'description']  // only return what's needed
+    });
+    res.status(200).json(events);
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    res.status(500).json({ error: "Failed to fetch events" });
+  }
+};

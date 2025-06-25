@@ -42,3 +42,451 @@
     transform: rotate(360deg);
   }
 }
+
+/* ---------- General Reset & Layout ---------- */
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.App {
+  text-align: center;
+}
+
+/* Remove if unused  */
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+/* Remove if unused  */
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+.App-link {
+  color: #61dafb;
+}
+
+
+/* ---------- Sidebar Buttons ---------- */
+.sidebar-button {
+  background: linear-gradient(to right bottom, #15b1d3, #0a97c6);
+  border: 1px solid #fdfcfd;
+  border-radius: 10px;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: -apple-system, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 2.5;
+  padding: 0 1rem;
+  text-decoration: none;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.sidebar-button:hover,
+.sidebar-button:focus {
+  box-shadow: 0 0 .25rem rgba(0, 0, 0, 0.5),
+              -0.125rem -0.125rem 1rem rgba(8, 102, 154, 0.5),
+               0.125rem 0.125rem 1rem rgba(107, 208, 252, 0.5);
+  text-decoration: none;
+  color: white;
+}
+
+.sidebar-button.active {
+  background-color: rgba(255, 255, 255, 0.08);
+  font-weight: 600;
+  box-shadow: inset 2px 0 6px rgba(218, 43, 115, 0.2);
+}
+
+
+/* ---------- Buttons Styles ---------- */
+
+.btn-outline-primary {
+  border-color: #5555e8 !important;
+  color: #5555e8 !important;
+}
+.btn-outline-primary:hover {
+  background-color: #5555e8 !important;
+  color: white !important;
+}
+
+.btn-outline-success:hover {
+  background-color: #4CAF50 !important;
+  color: white !important;
+}
+
+.btn-outline-danger:hover {
+  background-color: #F44336 !important;
+  color: white !important;
+}
+
+/* Conditional status button styles */
+.active-create {
+  background-color: #5555e8 !important;
+  color: white !important;
+}
+.active-approved {
+  background-color: #4CAF50 !important;
+  color: white !important;
+}
+.active-disapproved {
+  background-color: #F44336 !important;
+  color: white !important;
+}
+
+
+/* ---------- Table Styling ---------- */
+
+.table-hover tbody tr:hover {
+  background-color: #d0f0ff !important;
+  transition: background-color 0.3s ease;
+}
+
+.table-header-maroon th {
+  background: linear-gradient(to right, #a70a4a, #da2b73) !important;
+  color: white !important;
+}
+
+.table-bordered-blue {
+  border: 1px solid #61dafb !important;
+  border-radius: 10px;
+}
+
+.table-bordered-blue th,
+.table-bordered-blue td {
+  border: 1px solid #61dafb !important;
+}
+
+/* Scrollable container for table */
+.table-scroll-container {
+  max-height: 400px;
+  overflow-y: auto;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin-top: 10px;
+}
+
+/* Sticky table headers inside scroll container */
+.table-scroll-container thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: linear-gradient(to right, #a70a4a, #da2b73) !important;
+  color: white !important;
+}
+
+/* Rounded table corners */
+.table-rounded {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.table-rounded thead th:first-child {
+  border-top-left-radius: 10px;
+}
+.table-rounded thead th:last-child {
+  border-top-right-radius: 10px;
+}
+.table-rounded tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 10px;
+}
+.table-rounded tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 10px;
+}
+
+
+/* ---------- Popup Modals (Glass Effect) ---------- */
+.glass-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  max-width: 400px;
+  width: 100%;
+  color: #333;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.glass-card p {
+  margin-bottom: 10px;
+}
+
+
+/* ---------- Form Buttons ---------- */
+.custom-cancel-btn {
+  background-color: #ffeeee;
+  border: 2px solid #ffcccc;
+  color: #cc0000;
+  font-weight: 500;
+  padding: 8px 20px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.custom-cancel-btn:hover {
+  background-color: #ffdddd;
+  color: #990000;
+  border-color: #ff9999;
+}
+.custom-cancel-btn:active {
+  background-color: #cc0000;
+  color: white;
+  border-color: #990000;
+}
+
+.custom-submit-btn {
+  background-color: #eeffee;
+  border: 2px solid #ccffcc;
+  color: #006600;
+  font-weight: 500;
+  padding: 8px 20px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.custom-submit-btn:hover {
+  background-color: #ddffdd;
+  color: #004d00;
+  border-color: #99ff99;
+}
+.custom-submit-btn:active {
+  background-color: #008000;
+  color: white;
+  border-color: #006600;
+}
+
+
+/* ---------- Action Buttons ---------- */
+.unified-btn, .custom-dropdown-btn .dropdown-toggle {
+  background: linear-gradient(to right, rgb(79, 212, 249), rgb(21, 189, 235));
+  color: white;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 102, 255, 0.8);
+  padding: 8px 20px;
+  height: 45px;
+  font-size: 1rem;
+  font-weight: 300;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.unified-btn:hover,
+.custom-dropdown-btn .dropdown-toggle:hover {
+  transform: scale(1.02);
+  text-decoration: none;
+  color: white !important;
+}
+
+
+/* ---------- Section Headings ---------- */
+.events-heading {
+  background: white;
+  color: #a70a4a;
+  padding: 10px 24px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  border: 2px solid #8ee8ff;
+  margin-bottom: 20px;
+}
+
+
+/* ---------- Forms & Lists ---------- */
+form ul {
+  padding-left: 1.3rem;
+}
+form ul li {
+  margin-bottom: 0.6rem;
+}
+
+
+/* ---------- Animations ---------- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0.8); opacity: 0.7; }
+  60% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.main-content {
+  padding-top: 70px; 
+  padding-left: 0;
+}
+
+@media (min-width: 768px) {
+  .main-content {
+    padding-left: 250px; 
+  }
+}
+.main-content {
+  padding-top: 70px; 
+  padding-left: 0;
+  padding-right: 16px;
+}
+
+@media (min-width: 768px) {
+  .main-content {
+    padding-left: 250px;
+  }
+}
+
+/* TMGF THEME GLOBALS */
+:root {
+  --tmgf-primary: #ac2e62;
+  --tmgf-primary-rgb: 172, 46, 98;
+  --tmgf-primary-1: #de7da6;
+  --tmgf-primary-2: #c34e7f;
+  --tmgf-primary-3: #8e1749;
+  --tmgf-primary-4: #6d022f;
+}
+body {
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, var(--tmgf-primary-1) 0%, #fff 100%);
+  color: var(--tmgf-primary-4);
+}
+.tmgf-section-title { color: var(--tmgf-primary-4); letter-spacing: 1px; }
+.tmgf-card {
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(var(--tmgf-primary-rgb),0.08);
+  background: #fff;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.tmgf-card:hover {
+  box-shadow: 0 8px 32px rgba(var(--tmgf-primary-rgb),0.16);
+  transform: translateY(-4px) scale(1.01);
+}
+.tmgf-btn-main {
+  background: linear-gradient(135deg, var(--tmgf-primary), var(--tmgf-primary-2));
+  color: #fff;
+  border-radius: 24px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border: none;
+  box-shadow: 0 2px 8px rgba(var(--tmgf-primary-rgb),0.08);
+  transition: background 0.2s;
+}
+.tmgf-btn-main:hover {
+  background: linear-gradient(135deg, var(--tmgf-primary-2), var(--tmgf-primary));
+  color: #fff;
+}
+.tmgf-btn-outline {
+  background: #fff;
+  color: var(--tmgf-primary);
+  border: 2px solid var(--tmgf-primary);
+  border-radius: 24px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 8px rgba(var(--tmgf-primary-rgb),0.08);
+  transition: color 0.2s, border 0.2s;
+}
+.tmgf-btn-outline:hover {
+  background: var(--tmgf-primary-1);
+  color: var(--tmgf-primary-4);
+  border: 2px solid var(--tmgf-primary-2);
+}
+.tmgf-navbar {
+  background: #fff;
+  border-radius: 0 0 24px 24px;
+  box-shadow: 0 4px 24px rgba(var(--tmgf-primary-rgb),0.07);
+}
+.tmgf-footer {
+  background: linear-gradient(135deg, var(--tmgf-primary-2) 0%, var(--tmgf-primary-3) 100%);
+  color: #fff;
+}
+.tmgf-feature-icon {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 2rem;
+  margin: 0 auto 1rem auto;
+  box-shadow: 0 2px 8px rgba(var(--tmgf-primary-rgb),0.08);
+}
+.tmgf-section {
+  padding: 64px 0;
+}
+.tmgf-hero {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, var(--tmgf-primary-1) 0%, #fff 100%);
+  border-radius: 0 0 32px 32px;
+  box-shadow: 0 8px 32px rgba(var(--tmgf-primary-rgb),0.08);
+}
+.tmgf-hero-title {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--tmgf-primary-4);
+  margin-bottom: 1rem;
+}
+.tmgf-hero-subtitle {
+  font-size: 1.5rem;
+  color: var(--tmgf-primary-3);
+  margin-bottom: 2rem;
+}
+.tmgf-navbar .nav-link { color: var(--tmgf-primary-4) !important; font-weight: 600; }
+.tmgf-navbar .nav-link.active, .tmgf-navbar .nav-link:focus { color: var(--tmgf-primary) !important; }
+.tmgf-footer-link { color: #fff; opacity: 0.8; margin-right: 1.5rem; text-decoration: none; }
+.tmgf-footer-link:hover { color: var(--tmgf-primary-1); opacity: 1; }
+@media (max-width: 768px) {
+  .tmgf-hero-title { font-size: 2.2rem; }
+  .tmgf-section { padding: 32px 0; }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

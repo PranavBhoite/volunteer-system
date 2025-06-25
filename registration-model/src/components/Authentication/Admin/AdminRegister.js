@@ -20,7 +20,7 @@ function AdminRegister() {
 
   return (
     <div style={{
-      backgroundImage: "url('/Login.png')", // Replace with your image path
+      backgroundImage: "url('/images/Login.png')", // Replace with your image path
       backgroundSize: "cover",
       backgroundPosition: "center",
       minHeight: "100vh",
