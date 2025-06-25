@@ -1,38 +1,34 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Container,
   Spinner,
-  Alert,
   Button,
   Form,
+  Row,
+  Col,
 } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { motion, AnimatePresence } from "framer-motion";
+import { FaUserCircle } from "react-icons/fa";
 
 const Profile = () => {
   const { uid } = useParams();
-  const pinkColor = "#e91e63";
+  const pinkColor = "#a70a4a";
+ 
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [editMode, setEditMode] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     address: "",
     mobileNo: "",
   });
-  const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState("");
-  const [saveSuccess, setSaveSuccess] = useState(false);
-  const [validationErrors, setValidationErrors] = useState({});
-  const [registeredEvents, setRegisteredEvents] = useState([]);
-  const [completedEvents, setCompletedEvents] = useState([]);
 
-  const successTimeoutRef = useRef(null);
+  const [registeredEvents, setRegisteredEvents] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,8 +41,8 @@ const Profile = () => {
           address: userRes.data.address || "",
           mobileNo: userRes.data.mobileNo || "",
         });
-      } catch (err) {
-        setError("Failed to load user info.");
+      } catch {
+        alert("Failed to load user info.");
       } finally {
         setLoading(false);
       }
@@ -55,262 +51,157 @@ const Profile = () => {
   }, [uid]);
 
   useEffect(() => {
-    const fetchEventData = async () => {
+    const fetchEvents = async () => {
       try {
-        const [registeredRes, completedRes] = await Promise.all([
-          axios.get(`http://localhost:5000/api/events/${uid}/Registered`),
-          axios.get(`http://localhost:5000/api/events/${uid}/Completed`),
-        ]);
-        setRegisteredEvents(registeredRes.data || []);
-        setCompletedEvents(completedRes.data || []);
-      } catch (err) {
-        console.error("Error fetching events: ", err);
+        const res = await axios.get(`http://localhost:5000/api/events/${uid}/Registered`);
+        setRegisteredEvents(res.data || []);
+      } catch {
+        console.log("Event fetch error");
       }
     };
-    fetchEventData();
+    fetchEvents();
   }, [uid]);
 
-  useEffect(() => {
-    return () => {
-      if (successTimeoutRef.current) clearTimeout(successTimeoutRef.current);
-    };
-  }, []);
-
-  const validate = () => {
-    const errors = {};
-    if (!formData.name.trim()) errors.name = "Name is required";
-    if (!formData.email.trim()) {
-      errors.email = "Email is required";
-    } else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(formData.email)) {
-      errors.email = "Invalid email address";
-    }
-    if (formData.mobileNo.trim() && !/^\d{7,15}$/.test(formData.mobileNo.trim())) {
-      errors.mobileNo = "Mobile number should be digits only (7-15 chars)";
-    }
-    setValidationErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const isFormChanged = () => {
-    if (!user) return false;
-    return (
-      formData.name !== user.name ||
-      formData.email !== user.email ||
-      formData.address !== user.address ||
-      formData.mobileNo !== user.mobileNo
-    );
-  };
-
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    setValidationErrors((prev) => ({ ...prev, [e.target.name]: "" }));
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = async () => {
-    if (!validate()) return;
-    setSaving(true);
-    setSaveError("");
-    setSaveSuccess(false);
-    try {
-      await axios.put(`http://localhost:5000/api/users/update/${uid}`, formData);
-      setUser(formData);
-      setSaveSuccess(true);
-      setEditMode(false);
-      if (successTimeoutRef.current) clearTimeout(successTimeoutRef.current);
-      successTimeoutRef.current = setTimeout(() => setSaveSuccess(false), 2500);
-    } catch (error) {
-      setSaveError("Failed to save changes. Please try again.");
+  const handleEditToggle = async () => {
+    if (isEditing) {
+      // On Save
+      try {
+        await axios.put(`http://localhost:5000/api/users/update/${uid}`, formData);
+        alert("Profile updated successfully");
+      } catch {
+        alert("Failed to update profile.");
+      }
     }
-    setSaving(false);
+    setIsEditing(!isEditing);
   };
 
   if (loading) {
     return (
-      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "50vh" }}>
+      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "60vh" }}>
         <Spinner animation="border" variant="primary" />
       </Container>
     );
   }
 
-  if (error) {
-    return (
-      <Container className="mt-4">
-        <Alert variant="danger" className="text-center">
-          {error}
-        </Alert>
-      </Container>
-    );
-  }
-
   return (
-    <div style={{ position: "relative", backgroundColor: "#fff" }}>
-      {/* Background with Torn Paper Effect */}
-      <div style={{
-        backgroundImage: "url('/tmgf-children.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center center",
-        height: "55vh",
-        position: "relative",
-        filter: "brightness(0.95)",
-      }}>
-        <svg
-          viewBox="0 0 1440 150"
-          preserveAspectRatio="none"
-          style={{ display: "block", width: "100%", height: "80px", position: "absolute", bottom: 0, left: 0 }}
-        >
-          <path
-            d="M0,96L60,106.7C120,117,240,139,360,122.7C480,107,600,53,720,42.7C840,32,960,64,1080,69.3C1200,75,1320,53,1380,42.7L1440,32V150H0Z"
-            fill="#fff"
-          />
-        </svg>
+    <div style={{ background: "#fff" }}>
+      <div className="text-center mt-4">
+        <img src="/LOGO.png" alt="TMGF" style={{ width: 120 }} />
+        <h2 style={{ fontWeight: "bold", marginTop: 10, marginBottom: 24 }}>
+          <span style={{ color: "#0599C2" }}>The </span>
+          <span style={{ color: pinkColor }}>Mother </span>
+          <span style={{ color: "#0599C2" }}>Global Foundation</span>
+        </h2>
       </div>
 
-      {/* Content Area with 95% opacity */}
-      <div style={{
-        marginTop: "-20px",
-        padding: "30px 20px",
-        backgroundColor: "rgba(255, 255, 255, 0.95)",
-        borderRadius: "20px 20px 0 0"
-      }}>
-        <Container>
-          <h2 style={{ fontWeight: "700", color: pinkColor, marginBottom: "30px" }}>User Profile</h2>
+      <Container className="mb-5">
+        <Card className="shadow-sm  p-4" style={{ border: `1px solid ${pinkColor}`,  
+    borderRadius: "16px",
+    boxShadow: "0 0 12px rgba(167, 10, 74, 0.1)" }}>
+          <h4
+            className="mb-4 d-flex align-items-center"
+            style={{
+              background: 'white',
+              color: '#a70a4a',
+              padding: '10px 24px',
+              fontSize: '1.5rem',
+              fontWeight: 'bold',
+              borderRadius: '10px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              border: '2px solid #8ee8ff',
+              marginBottom: '20px',
+              maxWidth: '290px'
+            }}
+          >
+            <FaUserCircle size={24} style={{ marginRight: "10px" }} />
+            Personal Details
+          </h4>
 
-          <Card className="shadow-sm rounded-4 border-0 my-4" style={{ border: `2px solid ${pinkColor}` }}>
-            <Card.Body>
-              {["name", "email", "address", "mobileNo"].map((field) => (
-                <div key={field} className="mb-4">
-                  <h5 style={{ color: pinkColor, fontWeight: "600" }}>
-                    {field.charAt(0).toUpperCase() + field.slice(1)}
-                  </h5>
-                  {editMode ? (
-                    <Form.Control
-                      type={field === "email" ? "email" : field === "mobileNo" ? "tel" : "text"}
-                      name={field}
-                      value={formData[field]}
-                      onChange={handleChange}
-                      placeholder={`Enter ${field}`}
-                      isInvalid={!!validationErrors[field]}
-                      as={field === "address" ? "textarea" : "input"}
-                      rows={field === "address" ? 3 : undefined}
-                    />
-                  ) : (
-                    <p className="fs-5 text-secondary">{user[field] || "N/A"}</p>
-                  )}
-                  <Form.Control.Feedback type="invalid">
-                    {validationErrors[field]}
-                  </Form.Control.Feedback>
-                </div>
-              ))}
+          <Row className="mb-3">
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Name</Form.Label>
+                <Form.Control
+                  name="name"
+                  type="text"
+                  value={formData.name}
+                  onChange={handleChange}
+                  readOnly={!isEditing}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Address</Form.Label>
+                <Form.Control
+                  name="address"
+                  type="text"
+                  value={formData.address}
+                  onChange={handleChange}
+                  readOnly={!isEditing}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
 
-              <div className="d-flex justify-content-center gap-3 mt-4">
-                {editMode ? (
-                  <>
-                    <Button
-                      variant="pink"
-                      style={{ backgroundColor: pinkColor, borderColor: pinkColor }}
-                      onClick={handleSave}
-                      disabled={saving || !isFormChanged()}
-                    >
-                      {saving ? (
-                        <>
-                          <Spinner animation="border" size="sm" className="me-2" />
-                          Saving...
-                        </>
-                      ) : (
-                        "Save Changes"
-                      )}
-                    </Button>
-                    <Button
-                      variant="outline-secondary"
-                      onClick={() => {
-                        setEditMode(false);
-                        setFormData({
-                          name: user.name,
-                          email: user.email,
-                          address: user.address,
-                          mobileNo: user.mobileNo,
-                        });
-                        setSaveError("");
-                        setSaveSuccess(false);
-                        setValidationErrors({});
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  </>
-                ) : (
-                  <Button
-                    variant="primary"
-                    style={{ backgroundColor: pinkColor, borderColor: pinkColor }}
-                    onClick={() => setEditMode(true)}
-                  >
-                    Edit Details
-                  </Button>
-                )}
-              </div>
+          <Row>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Email</Form.Label>
+                <Form.Control
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  readOnly={!isEditing}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Phone</Form.Label>
+                <Form.Control
+                  name="mobileNo"
+                  type="tel"
+                  value={formData.mobileNo}
+                  onChange={handleChange}
+                  readOnly={!isEditing}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
 
-              {saveError && (
-                <Alert variant="danger" className="mt-4 text-center">{saveError}</Alert>
-              )}
+          <div className="text-center">
+            <Button
+              variant="primary"
+              onClick={handleEditToggle}
+              style={{ backgroundColor: "#15b1d3", borderRadius: "8px" }}
+            >
+              {isEditing ? "Save Details" : "Edit Details"}
+            </Button>
+          </div>
+        </Card>
 
-              <AnimatePresence>
-                {saveSuccess && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.7, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.7, y: 20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <Alert
-                      variant="success"
-                      className="mt-4 text-center shadow-lg"
-                      style={{ borderRadius: "12px", fontWeight: "600" }}
-                    >
-                      Changes saved successfully!
-                    </Alert>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </Card.Body>
-          </Card>
-
-          <Card className="shadow-sm rounded-4 border-0" style={{ border: `2px solid ${pinkColor}` }}>
-            <Card.Body>
-              <h4 style={{ color: pinkColor }}>Registered Events</h4>
-              {registeredEvents.length === 0 ? (
-                <p className="text-muted">No registered events found.</p>
-              ) : (
-                registeredEvents.map((event) => (
-                  <Card key={event._id} className="border-0 shadow-sm rounded-4 mb-3">
-                    <Card.Body>
-                      <Card.Title style={{ fontWeight: "600", color: pinkColor }}>{event.title}</Card.Title>
-                      <Card.Text className="text-secondary">{event.description}</Card.Text>
-                      <div className="text-muted small">{event.date} at {event.time}</div>
-                      <div className="text-muted small">Location: {event.location}</div>
-                    </Card.Body>
-                  </Card>
-                ))
-              )}
-
-              <h4 className="mt-4" style={{ color: pinkColor }}>Completed Events</h4>
-              {completedEvents.length === 0 ? (
-                <p className="text-muted">No completed events yet.</p>
-              ) : (
-                completedEvents.map((event) => (
-                  <Card key={event._id} className="border-0 shadow-sm rounded-4 bg-light mb-3">
-                    <Card.Body>
-                      <Card.Title style={{ fontWeight: "600", color: pinkColor }}>{event.title}</Card.Title>
-                      <Card.Text className="text-secondary">{event.description}</Card.Text>
-                      <div className="text-muted small">{event.date} at {event.time}</div>
-                      <div className="text-muted small">Location: {event.location}</div>
-                    </Card.Body>
-                  </Card>
-                ))
-              )}
-            </Card.Body>
-          </Card>
-        </Container>
-      </div>
+        {/* Registration Count Card */}
+        <Card className="mt-4 shadow-sm text-center" style={{
+          border: `1px solid ${pinkColor}`,
+          borderRadius: "12px",
+          maxWidth: 400,
+          margin: "20px auto",
+          padding: "10px 0"
+        }}>
+          <div className="d-flex justify-content-between px-3 fw-bold">
+            <span>Your Registration Count</span>
+            <span>{registeredEvents.length}</span>
+          </div>
+        </Card>
+      </Container>
     </div>
   );
 };

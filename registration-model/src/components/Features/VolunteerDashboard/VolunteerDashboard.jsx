@@ -1,4 +1,3 @@
-// VolunteerDashboard.jsx with White Front Card Theme and Download Button on Card with Thick Blue Border
 import React, { useState, useEffect, forwardRef } from "react";
 import { Outlet, useParams } from "react-router-dom";
 import Sidebar from "./Layouts/Sidebar";
@@ -45,6 +44,7 @@ const VolunteerDashboard = () => {
     const frontEl = document.getElementById("virtual-id-front");
     const backEl = document.getElementById("virtual-id-back");
     if (!frontEl || !backEl || !window.domtoimage || !window.jspdf) return;
+
     try {
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF("landscape", "mm", "a4");
@@ -84,6 +84,7 @@ const VolunteerDashboard = () => {
               imgHeightMm = pageHeight;
               imgWidthMm = pageHeight * aspectRatio;
             }
+
             const x = (pageWidth - imgWidthMm) / 2;
             const y = (pageHeight - imgHeightMm) / 2;
             pdf.addImage(dataUrl, "PNG", x, y, imgWidthMm, imgHeightMm);
@@ -131,7 +132,7 @@ const VolunteerDashboard = () => {
 
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
-      <Sidebar style={{ position: 'fixed', top: 0, left: 0, bottom: 0, width: sidebarWidth }} />
+      <Sidebar />
       <div style={{ flex: 1, marginLeft: sidebarWidth, paddingTop: headerHeight }}>
         <div style={{ position: "fixed", top: 0, left: sidebarWidth, right: 0, height: headerHeight, zIndex: 1000 }}>
           <Header />
@@ -155,7 +156,18 @@ const VolunteerDashboard = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              style={{ position: "fixed", top: 0, left: 0, height: "100vh", width: "100vw", backgroundColor: "rgba(0, 0, 0, 0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 12000 }}
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                height: "100vh",
+                width: "100vw",
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                zIndex: 12000
+              }}
               onClick={() => setShowCard(false)}
             >
               <div onClick={(e) => e.stopPropagation()} style={{ perspective: "1500px" }}>
@@ -173,23 +185,53 @@ const VolunteerDashboard = () => {
                     border: "5px solid #0000FF",
                   }}
                 >
-                  <Card id="virtual-id-front" className="p-3 border-0" style={{ background: "white", color: "#000080", width: "100%", height: "100%", position: "absolute", backfaceVisibility: "hidden", borderRadius: "0.5rem" }}>
+                  {/* FRONT */}
+                  <Card
+                    id="virtual-id-front"
+                    className="p-3 border-0"
+                    style={{
+                      background: "white",
+                      color: "#000080",
+                      width: "100%",
+                      height: "100%",
+                      position: "absolute",
+                      backfaceVisibility: "hidden",
+                      borderRadius: "0.5rem"
+                    }}
+                  >
                     <Card.Body className="text-center">
                       <img src="/LOGO.png" alt="TMGF Logo" style={{ height: "40px", marginBottom: "0.4rem" }} />
-                      <h6 style={{ color: "#C71585" }}>Virtual ID Card</h6>
+                      <h6 style={{ color: "#C71585" }}>Volunteer ID Card</h6>
                       <h5 className="fw-bold">{user?.name}</h5>
                       <p>ID: {user?._id}</p>
-                      <p style={{ fontSize: "0.8rem", textAlign: "left" }}>
-                        <strong>Email:</strong> {user?.email}<br />
-                        <strong>Contact:</strong> {user?.mobileNo || "N/A"}<br />
-                        <strong>Address:</strong> {user?.address || "N/A"}
+                      <p style={{ fontSize: "0.8rem", textAlign: "left", lineHeight: "1.5rem" }}>
+                        <span style={{ fontWeight: "bold", color: "#000080" }}>Name:</span> {user?.name}<br />
+                        <span style={{ fontWeight: "bold", color: "#000080" }}>Email ID:</span> {user?.email}<br />
+                        <span style={{ fontWeight: "bold", color: "#000080" }}>Mobile No:</span> {user?.mobileNo || "N/A"}<br />
+                        <span style={{ fontWeight: "bold", color: "#000080" }}>Address:</span> {user?.address || "N/A"}
                       </p>
-                      <Button onClick={handleDownloadPdf} variant="light" size="sm" className="mt-2 download-button">Download PDF</Button>
+                      <Button onClick={handleDownloadPdf} variant="light" size="sm" className="mt-2 download-button">
+                        Download PDF
+                      </Button>
                     </Card.Body>
                   </Card>
 
-                  <Card id="virtual-id-back" className="p-3 border-0" style={{ background: "white", width: "100%", height: "100%", position: "absolute", backfaceVisibility: "hidden", transform: "rotateY(180deg)", borderRadius: "0.5rem" }}>
-                    <Card.Body style={{ fontSize: "0.75rem", color: "#000080" }}>
+                  {/* BACK */}
+                  <Card
+                    id="virtual-id-back"
+                    className="p-3 border-0"
+                    style={{
+                      background: "white",
+                      width: "100%",
+                      height: "100%",
+                      position: "absolute",
+                      backfaceVisibility: "hidden",
+                      transform: "rotateY(180deg)",
+                      borderRadius: "0.5rem",
+                      color: "#000080"
+                    }}
+                  >
+                    <Card.Body style={{ fontSize: "0.75rem" }}>
                       <div style={{ display: "flex", justifyContent: "center" }}>
                         <img src="/LOGO.png" alt="TMGF Logo" style={{ height: "40px", marginBottom: "0.4rem" }} />
                       </div>
@@ -221,4 +263,3 @@ const VolunteerDashboard = () => {
 };
 
 export default VolunteerDashboard;
-// This is the flippable card
