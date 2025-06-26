@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import { Button, Carousel, Col, Container, Modal, Row } from "react-bootstrap";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import axios from "axios";
 
 const Home = () => {
+  const [events, setEvents] = useState([]);
+  const [eventSlides, setEventSlides] = useState([]);
+  const [eventDetails, setEventDetails] = useState({});
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showHelpModal, setShowHelpModal] = useState(false);
 
-  // Show Help Modal only once using localStorage
   useEffect(() => {
     const hasSeenHelp = localStorage.getItem("seenHelpPopup");
     if (!hasSeenHelp) {
@@ -16,50 +19,43 @@ const Home = () => {
     }
   }, []);
 
-  // Dummy event slides and details
-  const eventSlides = [
-    ["Tree Plantation", "Health Camp", "Blood Donation"],
-    ["Clothing Drive", "Women Empowerment", "Skill Workshops"],
-    ["Clean Drive", "Awareness Rally", "Education Session"]
-  ];
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/events/getall");
+        const fetchedEvents = response.data;
 
-  const eventDetails = {
-    "Tree Plantation": {
-      date: "2025-07-10", start: "9:00 AM", end: "12:00 PM",
-      purpose: "Planting trees in local parks.",
-      requirements: "Bring water bottles and gloves."
-    },
-    "Health Camp": {
-      date: "2025-07-15", start: "10:00 AM", end: "3:00 PM",
-      purpose: "Free medical checkups for underprivileged.",
-      requirements: "Medical volunteers welcome."
-    },
-    "Blood Donation": {
-      date: "2025-07-20", start: "11:00 AM", end: "4:00 PM",
-      purpose: "Donating blood for emergency needs.",
-      requirements: "Eat well before donation."
-    },
-    "Clothing Drive": {
-      date: "2025-08-01", start: "10:00 AM", end: "2:00 PM",
-      purpose: "Collect clothes for rural areas.",
-      requirements: "Clothes should be clean and usable."
-    },
-    "Women Empowerment": {
-      date: "2025-08-08", start: "1:00 PM", end: "5:00 PM",
-      purpose: "Workshops for self-employment training.",
-      requirements: "Registration required."
-    },
-    "Skill Workshops": {
-      date: "2025-08-15", start: "11:00 AM", end: "3:00 PM",
-      purpose: "Training in basic computer and tailoring.",
-      requirements: "Open for all women above 18."
-    }
-  };
+        setEvents(fetchedEvents);
+
+        // Group events into slides of 3 per slide
+        const grouped = [];
+        for (let i = 0; i < fetchedEvents.length; i += 3) {
+          grouped.push(fetchedEvents.slice(i, i + 3));
+        }
+        setEventSlides(grouped);
+
+        // Create a simple event details object
+        const detailMap = {};
+        fetchedEvents.forEach(event => {
+          detailMap[event.title] = {
+            startDate: event.startDate,
+            endDate: event.endDate,
+            description: event.description || "No description available.",
+            location: event.location
+          };
+        });
+        setEventDetails(detailMap);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % eventSlides.length);
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + eventSlides.length) % eventSlides.length);
 
-  // Close event detail popup on outside click
   useEffect(() => {
     const handleClickOutside = () => setSelectedEvent(null);
     document.addEventListener("click", handleClickOutside);
@@ -67,32 +63,20 @@ const Home = () => {
   }, []);
 
   return (
-  <div className="main-content">
-    
-      {/* Help Modal shown only on first login */}
+    <div className="main-content">
+      {/* Help Modal */}
       <Modal show={showHelpModal} onHide={() => setShowHelpModal(false)} centered backdrop="static">
         <Modal.Header closeButton>
           <Modal.Title style={{ color: "#a70a4a", fontWeight: "bold" }}>Welcome Volunteer!</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <ul>
-            <ul>
-  <li style={{ marginBottom: "10px" }}>
-    <strong> Profile:</strong>Use the Profile Section to Edit your personal details and view your <strong>User ID</strong>. Keep your contact information up to date.
-  </li>
-  <li style={{ marginBottom: "10px" }}>
-    <strong> Home:</strong>Home Section allows you to view <strong>TMGF Moments</strong> and <strong>highlighted events</strong> at a glance.
-  </li>
-  <li style={{ marginBottom: "10px" }}>
-    <strong> Event:</strong> Event Section helps you to Participate in various events. You can view complete event details and register for <strong>ongoing</strong>, <strong>upcoming</strong>, or <strong>completed</strong> events.
-  </li>
-  <li style={{ marginBottom: "10px" }}>
-    <strong> Event Initiatives:</strong>Contribute by creating your own events. You can also track whether your event is <strong>Approved</strong>, <strong>Disapproved</strong>, or <strong>Pending</strong> under the <strong>Event Initiatives</strong> Section.
-  </li>
-</ul>
-
+            <li><strong>Profile:</strong> Edit your personal details and view your <strong>User ID</strong>.</li>
+            <li><strong>Home:</strong> View <strong>TMGF Moments</strong> and highlighted events.</li>
+            <li><strong>Event:</strong> Participate in ongoing/upcoming/completed events.</li>
+            <li><strong>Event Initiatives:</strong> Create your own events and track approval status.</li>
           </ul>
-          <p className="text-muted">You can always return to the <strong>Help section</strong> from the sidebar.</p>
+          <p className="text-muted">Return to Help section anytime from sidebar.</p>
         </Modal.Body>
         <Modal.Footer>
           <Button
@@ -105,7 +89,7 @@ const Home = () => {
         </Modal.Footer>
       </Modal>
 
-      {/*  Header and About Section */}
+      {/* Header Section */}
       <div style={{
         width: "100%",
         maxWidth: "1200px",
@@ -117,23 +101,24 @@ const Home = () => {
       }}>
         <div className="text-center mb-4">
           <img src="/images/LOGO.png" alt="TMGF Logo" style={{ width: "140px" }} />
-         <h2 style={{ fontWeight: "bold", marginTop: 10, marginBottom: 24 }}>
-          <span style={{ color: "#0599C2" }}>The </span>
-          <span style={{ color: "#a70a4a" }}>Mother </span>
-          <span style={{ color: "#0599C2" }}>Global Foundation</span>
-        </h2>
+          <h2 style={{ fontWeight: "bold", marginTop: 10, marginBottom: 24 }}>
+            <span style={{ color: "#0599C2" }}>The </span>
+            <span style={{ color: "#a70a4a" }}>Mother </span>
+            <span style={{ color: "#0599C2" }}>Global Foundation</span>
+          </h2>
+          <p style={{ color: "#003366", fontWeight: 500 }}>
+            Founder: Padma Shri Dr. Sindhutai Sapkal 'Maai'
+          </p>
           <p className="mt-2 fw-semibold" style={{ maxWidth: "80%", margin: "0 auto" }}>
-            <p style={{color:"#003366"}}>Founder: Padma Shri Dr. Sindhutai Sapkal 'Maai'</p>
-            We are an NGO with a dedicated focus to uplift, enable and empower Orphaned Children and Destitutes.
-            We run orphanages where we strive to provide the necessary platform and support for our children to make 
-            them self-sufficient, independent and able to lead a stable life.
+            We are an NGO focused on uplifting and empowering orphaned children and destitutes through orphanages,
+            support, and education.
           </p>
         </div>
 
-        {/*  Responsive Grid for Moments & Events */}
+        {/* Moments & Events Grid */}
         <Container>
           <Row className="g-4">
-            {/* Our Moments Section */}
+            {/* Moments Section */}
             <Col xs={12} md={6}>
               <div style={{
                 border: "2px solid rgb(155, 234, 252)",
@@ -158,7 +143,7 @@ const Home = () => {
               </div>
             </Col>
 
-            {/*  Our Events Section */}
+            {/* Events Section */}
             <Col xs={12} md={6}>
               <div style={{
                 border: "2px solid rgb(155, 234, 252)",
@@ -170,23 +155,22 @@ const Home = () => {
               }}>
                 <h5 className="text-center fw-bold mb-2" style={{ color: "#003366" }}>Our Events</h5>
                 <div>
-                  {eventSlides[currentSlide].map((event, index) => (
+                  {eventSlides[currentSlide]?.map((event, index) => (
                     <div
                       key={index}
                       className="p-2 my-1 rounded border"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setSelectedEvent(event);
+                        setSelectedEvent(event.title);
                       }}
                       style={{ borderColor: "#a70a4a", cursor: "pointer" }}
                     >
-                      <h6 className="fw-bold mb-1" style={{ color: "#a70a4a" }}>{event}</h6>
-                      <p className="mb-0" style={{ fontSize: "0.9rem" }}>Description</p>
+                      <h6 className="fw-bold mb-1" style={{ color: "#a70a4a" }}>{event.title}</h6>
+                      <p className="mb-0" style={{ fontSize: "0.9rem" }}>{event.description}</p>
                     </div>
                   ))}
                 </div>
 
-                {/*  Arrows for Slide */}
                 <div className="d-flex justify-content-between mt-2">
                   <button onClick={prevSlide} className="btn btn-light p-1">
                     <FaArrowLeft style={{ color: "#a70a4a" }} />
@@ -196,8 +180,8 @@ const Home = () => {
                   </button>
                 </div>
 
-                {/*  Event Detail Popup */}
-                {selectedEvent && (
+                {/* Event Popup */}
+                {selectedEvent && eventDetails[selectedEvent] && (
                   <div
                     className="position-absolute bg-white p-3 rounded shadow"
                     style={{
@@ -210,11 +194,10 @@ const Home = () => {
                     }}
                   >
                     <h5 className="fw-bold text-center mb-2" style={{ color: "#a70a4a" }}>{selectedEvent}</h5>
-                    <p><strong>Date:</strong> {eventDetails[selectedEvent].date}</p>
-                    <p><strong>Start:</strong> {eventDetails[selectedEvent].start}</p>
-                    <p><strong>End:</strong> {eventDetails[selectedEvent].end}</p>
-                    <p><strong>Purpose:</strong> {eventDetails[selectedEvent].purpose}</p>
-                    <p><strong>Requirements:</strong> {eventDetails[selectedEvent].requirements}</p>
+                    <p><strong>Start Date:</strong> {eventDetails[selectedEvent].startDate}</p>
+                    <p><strong>End Date:</strong> {eventDetails[selectedEvent].endDate}</p>
+                    <p><strong>Description:</strong> {eventDetails[selectedEvent].description}</p>
+                    <p><strong>Location:</strong> {eventDetails[selectedEvent].location}</p>
                   </div>
                 )}
               </div>

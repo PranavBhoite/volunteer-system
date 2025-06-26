@@ -190,7 +190,7 @@ export default function VirtualIDCard({uid, onClose}) {
                     <h5 className="fw-bold" style={{ fontSize: "1.3rem", marginBottom: "0.3rem" }}>
                       {user?.name}
                     </h5>
-                    <p style={{ marginBottom: "0.6rem" }}>ID: {user?._id}</p>
+                    <p style={{ marginBottom: "0.6rem" }}>ID: {user?.virtualId}</p>
                     <div style={{ textAlign: "left", fontSize: "0.85rem", lineHeight: "1.2rem" }}>
                       <b>Name:</b> {user?.name}
                       <br />

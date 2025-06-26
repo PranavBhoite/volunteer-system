@@ -400,6 +400,11 @@ const HelpSection = () => {
         return false;
       }
     }
+
+    if(formData.extraVolunteersForHelp && formData.volunteersNeeded == 0) {
+      alert("Please enter minimum 1 volunteer or uncheck the extra volunteers option");
+      return false;
+    }
     return true;
   };  
 

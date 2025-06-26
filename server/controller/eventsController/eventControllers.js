@@ -272,9 +272,16 @@ exports.getEventsForHome = async (req, res) => {
   try {
     const events = await Event.findAll({
       order: [['createdAt', 'DESC']],
-      attributes: ['id', 'title', 'description']  // only return what's needed
     });
-    res.status(200).json(events);
+
+    const newEvents = events.filter(event => {
+      if (event.isHelp) {
+        return event.helpStatus === "approved";
+      }
+      return true;
+    });
+
+    res.status(200).json(newEvents);
   } catch (error) {
     console.error("Error fetching events:", error);
     res.status(500).json({ error: "Failed to fetch events" });

@@ -1,11 +1,14 @@
 import React, { useState, useEffect, forwardRef } from "react";
 import { useParams } from "react-router-dom";
 import { Dropdown } from "react-bootstrap";
+import VirtualIDCard from "./VirtualIDCard";
 
 export default function Header() {
   const { uid } = useParams();
   const [user, setUser] = useState(null);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [showHelpCard, setShowHelpCard] = useState(false);
+
 
   useEffect(() => {
     fetch(`http://localhost:5000/api/users/display/${uid}`)
@@ -92,19 +95,26 @@ export default function Header() {
         </span>
       </div>
 
-      <Dropdown align="end">
+      <Dropdown align="end" style={{ marginLeft: "auto" }}>
         <Dropdown.Toggle as={CustomToggle} id="dropdown-custom-toggle" />
         <Dropdown.Menu>
+          <Dropdown.Item onClick={() => setShowHelpCard(true)}>
+            View Virtual ID
+          </Dropdown.Item>
+          <Dropdown.Divider />
           <Dropdown.Item
             onClick={() => {
               localStorage.clear();
-              window.location.href = "/login";
+              window.location.replace('/');
             }}
           >
             Logout
           </Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
+
+      {/* Render HelpCards if showHelpCard is true */}
+    {showHelpCard && <VirtualIDCard uid={uid} onClose={() => setShowHelpCard(false)} />}
     </header>
   );
 }

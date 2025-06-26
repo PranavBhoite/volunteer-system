@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
@@ -7,30 +7,14 @@ import {
   Button,
   Row,
   Col,
-  Card,
-  Badge,
-  Alert,
-  ProgressBar,
+  Card
 } 
 from "react-bootstrap";
 import { FaHome, FaGraduationCap, FaHeartbeat, FaLeaf, FaTrophy, FaRegFileAlt, FaPrayingHands, FaHandsHelping, FaUserFriends, FaHeart } from 'react-icons/fa';
 import './TMGFHomepage.css';
 
-const tmgfTheme = {
-  primary: "#ac2e62",
-  primaryRgb: "172, 46, 98",
-  primary1: "#de7da6",
-  primary2: "#c34e7f",
-  primary3: "#8e1749",
-  primary4: "#6d022f"
-};
-
 const TMGFHomepage = () => {
   const navigate = useNavigate();
-
-  const handleGetStartedClick = () => {
-    navigate("/login");
-  };
 
   const features = [
     {
@@ -132,7 +116,7 @@ const TMGFHomepage = () => {
           <Navbar.Brand className="d-flex align-items-center me-4" style={{cursor: 'pointer'}} onClick={() => navigate('/')}>
             <a href="/" style={{display: 'inline-block'}}>
               <img
-                src="/images/tmgf-logo.png"
+                src="/images/LOGO.png"
                 alt="TMGF Logo"
                 className="img-fluid"
                 style={{
@@ -151,10 +135,10 @@ const TMGFHomepage = () => {
           <Navbar.Collapse id="tmgf-navbar-nav">
             <Nav className="d-flex align-items-center flex-lg-row flex-column justify-content-lg-end justify-content-start w-100 text-start ps-lg-0 ps-3 tmgf-navbar-nav">
               <Nav.Link className={`nav-link${activeNav === 'home' ? ' active' : ''}`} href="/">Home</Nav.Link>
-              <Nav.Link className={`nav-link${activeNav === 'about' ? ' active' : ''}`} href="https://sindhutaisapkal.org/about" target="_blank" rel="noopener noreferrer">About</Nav.Link>
-              <Nav.Link className={`nav-link${activeNav === 'initiatives' ? ' active' : ''}`} href="https://sindhutaisapkal.org/initiatives" target="_blank" rel="noopener noreferrer">Initiatives</Nav.Link>
-              <Nav.Link className={`nav-link${activeNav === 'team' ? ' active' : ''}`} href="https://sindhutaisapkal.org/team" target="_blank" rel="noopener noreferrer">Team</Nav.Link>
-              <Nav.Link className={`nav-link${activeNav === 'contact' ? ' active' : ''}`} href="https://sindhutaisapkal.org/contact" target="_blank" rel="noopener noreferrer">Contact</Nav.Link>
+              {/* Removed About and Initiatives links */}
+              {/* Team now scrolls to the team section below */}
+              <Nav.Link className={`nav-link${activeNav === 'team' ? ' active' : ''}`} href="#team">Team</Nav.Link>
+              {/* Removed Contact link from navbar */}
               <Button
                 onClick={() => navigate('/Registration')}
                 className="tmgf-btn-donate d-flex align-items-center tmgf-btn-navbar"
@@ -385,19 +369,19 @@ const TMGFHomepage = () => {
                   </Button>
                 </div>
                 <Row className="g-3 mt-4 justify-content-center tmgf-hero-stats-row">
-                  <Col xs={4} md={3} className="tmgf-hero-stat-col">
+                  <Col xs={12} sm={4} md={3} className="tmgf-hero-stat-col mb-3 mb-sm-0">
                     <div className="text-center p-3 tmgf-hero-stat-card" style={{background: '#fff', boxShadow: '0 2px 8px rgba(172,46,98,0.08)', border: '1px solid #eee', borderRadius: 16}}>
                       <h2 className="fw-bold mb-1" style={{fontSize: '2.2rem'}}>120</h2>
                       <div style={{fontWeight: 600, fontSize: '1rem'}}>Active Volunteers</div>
                     </div>
                   </Col>
-                  <Col xs={4} md={3} className="tmgf-hero-stat-col">
+                  <Col xs={12} sm={4} md={3} className="tmgf-hero-stat-col mb-3 mb-sm-0">
                     <div className="text-center p-3 tmgf-hero-stat-card" style={{background: '#fff', boxShadow: '0 2px 8px rgba(172,46,98,0.08)', border: '1px solid #eee', borderRadius: 16}}>
                       <h2 className="fw-bold mb-1" style={{fontSize: '2.2rem'}}>24</h2>
                       <div style={{fontWeight: 600, fontSize: '1rem'}}>Events</div>
                     </div>
                   </Col>
-                  <Col xs={4} md={3} className="tmgf-hero-stat-col">
+                  <Col xs={12} sm={4} md={3} className="tmgf-hero-stat-col">
                     <div className="text-center p-3 tmgf-hero-stat-card" style={{background: '#fff', boxShadow: '0 2px 8px rgba(172,46,98,0.08)', border: '1px solid #eee', borderRadius: 16}}>
                       <h2 className="fw-bold mb-1" style={{fontSize: '2.2rem'}}>24/7</h2>
                       <div style={{fontWeight: 600, fontSize: '1rem'}}>Support</div>
@@ -416,6 +400,7 @@ const TMGFHomepage = () => {
                       align-items: stretch;
                       padding-left: 0;
                       padding-right: 0;
+                      margin-bottom: 1rem !important;
                     }
                     .tmgf-hero-stat-card {
                       min-width: 110px;
@@ -429,6 +414,11 @@ const TMGFHomepage = () => {
                       background: #fff !important;
                       box-shadow: 0 2px 8px rgba(172,46,98,0.08) !important;
                       border: 1px solid #eee !important;
+                    }
+                  }
+                  @media (max-width: 576px) {
+                    .tmgf-hero-stat-col {
+                      margin-bottom: 1.2rem !important;
                     }
                   }
                 `}</style>
@@ -564,14 +554,6 @@ const TMGFHomepage = () => {
               <p className="lead mb-4" style={{color: '#fff'}}>
                 People who inspire us, guide us and help us to undertake initiatives and achieve our goals
               </p>
-              <Button
-                className="tmgf-btn-main px-4 py-2"
-                href="https://sindhutaisapkal.org/team"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Discover More
-              </Button>
             </Col>
           </Row>
         </Container>
@@ -580,17 +562,17 @@ const TMGFHomepage = () => {
       {/* Footer */}
       <footer className="tmgf-footer py-4" style={{background: '#565656', color: '#e5e5e5', marginTop: 0, fontSize: '1rem', letterSpacing: 0.1}}>
         <Container>
-          <Row className="align-items-center">
-            <Col md={4} className="mb-3 mb-md-0 text-center text-md-start">
+          <Row className="align-items-center justify-content-between">
+            <Col md={6} className="mb-3 mb-md-0 text-center text-md-start">
               <img
-                src="/images/tmgf-logo.png"
+                src="/images/LOGO.png"
                 alt="TMGF Logo"
                 style={{
-                  width: 240,
-                  height: 140,
+                  width: 200,
+                  height: 110,
                   borderRadius: '0',
                   background: 'none',
-                  marginBottom: 18,
+                  marginBottom: 10,
                   marginTop: 6,
                   boxShadow: 'none',
                   objectFit: 'contain',
@@ -598,18 +580,10 @@ const TMGFHomepage = () => {
                   marginLeft: 0
                 }}
               />
-              <div className="fw-bold fs-4 mt-3" style={{color: '#e5e5e5', letterSpacing: 1}}>The Mother Global Foundation</div>
-              <div style={{fontSize: '1.05rem', color: '#b0b0b0', marginTop: 6}}>Empowering Lives. Creating Impact.</div>
+              <div className="fw-bold fs-4 mt-2" style={{color: '#e5e5e5', letterSpacing: 1}}>The Mother Global Foundation</div>
+              <div style={{fontSize: '1.05rem', color: '#b0b0b0', marginTop: 4}}>Empowering Lives. Creating Impact.</div>
             </Col>
-            <Col md={5} className="mb-3 mb-md-0 text-center">
-              <div className="fw-bold mb-2" style={{fontSize: '1.08rem', color: '#e5e5e5'}}>Quick Links</div>
-              <div style={{display: 'flex', justifyContent: 'center', gap: 24}}>
-                <a href="https://sindhutaisapkal.org/about" target="_blank" rel="noopener noreferrer" className="tmgf-footer-link" style={{color:'#e5e5e5', textDecoration:'none', fontWeight:500, transition:'color 0.2s'}}>About</a>
-                <a href="https://sindhutaisapkal.org/team" target="_blank" rel="noopener noreferrer" className="tmgf-footer-link" style={{color:'#e5e5e5', textDecoration:'none', fontWeight:500, transition:'color 0.2s'}}>Team</a>
-                <a href="https://sindhutaisapkal.org/contact" target="_blank" rel="noopener noreferrer" className="tmgf-footer-link" style={{color:'#e5e5e5', textDecoration:'none', fontWeight:500, transition:'color 0.2s'}}>Contact</a>
-              </div>
-            </Col>
-            <Col md={3} className="text-center text-md-end">
+            <Col md={6} className="text-center text-md-end">
               <div className="fw-bold mb-2" style={{fontSize: '1.08rem', color: '#e5e5e5'}}>Contact</div>
               <div style={{fontSize: '0.97rem', color: '#b0b0b0', lineHeight: 1.6}}>
                 info@tmgf.in<br/>

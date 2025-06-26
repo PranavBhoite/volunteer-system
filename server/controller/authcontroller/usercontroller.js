@@ -1,22 +1,32 @@
 const User = require("../../models/User");
 const eventController = require("../eventsController/eventControllers");
 
-const crypto = require("crypto");
+const crypto = require('crypto');
 
-const base62Chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+function hashUUIDtoInt(uuid) {
+  const hash = crypto.createHash('sha256').update(uuid).digest('hex');
+  return parseInt(hash.substring(0, 10), 16); // Use first 10 hex digits to keep it within JS safe number range
+}
 
 function toBase62(num) {
+  const base62Chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  if (typeof num !== 'number' || isNaN(num)) {
+    console.error("Invalid input to toBase62:", num);
+    return 'INVALID';
+  }
+
   let result = '';
   do {
     result = base62Chars[num % 62] + result;
     num = Math.floor(num / 62);
   } while (num > 0);
 
-  return result.padStart(6, '0'); // Pad to 6 characters
+  return result.padStart(6, '0');
 }
 
-function generateVirtualIdFromId(id) {
-  return `TMGF${toBase62(id)}`; // Final unique virtualId
+function generateVirtualIdFromUUID(uuid) {
+  const numeric = hashUUIDtoInt(uuid);
+  return `TMGF${toBase62(numeric)}`;
 }
 
 exports.registerUser = async (req, res) => {
@@ -52,8 +62,11 @@ exports.registerUser = async (req, res) => {
       interests,
     });
 
+    console.log(newUser.id);
     // Step 2: Generate virtualId based on database ID
-    const virtualId = generateVirtualIdFromId(newUser.id);
+    const virtualId = generateVirtualIdFromUUID(newUser.id);
+
+    console.log(virtualId);
 
     // Step 3: Update the same user record with virtualId
     await newUser.update({ virtualId });

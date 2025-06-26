@@ -124,7 +124,7 @@ const AllVolunteers = () => {
                   <div className="mb-3">
                     <h5 style={{ color: '#3a3a3a', fontWeight: '600' }}>{user.name}</h5>
                     <small className="text-muted" style={{ display: 'block', fontSize: '0.85rem' }}>
-                      ID: {user._id}
+                      ID: {user.virtualId}
                     </small>
                   </div>
 

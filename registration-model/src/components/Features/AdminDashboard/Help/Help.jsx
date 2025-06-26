@@ -215,9 +215,6 @@ const AdminHelp = () => {
             Help Requests
           </h3>
         </Col>
-        <Col className="text-end fw-semibold text-muted">
-          UID: {uid}
-        </Col>
       </Row>
 
       <div style={{ maxHeight: '450px', overflowY: 'auto'  }}>

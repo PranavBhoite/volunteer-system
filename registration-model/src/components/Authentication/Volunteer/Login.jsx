@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Form, Button, Container, Row, Col, Alert, FormCheck } from "react-bootstrap";
+import { Form, Button, Container, Row, Col, Alert } from "react-bootstrap";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 
@@ -98,7 +98,7 @@ const Login = () => {
                   />
                 </Form.Group>
 
-                <div className="d-flex justify-content-between align-items-center mb-4">
+                {/* <div className="d-flex justify-content-between align-items-center mb-4">
                   <FormCheck>
                     <FormCheck.Input 
                       type="checkbox" 
@@ -109,7 +109,7 @@ const Login = () => {
                     <FormCheck.Label htmlFor="rememberMe" style={{ color: "#555" }}>Remember Me</FormCheck.Label>
                   </FormCheck>
                   <Link to="/forgot-password" style={{ color: "#3498db", textDecoration: "none" }}>Forgot Password?</Link>
-                </div>
+                </div> */}
 
                 <Button 
                   variant="primary" 

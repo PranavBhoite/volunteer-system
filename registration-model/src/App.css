@@ -1,4 +1,4 @@
-.App {
+/* .App {
   text-align: center;
 }
 
@@ -41,7 +41,7 @@
   to {
     transform: rotate(360deg);
   }
-}
+} */
 
 /* ---------- General Reset & Layout ---------- */
 
@@ -49,7 +49,7 @@ html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .App {
@@ -354,20 +354,28 @@ form ul li {
   to { transform: rotate(360deg); }
 }
 
-body {
+html, body, #root {
+  height: 100%;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+  background-color: #fdfdfd;
 }
 
+
 .main-content {
-  padding-top: 70px; 
+  padding-top: 80px; /* for fixed header */
   padding-left: 0;
+  padding-right: 16px;
+  padding-bottom: 40px;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
 @media (min-width: 768px) {
   .main-content {
-    padding-left: 250px; 
+    padding-left: 250px;
+    margin:10px 20px;
+
   }
 }
 .main-content {
