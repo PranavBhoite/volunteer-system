@@ -4,26 +4,21 @@ import Header from "./Layouts/Header";
 
 export default function AdminDashboard() {
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: 'Arial, sans-serif' }}>
-      <Sidebar />
-
-      <div style={{ flex: 1, backgroundColor: '#f8f9fa' }}>
-        <Header />
-
-        <div style={{ padding: '30px' }}>
-          <div style={{
-            backgroundColor: 'white',
-            borderRadius: '8px',
-            padding: '25px',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-            border: '1px solid #e9ecef'
-          }}>
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+          {/* Fixed Sidebar */}
+          <Sidebar />
+    
+          {/* Right Section */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            {/* Fixed Header */}
+            <Header />
+    
+            {/* Scrollable Inner Content */}
+            <div style={{ flex: 1, overflowY: 'auto' }}>
               
-              {/* Outlet renders the matched child route component */}
-              <Outlet />
+                <Outlet />
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </div>
   );
 }

@@ -565,15 +565,15 @@ const HelpSection = () => {
                   </Form.Group>
                 )}
                 <div className="d-flex justify-content-end gap-2 flex-wrap">
-                  <Button variant="secondary" onClick={() => {
+                  <button className='custom-cancel-btn' onClick={() => {
                     setFormVisible(false);
                     setFormData({
                       title: '', description: '', startDate: '', endDate: '',
                       startTime: '', endTime: '', location: '', category: 'Environmental',
                       volunteersNeeded: 0, extraVolunteersForHelp: false
                     });
-                  }}>Cancel</Button>
-                  <Button type="button" variant="primary" onClick={handleCreateOrUpdate}>Submit</Button>
+                  }}>Cancel</button>
+                  <button type="button" className='custom-submit-btn' onClick={handleCreateOrUpdate}>Submit</button>
                 </div>
               </Form>
             </div>

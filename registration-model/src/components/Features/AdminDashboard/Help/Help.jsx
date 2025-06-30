@@ -207,6 +207,7 @@ const AdminHelp = () => {
   };
 
   return (
+    <div className='main-content'>
     <Container className="mt-5">
       <Row className="align-items-center justify-content-between mb-4">
         <Col>
@@ -217,75 +218,77 @@ const AdminHelp = () => {
         </Col>
       </Row>
 
-      <div style={{ maxHeight: '450px', overflowY: 'auto'  }}>
-        <Table  bordered responsive className="table-bordered-blue ">
-          <thead className="table-header-maroon">
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Title</th>
-              <th>Start Date</th>
-              <th>Status</th>
-              <th>Feedback</th>
-              <th style={{ textAlign: 'center' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {events.map((ev, index) => {
-              const rowColor = index % 2 === 0 ? '#ffffff' : '#e6f7ff';
-              return (
-                <tr key={ev.id}>
-                  <td style={{ backgroundColor: rowColor }}>{ev.userId?.name || '-'}</td>
-                  <td style={{ backgroundColor: rowColor }}>{ev.userId?.email || '-'}</td>
-                  <td style={{ backgroundColor: rowColor }}>{ev.userId?.mobileNo || '-'}</td>
-                  <td style={{ backgroundColor: rowColor }}>{ev.title}</td>
-                  <td style={{ backgroundColor: rowColor }}>{ev.startDate}</td>
-                  <td style={{ backgroundColor: rowColor }}>
-                    {ev.helpStatus.charAt(0).toUpperCase() + ev.helpStatus.slice(1)}
-                  </td>
-                  <td>{ev.helpStatus === 'pending' ? (
-                  <span className="text-muted fst-italic">Add feedback by approving or disapproving</span>
-                ) : (
-                  <span>{ev.helpFeedback || '—'}</span>
-                )}</td>
-                  <td style={{ backgroundColor: rowColor }}>
-                    <div className="d-flex gap-2 justify-content-center">
-                      <Button variant="outline-info" size="sm" onClick={() => {
-                        setSelectedEvent(ev);
-                      }}>
-                        <FaEye />
-                      </Button>
-                      <Button
-                        variant={ev.helpStatus === 'approved' ? 'success' : 'outline-success'}
-                        size="sm"
-                        onClick={() => {
-                          setCurrentStatus("approved");
-                          setCurrentEventId(ev.id);
-                          setShowModal(true);
-                        }}
-                      >
-                        <BsCheck2Circle />
-                      </Button>
-                      <Button
-                        variant={ev.helpStatus === 'disapproved' ? 'danger' : 'outline-danger'}
-                        size="sm"
-                        onClick={() => {
-                          setCurrentStatus("disapproved");
-                          setCurrentEventId(ev.id);
-                          setShowModal(true);
-                        }}
-                      >
-                        <BsXCircle />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </Table>
-      </div>
+      <div className="table-scroll-container">
+  <Table bordered className="table-bordered-blue table-rounded">
+    <thead className="table-header-maroon">
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Title</th>
+        <th>Start Date</th>
+        <th>Status</th>
+        <th>Feedback</th>
+        <th style={{ textAlign: 'center' }}>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {events.map((ev, index) => {
+        const rowColor = index % 2 === 0 ? '#ffffff' : '#e6f7ff';
+        return (
+          <tr key={ev.id}>
+            <td style={{ backgroundColor: rowColor }}>{ev.userId?.name || '-'}</td>
+            <td style={{ backgroundColor: rowColor }}>{ev.userId?.email || '-'}</td>
+            <td style={{ backgroundColor: rowColor }}>{ev.userId?.mobileNo || '-'}</td>
+            <td style={{ backgroundColor: rowColor }}>{ev.title}</td>
+            <td style={{ backgroundColor: rowColor }}>{ev.startDate}</td>
+            <td style={{ backgroundColor: rowColor }}>
+              {ev.helpStatus.charAt(0).toUpperCase() + ev.helpStatus.slice(1)}
+            </td>
+            <td style={{ backgroundColor: rowColor }}>
+              {ev.helpStatus === 'pending' ? (
+                <span className="text-muted fst-italic">Add feedback by approving or disapproving</span>
+              ) : (
+                <span>{ev.helpFeedback || '—'}</span>
+              )}
+            </td>
+            <td style={{ backgroundColor: rowColor }}>
+              <div className="d-flex gap-2 justify-content-center">
+                <Button variant="outline-info" size="sm" onClick={() => setSelectedEvent(ev)}>
+                  <FaEye />
+                </Button>
+                <Button
+                  variant={ev.helpStatus === 'approved' ? 'success' : 'outline-success'}
+                  size="sm"
+                  onClick={() => {
+                    setCurrentStatus("approved");
+                    setCurrentEventId(ev.id);
+                    setShowModal(true);
+                  }}
+                >
+                  <BsCheck2Circle />
+                </Button>
+                <Button
+                  variant={ev.helpStatus === 'disapproved' ? 'danger' : 'outline-danger'}
+                  size="sm"
+                  onClick={() => {
+                    setCurrentStatus("disapproved");
+                    setCurrentEventId(ev.id);
+                    setShowModal(true);
+                  }}
+                >
+                  <BsXCircle />
+                </Button>
+              </div>
+            </td>
+          </tr>
+        );
+      })}
+    </tbody>
+  </Table>
+</div>
+
+
 
       {/* View Event Modal */}
       {selectedEvent && (
@@ -332,17 +335,18 @@ const AdminHelp = () => {
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+          <button className='custom-cancel-btn' onClick={() => setShowModal(false)}>
             Cancel
-          </Button>
-          <Button variant="primary" onClick={handleSubmitStatusChange}>
+          </button>
+          <button className='custom-submit-btn' onClick={handleSubmitStatusChange}>
             Submit
-          </Button>
+          </button>
         </Modal.Footer>
       </Modal>
 
 
     </Container>
+    </div>
   );
 };
 

@@ -34,6 +34,7 @@ const AllVolunteers = () => {
   });
 
   return (
+    <div className="main-content">
     <Container 
     className="px-4 py-3" style={{ backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
       {/* Header Section */}
@@ -131,7 +132,9 @@ const AllVolunteers = () => {
                   <div className="mb-3">
                     <div className="d-flex align-items-center mb-2">
                       <i className="bi bi-envelope me-2" style={{ color: '#6c757d', width: '20px' }}></i>
-                      <span style={{ color: '#495057', fontSize: '0.9rem' }}>Email: {user.email}</span>
+                      <span style={{ color: '#495057', fontSize: '0.9rem',wordBreak: 'break-word', 
+                       whiteSpace: 'normal', 
+                      overflowWrap: 'break-word'  }}>Email: {user.email}</span>
                     </div>
                     <div className="d-flex align-items-center mb-2">
                       <i className="bi bi-telephone me-2" style={{ color: '#6c757d', width: '20px' }}></i>
@@ -160,6 +163,7 @@ const AllVolunteers = () => {
         </Row>
       )}
     </Container>
+    </div>
   );
 };
 

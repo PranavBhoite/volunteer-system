@@ -195,7 +195,8 @@ const OrganizerView = () => {
   }
 
   return (
-    <Container className="organizer-view main-content">
+    <div className='main-content'>
+    <Container className="organizer-view">
 
       {/* Search and Filter Section */}
       <div className="filter-section">
@@ -527,6 +528,7 @@ const OrganizerView = () => {
         </div>
       )}
     </Container>
+    </div>
   );
 };
 
