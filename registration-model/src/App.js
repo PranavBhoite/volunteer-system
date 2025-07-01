@@ -18,10 +18,10 @@ import AdminLogin from './components/Authentication/Admin/AdminLogin';
 // Import your actual components
 import VolunteerView from './components/Features/VolunteerDashboard/Event/VolunteerView';
 import Profile from './components/Features/VolunteerDashboard/Profile/Profile';
-import HelpSection from './components/Features/VolunteerDashboard/Help/HelpSection';
+import HelpSection from './components/Features/VolunteerDashboard/VolunteerInitiatives/VolunteerInitiatives';
 import OrganizerView from './components/Features/AdminDashboard/Event/OrganizerView';
 import AllVolunteers from './components/Features/AdminDashboard/VolunteerList/AllVolunteers';
-import Help from './components/Features/AdminDashboard/Help/Help';
+import Help from './components/Features/AdminDashboard/VolunteerInitiatives/VolunteerInitiatives';
 import HelpMe from './components/Features/VolunteerDashboard/HelpMe/HelpMe';
 import Home from './components/Features/VolunteerDashboard/Home/Home';
 
