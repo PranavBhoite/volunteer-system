@@ -85,7 +85,7 @@ const Home = () => {
             style={{ backgroundColor: "#15b1d3", border: "none" }}
             onClick={() => setShowHelpModal(false)}
           >
-           ok OK
+           OK
           </Button>
         </Modal.Footer>
       </Modal>

@@ -94,7 +94,7 @@ function AdminLogin() {
               </Form>
 
               <p className="mt-4 text-center" style={{ color: "#666" }}>
-                Go to <Link to="/login" style={{ color: "#3498db", textDecoration: "none" }}>Registration</Link>
+                Go to <Link to="/admin/register" style={{ color: "#3498db", textDecoration: "none" }}>Registration</Link>
               </p>
             </div>
           </Col>
