@@ -25,7 +25,7 @@ exports.displayUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
   try {
     const userId = req.params.id;
-    const { name, email, address, mobileNo, type } = req.body;
+    const { name, email, address, mobileNo, type, interests } = req.body;
 
     if (!name || !address || !mobileNo || !email ) {
       return res.status(400).json({
@@ -41,10 +41,11 @@ exports.updateUser = async (req, res) => {
     }
 
     user.name = name;
+    user.email = email;
     user.address = address;
     user.mobileNo = mobileNo;
-    user.email = email;
     user.type = type;
+    user.interests = interests;
     await user.save();
 
     res.json({

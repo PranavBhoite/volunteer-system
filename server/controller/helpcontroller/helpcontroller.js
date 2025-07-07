@@ -143,6 +143,18 @@ exports.updateHelpEventStatusFromAdminSide = async (req, res) => {
 
     await event.save();
 
+    // only if the admin is approving an event add an entry in event user map
+    if(status === "approved"){
+       //create entry in event user map
+      const entry = await EventUserMap.create({
+        userId: event.userIdForHelp,
+        eventId: id,
+        isAttended: false,
+      });
+
+      console.log(entry); 
+    }
+
     res.status(200).json({ message: 'Status updated successfully' });
   } catch (err) {
     console.error('Error updating help event status:', err);

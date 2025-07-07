@@ -166,7 +166,10 @@ const Home = () => {
                       }}
                       style={{ borderColor: "#a70a4a", cursor: "pointer" }}
                     >
+                      <div style={{display : "flex", justifyContent : 'space-between'}}>
                       <h6 className="fw-bold mb-1" style={{ color: "#a70a4a" }}>{event.title}</h6>
+                      <span className="text-muted fst-italic">{event.status}</span>
+                      </div>
                       <p className="mb-0" style={{ fontSize: "0.9rem" }}>{event.description}</p>
                     </div>
                   ))}

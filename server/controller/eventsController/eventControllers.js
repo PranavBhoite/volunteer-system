@@ -75,6 +75,7 @@ exports.getAllEvents = async (req, res) => {
 };
 
 
+// this function gives events list as output for a userid and type as upcoming, ongoing, registered or completed
 exports.getUserSpecificEvents = async (req, res) => {
   try {
     const userId = req.params.id;
@@ -86,33 +87,34 @@ exports.getUserSpecificEvents = async (req, res) => {
     let eventsToReturn = [];
 
     if (eventType === "Upcoming") {
-      const allEvents = await Event.findAll({ where: { status: "Upcoming" } });
+      const allEvents = await Event.findAll({ where: { status: "Upcoming" } }); // get all the events where status is upcoming
 
       const userEventMappings = await EventUserMap.findAll({
         where: {
           userId: userId,
           isAttended: false,
         }
-      });
-      const userEventIds = userEventMappings.map(e => e.eventId);
+      }); // get all the events registered by user
+
+      const userEventIds = userEventMappings.map(e => e.eventId); // get only those events which are not registered by user
 
       eventsToReturn = allEvents.filter(event =>
         !userEventIds.includes(event.id) &&
-        (!event.isHelp || (event.extraVolunteersForHelp && event.helpStatus === "approved"))
+        event.status === "Upcoming" && (!event.isHelp || event.helpStatus === "approved") //filter only admin created events and only those user created events which are approved and need extra volunteers
       );
 
     } else if (eventType === "Ongoing") {
-      const ongoingEvents = await Event.findAll({ where: { status: "Ongoing" } });
+      const ongoingEvents = await Event.findAll({ where: { status: "Ongoing" } }); //get all ongoing events
 
       eventsToReturn = ongoingEvents.filter(event =>
-        !event.isHelp || (event.extraVolunteersForHelp && event.helpStatus === "approved")
+        event.status === "Ongoing" && (!event.isHelp || event.helpStatus === "approved") //filter only admin created events and only those user created events which are approved and need extra volunteers
       );
 
     } else {
       const userEventMappings = await EventUserMap.findAll({
         where: {
           userId: userId,
-          isAttended: eventType === "Registered" ? false : true,
+          isAttended : false,
         },
         include: [Event]
       });
@@ -120,7 +122,10 @@ exports.getUserSpecificEvents = async (req, res) => {
       eventsToReturn = userEventMappings
         .map(mapping => mapping.Event)
         .filter(event =>
-          !event.isHelp || (event.extraVolunteersForHelp && event.helpStatus === "approved")
+          (eventType === "Registered") ? 
+            event.status === "Upcoming" && (!event.isHelp || event.helpStatus === "approved") //Filter for registered events and get admin created events and only those user created completed evnets which are approved by admin 
+          : 
+            event.status === "Completed" && (!event.isHelp || event.helpStatus === "approved") // filter to get all admin created completed events and only those user created completed evnets which are approved by admin 
         );
     }
 
@@ -132,6 +137,7 @@ exports.getUserSpecificEvents = async (req, res) => {
 };
 
 
+//to register for an event
 exports.registerEvent = async (req, res) => {
   try {
     const userid = req.body.userId;
@@ -140,6 +146,8 @@ exports.registerEvent = async (req, res) => {
     console.log(`userid ${userid} event id ${eventid}`);
 
     const event = await Event.findByPk(eventid);
+
+    //check if user already registered
     if(!event) {
       return res.status(404).json({ message: "Event not found to register" });
     }
@@ -147,6 +155,7 @@ exports.registerEvent = async (req, res) => {
       return res.status(404).json({ message: "Event is full, Not able to Register" });
     }
 
+    //create entry in event user map
     const entry = await EventUserMap.create({
       userId: userid,
       eventId: eventid,
@@ -155,6 +164,7 @@ exports.registerEvent = async (req, res) => {
 
     console.log(entry);
 
+    //decrement the vounteers needed count in events table
     if (event) {
       await event.decrement('volunteersNeeded', { by: 1 });
     }    
@@ -167,6 +177,7 @@ exports.registerEvent = async (req, res) => {
   }
 };
 
+//to un register and event
 exports.unRegisterEvent = async (req, res) => {
   try {
     const userid = req.body.userId;
@@ -204,6 +215,7 @@ exports.unRegisterEvent = async (req, res) => {
   }
 };
 
+// to cancel an event
 exports.cancelEvent = async (req, res) => {
   try {
     const eventId = req.params.id;
@@ -231,29 +243,30 @@ exports.cancelEvent = async (req, res) => {
   }
 };
 
+// this function is like a scheduler function which will run every time some one logs in to check and update all the statuses of events  
 exports.updateEventStatuses = async () => {
   try {
-    const currentDate = new Date();
+    const currentDateTime = new Date(); // Current timestamp
 
-    // Fetch all events
     const events = await Event.findAll();
 
     for (const event of events) {
-      const start = new Date(event.startDate);
-      const end = new Date(event.endDate);
+      // Combine date and time to form full timestamps
+      const startTimestamp = new Date(`${event.startDate}T${event.startTime}`);
+      const endTimestamp = new Date(`${event.endDate}T${event.endTime}`);
       let newStatus = event.status;
 
-      if(event.status === "Cancelled"){
-        newStatus = "Cancelled";
-      } else if (currentDate < start) {
+      if (event.status === "Cancelled") {
+        newStatus = "Cancelled"; // Don't change if manually cancelled
+      } else if (currentDateTime < startTimestamp) {
         newStatus = "Upcoming";
-      } else if (currentDate >= start && currentDate <= end) {
+      } else if (currentDateTime >= startTimestamp && currentDateTime <= endTimestamp) {
         newStatus = "Ongoing";
-      } else if (currentDate > end) {
+      } else if (currentDateTime > endTimestamp) {
         newStatus = "Completed";
       }
 
-      // Update status only if changed
+      // Update status only if it has changed
       if (event.status !== newStatus) {
         await Event.update(
           { status: newStatus },
@@ -262,11 +275,12 @@ exports.updateEventStatuses = async () => {
       }
     }
 
-    console.log("Event statuses updated.");
+    console.log("Event statuses updated with time accuracy.");
   } catch (error) {
     console.error("Error updating event statuses:", error);
   }
 };
+
 
 exports.getEventsForHome = async (req, res) => {
   try {
