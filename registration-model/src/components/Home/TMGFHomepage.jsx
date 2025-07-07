@@ -134,7 +134,7 @@ const TMGFHomepage = () => {
           <Navbar.Toggle aria-controls="tmgf-navbar-nav" />
           <Navbar.Collapse id="tmgf-navbar-nav">
             <Nav className="d-flex align-items-center flex-lg-row flex-column justify-content-lg-end justify-content-start w-100 text-start ps-lg-0 ps-3 tmgf-navbar-nav">
-              <Nav.Link className={`nav-link${activeNav === 'home' ? ' active' : ''}`} href="/">Home</Nav.Link>
+              <Nav.Link className={`nav-link${activeNav === 'home' ? ' active' : ''}`} href="#home">Home</Nav.Link>
               {/* Removed About and Initiatives links */}
               {/* Team now scrolls to the team section below */}
               <Nav.Link className={`nav-link${activeNav === 'team' ? ' active' : ''}`} href="#team">Team</Nav.Link>
@@ -184,7 +184,7 @@ const TMGFHomepage = () => {
 
       {/* Hero Section */}
       <section
-        className="tmgf-hero position-relative"
+        className="tmgf-hero position-relative" id="home"
         style={{
           padding: '0',
           background: 'none',
@@ -194,6 +194,7 @@ const TMGFHomepage = () => {
       >
         {/* Background image with dark overlay */}
         <div
+        
           style={{
             position: 'absolute',
             top: 0,
@@ -560,7 +561,7 @@ const TMGFHomepage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="tmgf-footer py-4" style={{background: '#565656', color: '#e5e5e5', marginTop: 0, fontSize: '1rem', letterSpacing: 0.1}}>
+      <footer className="tmgf-footer py-4" style={{background: '#333333', color: '#e5e5e5', marginTop: 0, fontSize: '1rem', letterSpacing: 0.1}}>
         <Container>
           <Row className="align-items-center justify-content-between">
             <Col md={6} className="mb-3 mb-md-0 text-center text-md-start">
@@ -590,7 +591,7 @@ const TMGFHomepage = () => {
                 +91 9881337914<br/>
                 Shirur, Maharashtra
               </div>
-              <div className="mt-2" style={{fontSize: '0.93rem', color: '#888', opacity: 0.8}}>
+              <div className="mt-2" style={{fontSize: '0.93rem', color: '#b0b0b0', opacity: 0.8}}>
                 &copy; 2025 TMGF NGO. All rights reserved.
               </div>
             </Col>
