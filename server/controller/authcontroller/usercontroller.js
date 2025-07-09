@@ -1,34 +1,26 @@
 const User = require("../../models/User");
 const eventController = require("../eventsController/eventControllers");
 
-const crypto = require('crypto');
-
-function hashUUIDtoInt(uuid) {
-  const hash = crypto.createHash('sha256').update(uuid).digest('hex');
-  return parseInt(hash.substring(0, 10), 16); // Use first 10 hex digits to keep it within JS safe number range
+// Function to generate meaningful virtual ID
+async function generateMeaningfulVirtualId() {
+  // Get current year's last two digits
+  const currentYear = new Date().getFullYear();
+  const yearSuffix = currentYear.toString().slice(-2);
+  
+  // Get the count of existing users to determine the next increment
+  const userCount = await User.count();
+  const nextIncrement = userCount + 1;
+  
+  // Format the increment as 5-digit number with leading zeros
+  const incrementStr = nextIncrement.toString().padStart(5, '0');
+  
+  // Combine to create virtual ID
+  const virtualId = `TMGF${yearSuffix}${incrementStr}`;
+  
+  return virtualId;
 }
 
-function toBase62(num) {
-  const base62Chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  if (typeof num !== 'number' || isNaN(num)) {
-    console.error("Invalid input to toBase62:", num);
-    return 'INVALID';
-  }
-
-  let result = '';
-  do {
-    result = base62Chars[num % 62] + result;
-    num = Math.floor(num / 62);
-  } while (num > 0);
-
-  return result.padStart(6, '0');
-}
-
-function generateVirtualIdFromUUID(uuid) {
-  const numeric = hashUUIDtoInt(uuid);
-  return `TMGF${toBase62(numeric)}`;
-}
-
+// Updated registration controller
 exports.registerUser = async (req, res) => {
   const {
     name,
@@ -51,7 +43,10 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ message: "User with this email already exists" });
     }
 
-    // Step 1: Create user WITHOUT virtualId
+    // Generate meaningful virtual ID
+    const virtualId = await generateMeaningfulVirtualId();
+
+    // Create user with virtualId
     const newUser = await User.create({
       name,
       email,
@@ -60,18 +55,16 @@ exports.registerUser = async (req, res) => {
       mobileNo,
       type: type || "Volunteer",
       interests,
+      virtualId, // Include virtualId during creation
     });
 
-    console.log(newUser.id);
-    // Step 2: Generate virtualId based on database ID
-    const virtualId = generateVirtualIdFromUUID(newUser.id);
+    console.log('New user created with ID:', newUser.id);
+    console.log('Virtual ID:', virtualId);
 
-    console.log(virtualId);
-
-    // Step 3: Update the same user record with virtualId
-    await newUser.update({ virtualId });
-
-    res.status(201).json({ message: "User registered successfully" });
+    res.status(201).json({ 
+      message: "User registered successfully",
+      virtualId: virtualId
+    });
 
   } catch (error) {
     console.error("Error in registerUser:", error);
@@ -82,7 +75,6 @@ exports.registerUser = async (req, res) => {
     res.status(500).json({ message: "Registration failed due to a server error", error: error.message });
   }
 };
-
 
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;

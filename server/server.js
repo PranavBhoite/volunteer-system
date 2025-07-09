@@ -9,6 +9,8 @@ const eventRoutes = require('./routes/events/eventsRoute');
 const userRoutes = require('./routes/user/userRoute');
 const adminRoutes = require('./routes/auth/adminauth');
 const helpRoutes = require('./routes/help/helpRoute');
+const statsRoute = require('./routes/stats/stateRoute');
+
 
 dotenv.config();
 const app = express();
@@ -24,6 +26,8 @@ app.use('/api/events', eventRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/auth/admin', adminRoutes);
 app.use('/api/help', helpRoutes);
+app.use('/api', statsRoute);
+
 
 // PostgreSQL connection via Sequelize
 syncDB(); // Syncs all models with DB
