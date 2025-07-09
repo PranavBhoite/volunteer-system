@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
 import {
   Container,
   Navbar,
@@ -15,6 +17,22 @@ import './TMGFHomepage.css';
 
 const TMGFHomepage = () => {
   const navigate = useNavigate();
+  const [stats, setStats] = useState({
+    activeVolunteers: 0,
+    events: 0
+  });
+
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/stats')
+      .then(res => {
+        if (res.data.success) {
+          setStats(res.data.data);
+        }
+      })
+      .catch(err => {
+        console.error('Error fetching stats', err);
+      });
+  }, []);
 
   const features = [
     {
@@ -134,7 +152,7 @@ const TMGFHomepage = () => {
           <Navbar.Toggle aria-controls="tmgf-navbar-nav" />
           <Navbar.Collapse id="tmgf-navbar-nav">
             <Nav className="d-flex align-items-center flex-lg-row flex-column justify-content-lg-end justify-content-start w-100 text-start ps-lg-0 ps-3 tmgf-navbar-nav">
-              <Nav.Link className={`nav-link${activeNav === 'home' ? ' active' : ''}`} href="/">Home</Nav.Link>
+              <Nav.Link className={`nav-link${activeNav === 'home' ? ' active' : ''}`} href="#home">Home</Nav.Link>
               {/* Removed About and Initiatives links */}
               {/* Team now scrolls to the team section below */}
               <Nav.Link className={`nav-link${activeNav === 'team' ? ' active' : ''}`} href="#team">Team</Nav.Link>
@@ -184,7 +202,7 @@ const TMGFHomepage = () => {
 
       {/* Hero Section */}
       <section
-        className="tmgf-hero position-relative"
+        className="tmgf-hero position-relative" id="home"
         style={{
           padding: '0',
           background: 'none',
@@ -194,6 +212,7 @@ const TMGFHomepage = () => {
       >
         {/* Background image with dark overlay */}
         <div
+        
           style={{
             position: 'absolute',
             top: 0,
@@ -369,25 +388,25 @@ const TMGFHomepage = () => {
                   </Button>
                 </div>
                 <Row className="g-3 mt-4 justify-content-center tmgf-hero-stats-row">
-                  <Col xs={12} sm={4} md={3} className="tmgf-hero-stat-col mb-3 mb-sm-0">
-                    <div className="text-center p-3 tmgf-hero-stat-card" style={{background: '#fff', boxShadow: '0 2px 8px rgba(172,46,98,0.08)', border: '1px solid #eee', borderRadius: 16}}>
-                      <h2 className="fw-bold mb-1" style={{fontSize: '2.2rem'}}>120</h2>
-                      <div style={{fontWeight: 600, fontSize: '1rem'}}>Active Volunteers</div>
-                    </div>
-                  </Col>
-                  <Col xs={12} sm={4} md={3} className="tmgf-hero-stat-col mb-3 mb-sm-0">
-                    <div className="text-center p-3 tmgf-hero-stat-card" style={{background: '#fff', boxShadow: '0 2px 8px rgba(172,46,98,0.08)', border: '1px solid #eee', borderRadius: 16}}>
-                      <h2 className="fw-bold mb-1" style={{fontSize: '2.2rem'}}>24</h2>
-                      <div style={{fontWeight: 600, fontSize: '1rem'}}>Events</div>
-                    </div>
-                  </Col>
-                  <Col xs={12} sm={4} md={3} className="tmgf-hero-stat-col">
-                    <div className="text-center p-3 tmgf-hero-stat-card" style={{background: '#fff', boxShadow: '0 2px 8px rgba(172,46,98,0.08)', border: '1px solid #eee', borderRadius: 16}}>
-                      <h2 className="fw-bold mb-1" style={{fontSize: '2.2rem'}}>24/7</h2>
-                      <div style={{fontWeight: 600, fontSize: '1rem'}}>Support</div>
-                    </div>
-                  </Col>
-                </Row>
+      <Col xs={12} sm={4} md={3} className="tmgf-hero-stat-col mb-3 mb-sm-0">
+        <div className="text-center p-3 tmgf-hero-stat-card" style={{background: '#fff', boxShadow: '0 2px 8px rgba(172,46,98,0.08)', border: '1px solid #eee', borderRadius: 16}}>
+          <h2 className="fw-bold mb-1" style={{fontSize: '2.2rem'}}>{stats.activeVolunteers}</h2>
+          <div style={{fontWeight: 600, fontSize: '1rem'}}>Active Volunteers</div>
+        </div>
+      </Col>
+      <Col xs={12} sm={4} md={3} className="tmgf-hero-stat-col mb-3 mb-sm-0">
+        <div className="text-center p-3 tmgf-hero-stat-card" style={{background: '#fff', boxShadow: '0 2px 8px rgba(172,46,98,0.08)', border: '1px solid #eee', borderRadius: 16}}>
+          <h2 className="fw-bold mb-1" style={{fontSize: '2.2rem'}}>{stats.events}</h2>
+          <div style={{fontWeight: 600, fontSize: '1rem'}}>Events</div>
+        </div>
+      </Col>
+      <Col xs={12} sm={4} md={3} className="tmgf-hero-stat-col">
+        <div className="text-center p-3 tmgf-hero-stat-card" style={{background: '#fff', boxShadow: '0 2px 8px rgba(172,46,98,0.08)', border: '1px solid #eee', borderRadius: 16}}>
+          <h2 className="fw-bold mb-1" style={{fontSize: '2.2rem'}}>24/7</h2>
+          <div style={{fontWeight: 600, fontSize: '1rem'}}>Support</div>
+        </div>
+      </Col>
+    </Row>
                 <style>{`
                   @media (max-width: 768px) {
                     .tmgf-hero-stats-row {
@@ -560,7 +579,7 @@ const TMGFHomepage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="tmgf-footer py-4" style={{background: '#565656', color: '#e5e5e5', marginTop: 0, fontSize: '1rem', letterSpacing: 0.1}}>
+      <footer className="tmgf-footer py-4" style={{background: '#333333', color: '#e5e5e5', marginTop: 0, fontSize: '1rem', letterSpacing: 0.1}}>
         <Container>
           <Row className="align-items-center justify-content-between">
             <Col md={6} className="mb-3 mb-md-0 text-center text-md-start">
@@ -590,7 +609,7 @@ const TMGFHomepage = () => {
                 +91 9881337914<br/>
                 Shirur, Maharashtra
               </div>
-              <div className="mt-2" style={{fontSize: '0.93rem', color: '#888', opacity: 0.8}}>
+              <div className="mt-2" style={{fontSize: '0.93rem', color: '#b0b0b0', opacity: 0.8}}>
                 &copy; 2025 TMGF NGO. All rights reserved.
               </div>
             </Col>

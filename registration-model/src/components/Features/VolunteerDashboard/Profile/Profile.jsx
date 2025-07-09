@@ -14,7 +14,7 @@ import { FaUserCircle } from "react-icons/fa";
 
 const Profile = () => {
   const { uid } = useParams();
-
+  const [errors, setErrors] = useState({ mobileNo: "" }); // 👈 Added to track mobile number validation
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -57,20 +57,28 @@ const Profile = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleEditToggle = async () => {
-    if (isEditing) {
-      try {
-        await axios.put(
-          `http://localhost:5000/api/users/update/${uid}`,
-          formData
-        );
-        alert("Profile updated successfully");
-      } catch {
-        alert("Failed to update profile.");
-      }
+const handleEditToggle = async () => {
+  if (isEditing) {
+    // ✅ Prevent saving if mobile number is not exactly 10 digits
+    if (formData.mobileNo.length !== 10) {
+      alert("Mobile number must be exactly 10 digits");
+      return;
     }
-    setIsEditing(!isEditing);
-  };
+
+    try {
+      await axios.put(
+        `http://localhost:5000/api/users/update/${uid}`,
+        formData
+      );
+      alert("Profile updated successfully");
+    } catch {
+      alert("Failed to update profile.");
+    }
+  }
+
+  setIsEditing(!isEditing);
+};
+
 
   if (loading) {
     return (
@@ -101,10 +109,10 @@ const Profile = () => {
   };
 
   return (
-   <div className="main-content">
-   
+    <div className="main-content">
+
       <div className="text-center mt-4">
-        <img src="/images/LOGO.png" alt="TMGF" style={{ width: 120,marginTop: 20 }} />
+        <img src="/images/LOGO.png" alt="TMGF" style={{ width: 120, marginTop: 20 }} />
         <h2 style={{ fontWeight: "bold", marginTop: 20, marginBottom: 24 }}>
           <span style={{ color: "#0599C2" }}>The </span>
           <span style={{ color: "#a70a4a" }}>Mother </span>
@@ -125,7 +133,7 @@ const Profile = () => {
             className="mb-4 d-flex align-items-center"
             style={{
               background: "white",
-              color: "#a70a4a" ,
+              color: "#a70a4a",
               padding: "10px 24px",
               fontSize: "1.5rem",
               fontWeight: "bold",
@@ -137,7 +145,7 @@ const Profile = () => {
               maxWidth: "290px",
             }}
           >
-            <FaUserCircle size={24} style={{ marginRight: "10px", color: "#a70a4a"  }} />
+            <FaUserCircle size={24} style={{ marginRight: "10px", color: "#a70a4a" }} />
             Personal Details
           </h4>
 
@@ -202,10 +210,27 @@ const Profile = () => {
                     name="mobileNo"
                     type="tel"
                     value={formData.mobileNo}
-                    onChange={handleChange}
+                    onChange={(e) => {
+                      let input = e.target.value.replace(/\D/g, ""); // Remove non-digits
+                      if (input.length > 10) input = input.slice(0, 10); // Limit to 10 digits
+
+                      // Update form data
+                      setFormData((prev) => ({ ...prev, mobileNo: input }));
+
+                      // 👇 Show error if less than 10 digits
+                      if (input.length < 10) {
+                        setErrors((prev) => ({ ...prev, mobileNo: "Mobile number must be exactly 10 digits" }));
+                      } else {
+                        setErrors((prev) => ({ ...prev, mobileNo: "" }));
+                      }
+                    }}
                     readOnly={!isEditing}
                     style={inputStyle}
                   />
+                  {errors.mobileNo && (
+                    <small style={{ color: "red", fontSize: "0.85rem" }}>{errors.mobileNo}</small> // 👈 Show validation message
+                  )}
+
                 </Form.Group>
               </div>
             </Col>
@@ -257,7 +282,7 @@ const Profile = () => {
         </Card>
       </Container>
     </div>
-   
+
   );
 };
 

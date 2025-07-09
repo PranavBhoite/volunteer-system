@@ -438,7 +438,8 @@ const HelpSection = () => {
   const handleCancelEvent = async (eventId) => {
     if (window.confirm('Are you sure you want to delete this event?')) {
       try {
-        await axios.put(`http://localhost:5000/api/events/cancel/${eventId}`);
+        // Use the help-specific cancel endpoint since these are help events
+        await axios.put(`http://localhost:5000/api/help/cancel/${eventId}`);
         fetchEvents();
       } catch (err) {
         console.error('Error Canceling event:', err);
@@ -479,7 +480,7 @@ const HelpSection = () => {
               <Dropdown.Item eventKey="all">All</Dropdown.Item>
               <Dropdown.Item eventKey="approved" style={{ color: 'green', fontWeight: 'bold' }}>Approved</Dropdown.Item>
               <Dropdown.Item eventKey="disapproved" style={{ color: 'red', fontWeight: 'bold' }}>Disapproved</Dropdown.Item>
-              <Dropdown.Item eventKey="pending" style={{ color: '#ff9800', fontWeight: 'bold' }}>Pending</Dropdown.Item>
+              <Dropdown.Item eventKey="pending" style={{ color: 'black', fontWeight: 'bold' }}>Pending</Dropdown.Item>
             </DropdownButton>
           </Col>
         </Row>
@@ -588,7 +589,7 @@ const HelpSection = () => {
                 <th>Title</th>
                 <th>Start Date</th>
                 <th>Location</th>
-                <th>Status</th>
+                <th>Help Status</th>
                 <th>Feedback</th>
                 <th style={{ textAlign: 'center' }}>Actions</th>
               </tr>
@@ -596,18 +597,30 @@ const HelpSection = () => {
             <tbody>
               {events.map((event, index) => {
                 const rowColor = index % 2 === 0 ? '#FFFFFF' : '#cef6ff';
-                const statusColor = event.status === 'approved' ? '#4CAF50' : event.status === 'pending' ? '#ff9800' : '#F44336';
+                const statusColor = (() => {
+                  switch (event.helpStatus.trim().toLowerCase()) {
+                    case 'approved':
+                      return 'green'; 
+                    case 'pending':
+                      return 'black'; 
+                    case 'disapproved':
+                      return 'red'; 
+                    default:
+                      return 'black'; 
+                  }
+                })();
+
                 return (
                   <tr key={event.id}>
                     <td style={{ backgroundColor: rowColor }}>{event.title}</td>
                     <td style={{ backgroundColor: rowColor }}>{event.startDate}</td>
                     <td style={{ backgroundColor: rowColor }}>{event.location}</td>
-                    <td style={{ backgroundColor: rowColor, color: statusColor, fontWeight: 500 }}>
-                      {event.status === 'Cancelled' || event.status === 'Completed' ? event.status : event.helpStatus.charAt(0).toUpperCase() + event.helpStatus.slice(1)}
+                    <td style={{ backgroundColor: rowColor, color: statusColor, fontWeight: 'bold' }}>
+                      {event.helpStatus.trim().toLowerCase().charAt(0).toUpperCase() + event.helpStatus.trim().toLowerCase().slice(1)}
                     </td>
                     <td style={{ backgroundColor: rowColor }}>
                       {event.status === 'Cancelled' || event.status === 'Completed' ? "--" :
-                        event.helpStatus === 'pending' ? (
+                        event.helpStatus.trim().toLowerCase() === 'pending' ? (
                           <span className="text-muted fst-italic">Event not yet reviewed</span>
                         ) : (
                           <span>{event.helpFeedback || '—'}</span>
@@ -665,9 +678,15 @@ const HelpSection = () => {
               <p><strong>End Time:</strong> {selectedEvent.endTime}</p>
               <p><strong>Location:</strong> {selectedEvent.location}</p>
               <p><strong>Event Status:</strong> {selectedEvent.status}</p>
-              <p><strong>Help Status:</strong> {selectedEvent.helpStatus || "-"}</p>
+              <p><strong>Help Status:</strong> {selectedEvent.helpStatus ? selectedEvent.helpStatus.trim().toLowerCase().charAt(0).toUpperCase() + selectedEvent.helpStatus.trim().toLowerCase().slice(1) : "-"}</p>
               <p><strong>Volunteer Needed:</strong> {selectedEvent.volunteersNeeded}</p>
-              <p><strong>Admin Feedback:</strong> {(selectedEvent.status === 'pending') ? <span className="text-muted fst-italic">Event not yet reviewed</span> : selectedEvent.feedback}</p>
+              <p><strong>Admin Feedback:</strong> {
+                selectedEvent.helpStatus && selectedEvent.helpStatus.trim().toLowerCase() === 'pending' ? (
+                  <span className="text-muted fst-italic">Event not yet reviewed</span>
+                ) : (
+                  <span>{selectedEvent.helpFeedback || '—'}</span>
+                )
+              }</p>
               <p><em>(Double click anywhere to close)</em></p>
             </div>
           </div>

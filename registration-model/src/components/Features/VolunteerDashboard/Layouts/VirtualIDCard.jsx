@@ -153,7 +153,7 @@ export default function VirtualIDCard({uid, onClose}) {
                   position: "relative",
                   cursor: "pointer",
                   borderRadius: "0.5rem",
-                  border: "5px solid #4B0082", // Indigo, matching TMGF 'T' letter darkness
+                  border: "5px solid #2D9CDB", // Indigo, matching TMGF 'T' letter darkness
                   background: "white",
                 }}
                 className="virtual-card-container"
@@ -163,7 +163,7 @@ export default function VirtualIDCard({uid, onClose}) {
                   id="virtual-id-front"
                   className="p-3 border-0"
                   style={{
-                    color: "#000080",
+                    color: "#0e4b73",
                     width: "100%",
                     height: "100%",
                     position: "absolute",
@@ -223,7 +223,7 @@ export default function VirtualIDCard({uid, onClose}) {
                     backfaceVisibility: "hidden",
                     transform: "rotateY(180deg)",
                     borderRadius: "0.5rem",
-                    color: "#000080",
+                    color: "#0e4b73",
                     background: "white",
                   }}
                 >

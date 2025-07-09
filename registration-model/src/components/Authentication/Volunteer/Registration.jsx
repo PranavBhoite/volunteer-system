@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Form, Button, Container, Row, Col, Alert, Spinner } from "react-bootstrap";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Registration = () => {
   const [formData, setFormData] = useState({
@@ -56,7 +58,11 @@ const Registration = () => {
     try {
       await axios.post("http://localhost:5000/api/auth/register", formData);
       setServerMsg("Registration successful!");
-      setTimeout(() => navigate("/login"), 1500);
+      toast.success("Registration successful!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      setTimeout(() => navigate("/login"), 3000);
     } catch (err) {
       setServerMsg(err.response?.data?.message || "Registration failed.");
     } finally {
@@ -253,6 +259,7 @@ const Registration = () => {
           </Col>
         </Row>
       </Container>
+      <ToastContainer />
     </div>
   );
 };

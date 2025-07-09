@@ -1,8 +1,23 @@
-import { Outlet } from "react-router-dom";
+import React from "react";
+import { Outlet, useLocation } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Sidebar from "./Layouts/Sidebar";
 import Header from "./Layouts/Header";
 
 const VolunteerDashboard = () => {
+  const location = useLocation();
+
+  // trigger the toast
+  React.useEffect(() => {
+    if (location.state?.toastMessage) {
+      toast.success(location.state.toastMessage, {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  }, [location.state]);
+
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
       {/* Fixed Sidebar */}
@@ -15,12 +30,11 @@ const VolunteerDashboard = () => {
 
         {/* Scrollable Inner Content */}
         <div style={{ flex: 1, overflowY: 'auto' }}>
-          
-            <Outlet />
-          </div>
+          <Outlet />
         </div>
       </div>
-    
+      <ToastContainer />
+    </div>
   );
 };
 
