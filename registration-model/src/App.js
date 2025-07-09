@@ -46,7 +46,7 @@ function App() {
             <Route path="help" element={<Help/>} />
             <Route index element={<Navigate to= "allvolunteers" replace />} />
           </Route>
-
+          
         {/* Volunteer Dashboard with nested routes */}
         <Route path="/dashboard/:uid" element={<VolunteerDashboard />}>
           {/* These are the nested routes that will render in the Outlet */}

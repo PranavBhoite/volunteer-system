@@ -143,13 +143,14 @@
 
 
 import React, { useState } from "react";
-import { Form, Button, Container, Row, Col, Alert } from "react-bootstrap";
+import { Form, Button, Container, Row, Col } from "react-bootstrap";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import { ToastContainer, Slide, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
@@ -157,20 +158,26 @@ const Login = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!formData.email || !formData.password) {
-      setError("Both email and password are required.");
+      const errorMessage = "Email and password are required fields.";
+      console.log("Error: Missing email or password");
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 3000,
+        transition: Slide,
+      });
       return;
     }
 
     try {
       const res = await axios.post("http://localhost:5000/api/auth/login", formData);
-      alert(res.data.message);
+      // console.log("Response from server:", res.data); (debugging toast)
+      const successMessage = res.data.message || "Logged in successfully!";
 
       // Store user ID locally (using localStorage or sessionStorage based on rememberMe)
       if (rememberMe) {
@@ -179,10 +186,16 @@ const Login = () => {
         sessionStorage.setItem("userId", res.data.userId);
       }
 
-      // Navigate to dashboard
-      navigate(`/dashboard/${res.data.userId}`);
+      // Navigate to dashboard with success message
+      navigate(`/dashboard/${res.data.userId}`, { state: { toastMessage: successMessage } });
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+      // console.log("Error from server:", err.response?.data); (debugging toast)
+      const errorMessage = err.response?.data?.message || "Login failed";
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 3000,
+        transition: Slide,
+      });
     }
   };
 
@@ -205,8 +218,6 @@ const Login = () => {
               boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)"
             }}>
               <h2 className="mb-4" style={{ color: "#2c3e50", fontWeight: "bold" }}>Account Login</h2>
-              
-              {error && <Alert variant="danger" className="text-center">{error}</Alert>}
               
               <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-4">
@@ -300,6 +311,7 @@ const Login = () => {
           </Col>
         </Row>
       </Container>
+      <ToastContainer />
     </div>
   );
 };
