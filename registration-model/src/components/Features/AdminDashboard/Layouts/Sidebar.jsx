@@ -48,6 +48,11 @@ export default function Sidebar() {
       label: "Volunteer Requests",
       icon: <FaQuestionCircle className="me-2" />,
     },
+    {
+      to: `/admin-dashboard/${uid}/account-confirmation`,
+      label: "Account Confirmation",
+      icon: <FaUser className="me-2" />,
+    },
   ];
 
   return (

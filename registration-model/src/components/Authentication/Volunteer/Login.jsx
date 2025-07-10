@@ -176,18 +176,56 @@ const Login = () => {
 
     try {
       const res = await axios.post("http://localhost:5000/api/auth/login", formData);
-      // console.log("Response from server:", res.data); (debugging toast)
-      const successMessage = res.data.message || "Logged in successfully!";
+      console.log("Login response:", res.data); // Log the response for debugging
+      
+      // First check if we received an error response with status code 200
+      // This could happen if backend sends error with status 200 instead of 400
+      if (res.data.error) {
+        toast.error(res.data.message || "Login failed", {
+          position: "top-right",
+          autoClose: 3000,
+          transition: Slide,
+        });
+        return;
+      }
 
+      // Now handle specific status cases if provided in the response
+      const { userId, message, status } = res.data;
+      
+      if (status === "pending") {
+        toast.info("Your account is pending approval. Please wait for admin confirmation.", {
+          position: "top-right",
+          autoClose: 5000,
+          delay: 1000
+        });
+        return;
+      } else if (status === "disapproved") {
+        toast.error("Your account has been disapproved by admin. Please contact support.", {
+          position: "top-right",
+          autoClose: 5000,
+          transition: Slide,
+        });
+        return;
+      } 
+      
+      // For successful login (both explicit approved status and default case)
+      // If status is not provided or is "approved", proceed with login
+      const successMessage = message || "Logged in successfully!";
+      toast.success(successMessage, {
+        position: "top-right",
+        autoClose: 3000,
+        transition: Slide,
+      });
+      
       // Store user ID locally (using localStorage or sessionStorage based on rememberMe)
       if (rememberMe) {
-        localStorage.setItem("userId", res.data.userId);
+        localStorage.setItem("userId", userId);
       } else {
-        sessionStorage.setItem("userId", res.data.userId);
+        sessionStorage.setItem("userId", userId);
       }
 
       // Navigate to dashboard with success message
-      navigate(`/dashboard/${res.data.userId}`, { state: { toastMessage: successMessage } });
+      navigate(`/dashboard/${userId}`, { state: { toastMessage: successMessage } });
     } catch (err) {
       // console.log("Error from server:", err.response?.data); (debugging toast)
       const errorMessage = err.response?.data?.message || "Login failed";

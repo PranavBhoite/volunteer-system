@@ -9,11 +9,7 @@ import VolunteerDashboard from './components/Features/VolunteerDashboard/Volunte
 import AdminDashboard from './components/Features/AdminDashboard/AdminDashboard';
 import AdminRegister from './components/Authentication/Admin/AdminRegister';
 import AdminLogin from './components/Authentication/Admin/AdminLogin';
-
-
-
-
-
+import AccountConfirmationPage from './components/Features/AdminDashboard/AccountConfirmation';
 
 // Import your actual components
 import VolunteerView from './components/Features/VolunteerDashboard/Event/VolunteerView';
@@ -44,6 +40,7 @@ function App() {
             <Route path= "organizer-view" element={<OrganizerView />} />
             <Route path="allvolunteers" element={<AllVolunteers />} />
             <Route path="help" element={<Help/>} />
+            <Route path="account-confirmation" element={<AccountConfirmationPage />} />
             <Route index element={<Navigate to= "allvolunteers" replace />} />
           </Route>
           

@@ -79,11 +79,34 @@ exports.registerUser = async (req, res) => {
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
 
+  console.log("Login attempt with email:", email);
+  console.log("Login attempt with password:", password);
+
   try {
     const user = await User.findOne({ where: { email } });
 
+    console.log("User fetched from database:", user);
+
     if (!user || user.password !== password) {
+      // console.log("Invalid credentials for email:", email);
       return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    // Check if the user's account is disapproved
+    if (user.status === 'disapproved') {
+      // console.log("Login attempt for disapproved account:", email);
+      return res.status(400).json({
+        message: "Your account has been disapproved",
+        feedback: user.feedback || "No feedback provided",
+      });
+    }
+
+    // Check if the user's account is pending
+    if (user.status === 'pending') {
+      // console.log("Login attempt for pending account:", email); this is just for debugging purpose
+      return res.status(400).json({
+        message: "Your account is still pending confirmation. Please wait for admin approval."
+      });
     }
 
     await eventController.updateEventStatuses();

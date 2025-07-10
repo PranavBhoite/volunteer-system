@@ -8,6 +8,7 @@ const userAuthRoutes = require('./routes/auth/userauth');
 const eventRoutes = require('./routes/events/eventsRoute');
 const userRoutes = require('./routes/user/userRoute');
 const adminRoutes = require('./routes/auth/adminauth');
+const accountRoutes = require('./routes/admin/accountRoutes');
 const helpRoutes = require('./routes/help/helpRoute');
 const statsRoute = require('./routes/stats/stateRoute');
 
@@ -25,6 +26,7 @@ app.use('/api/auth', userAuthRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/auth/admin', adminRoutes);
+app.use('/api/admin', accountRoutes);
 app.use('/api/help', helpRoutes);
 app.use('/api', statsRoute);
 

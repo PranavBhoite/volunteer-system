@@ -55,7 +55,15 @@ const User = sequelize.define('User', {
   type: {
     type: DataTypes.ENUM("Volunteer", "Intern", "Field Worker", "Other"),
     defaultValue: "Volunteer"
-  }
+  },
+  status: {
+    type: DataTypes.ENUM('pending', 'approved', 'disapproved'),
+    defaultValue: 'pending',
+  },
+  feedback: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
 }, {
   tableName: 'users',
   timestamps: false, // Disabling createdAt/updatedAt columns
