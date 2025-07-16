@@ -77,7 +77,7 @@ const VolunteerView = () => {
   }
 
   return (
-    <div className='main-content'>
+    <div className="container-fluid p-4">
       <div className="volunteer-container">
         <div className="search-section">
           <div className="search-row">

@@ -6,6 +6,7 @@ import {
   FaQuestionCircle,
   FaBars,
   FaTimes,
+  FaClipboardList,
 } from "react-icons/fa";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -42,6 +43,11 @@ export default function Sidebar() {
       to: `/admin-dashboard/${uid}/organizer-view`,
       label: "Event",
       icon: <FaCalendarAlt className="me-2" />,
+    },
+    {
+      to: `/admin-dashboard/${uid}/requirements`,
+      label: "Requirements",
+      icon: <FaClipboardList className="me-2" />,
     },
     {
       to: `/admin-dashboard/${uid}/help`,

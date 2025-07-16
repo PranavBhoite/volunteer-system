@@ -4,6 +4,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Sidebar from "./Layouts/Sidebar";
 import Header from "./Layouts/Header";
+import "../Dashboard.css";
 
 const VolunteerDashboard = () => {
   const location = useLocation();
@@ -19,12 +20,20 @@ const VolunteerDashboard = () => {
   }, [location.state]);
 
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+    <div style={{ height: '100vh', overflow: 'hidden' }}>
       {/* Fixed Sidebar */}
       <Sidebar />
 
-      {/* Right Section */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      {/* Main Content Area - with left margin to account for sidebar */}
+      <div 
+        className="main-content"
+        style={{ 
+          height: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden'
+        }}
+      >
         {/* Fixed Header */}
         <Header />
 

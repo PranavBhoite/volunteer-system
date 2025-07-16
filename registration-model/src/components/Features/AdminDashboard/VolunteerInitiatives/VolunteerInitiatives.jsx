@@ -207,8 +207,7 @@ const AdminHelp = () => {
   };
 
   return (
-    <div className='main-content'>
-    <Container className="mt-5">
+    <Container fluid className="p-4">
       <Row className="align-items-center justify-content-between mb-4">
         <Col>
           <h3 className="events-heading">
@@ -346,7 +345,6 @@ const AdminHelp = () => {
 
 
     </Container>
-    </div>
   );
 };
 

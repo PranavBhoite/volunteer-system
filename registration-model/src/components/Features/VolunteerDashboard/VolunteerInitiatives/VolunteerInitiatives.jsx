@@ -449,8 +449,7 @@ const HelpSection = () => {
   };
 
   return (
-    <div className="main-content">
-      <Container className="mt-4 pt-4 ">
+    <Container fluid className="p-4">
         {/* Header and Action Row */}
         <Row className="align-items-center justify-content-between mb-4 flex-wrap">
           <Col xs={12} md="auto" className="mb-2 mb-md-0">
@@ -692,7 +691,6 @@ const HelpSection = () => {
           </div>
         )}
       </Container>
-    </div>
   );
 };
 

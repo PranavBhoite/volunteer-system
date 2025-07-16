@@ -1,0 +1,77 @@
+.main-content {
+  margin-left: 250px; 
+  transition: margin-left 0.3s ease-in-out;
+  min-height: 100vh;
+  overflow-x: hidden; 
+  box-sizing: border-box;
+}
+
+@media (max-width: 767px) {
+  .main-content {
+    margin-left: 0 !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .main-content {
+    padding-top: 10px;
+  }
+}
+
+@media (min-width: 768px) {
+  .main-content {
+    margin-left: 250px;
+  }
+}
+
+.main-content .container-fluid {
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 15px;
+  padding-right: 15px;
+  box-sizing: border-box;
+}
+
+.main-content .table-responsive {
+  overflow-x: auto;
+}
+
+.main-content .card {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.main-content .row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.main-content .col,
+.main-content .col-1,
+.main-content .col-2,
+.main-content .col-3,
+.main-content .col-4,
+.main-content .col-5,
+.main-content .col-6,
+.main-content .col-7,
+.main-content .col-8,
+.main-content .col-9,
+.main-content .col-10,
+.main-content .col-11,
+.main-content .col-12,
+.main-content .col-sm,
+.main-content .col-md,
+.main-content .col-lg,
+.main-content .col-xl,
+.main-content .col-xxl {
+  padding-left: 15px;
+  padding-right: 15px;
+  box-sizing: border-box;
+}
+
+/* Fix modal positioning */
+.modal {
+  padding-left: 0 !important;
+}

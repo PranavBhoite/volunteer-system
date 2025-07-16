@@ -4,8 +4,7 @@ import { FaHandsHelping } from 'react-icons/fa';
 
 const HelpMe = () => {
   return (
-    <div className="main-content">
-    <Container className="mt-4">
+    <Container fluid className="p-4">
       <Row className="justify-content-center">
         <Col xs={12} md={10}>
           {/* Header */}
@@ -68,7 +67,6 @@ const HelpMe = () => {
         </Col>
       </Row>
     </Container>
-    </div>
   );
 };
 

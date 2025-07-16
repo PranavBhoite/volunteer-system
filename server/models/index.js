@@ -3,6 +3,8 @@ const User = require('./User');
 const Event = require('./EventModel');
 const EventUserMap = require('./EventUserMapModel');
 const Admin = require('./Admin');
+const Requirement = require('./RequirementModel');
+const RequirementClick = require('./RequirementClickModel');
 
 // Define associations if needed (example):
 // User.hasMany(Event); // if user creates events
@@ -29,6 +31,16 @@ EventUserMap.belongsTo(Event, { foreignKey: 'eventId' });
 User.hasMany(Event, { foreignKey: 'userIdForHelp' });
 Event.belongsTo(User, { foreignKey: 'userIdForHelp' });
 
+// Requirements associations
+Admin.hasMany(Requirement, { foreignKey: 'createdBy', as: 'requirements' });
+Requirement.belongsTo(Admin, { foreignKey: 'createdBy', as: 'admin' });
+
+User.hasMany(RequirementClick, { foreignKey: 'userId' });
+RequirementClick.belongsTo(User, { foreignKey: 'userId' });
+
+Requirement.hasMany(RequirementClick, { foreignKey: 'requirementId' });
+RequirementClick.belongsTo(Requirement, { foreignKey: 'requirementId' });
+
 
 module.exports = {
   sequelize,
@@ -36,5 +48,7 @@ module.exports = {
   Event,
   EventUserMap,
   Admin,
+  Requirement,
+  RequirementClick,
   syncDB,
 };

@@ -109,7 +109,7 @@ const handleEditToggle = async () => {
   };
 
   return (
-    <div className="main-content">
+    <div className="container-fluid p-4">
 
       <div className="text-center mt-4">
         <img src="/images/LOGO.png" alt="TMGF" style={{ width: 120, marginTop: 20 }} />

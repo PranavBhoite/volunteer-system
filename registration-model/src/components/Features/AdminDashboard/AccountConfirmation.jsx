@@ -26,13 +26,13 @@ const AccountConfirmation = () => {
   const fetchPendingAccounts = async () => {
     try {
       setLoading(true);
-      console.log("Fetching pending accounts...");
+      // console.log("Fetching pending accounts...");
       const response = await axios.get("http://localhost:5000/api/admin/pending-accounts");
-      console.log("Pending accounts response:", response.data);
+      // console.log("Pending accounts response:", response.data);
       setPendingAccounts(response.data);
       setLoading(false);
     } catch (error) {
-      console.error("Error fetching pending accounts:", error);
+      // console.error("Error fetching pending accounts:", error);
       toast.error("Failed to fetch pending accounts.");
       setLoading(false);
     }
@@ -41,10 +41,10 @@ const AccountConfirmation = () => {
   const fetchConfirmedAccounts = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/admin/confirmed-accounts");
-      console.log("Confirmed accounts response:", response.data);
+      // console.log("Confirmed accounts response:", response.data);
       setConfirmedAccounts(response.data);
     } catch (error) {
-      console.error("Error fetching confirmed accounts:", error);
+      // console.error("Error fetching confirmed accounts:", error);
       toast.error("Failed to fetch confirmed accounts.");
     }
   };
@@ -52,10 +52,10 @@ const AccountConfirmation = () => {
   const fetchDeclinedAccounts = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/admin/declined-accounts");
-      console.log("Declined accounts response:", response.data);
+      // console.log("Declined accounts response:", response.data);
       setDeclinedAccounts(response.data);
     } catch (error) {
-      console.error("Error fetching declined accounts:", error);
+      // console.error("Error fetching declined accounts:", error);
       toast.error("Failed to fetch declined accounts.");
     }
   };
@@ -70,7 +70,7 @@ const AccountConfirmation = () => {
       // Trigger a refresh of all account lists
       setRefreshTrigger(prev => prev + 1);
     } catch (error) {
-      console.error("Error approving account:", error);
+      // console.error("Error approving account:", error);
       toast.error("Failed to approve account.");
     }
   };
@@ -130,13 +130,13 @@ const AccountConfirmation = () => {
       // Trigger a refresh of all account lists
       setRefreshTrigger(prev => prev + 1);
     } catch (error) {
-      console.error("Error updating account status:", error);
+      // console.error("Error updating account status:", error);
       toast.error("Failed to update account status.");
     }
   };
 
   return (
-    <Container fluid className="p-4" style={{ marginLeft: "250px", paddingRight: "20px", maxWidth: "calc(100vw - 250px)" }}> {/* Adjusted spacing to prevent right overflow */}
+    <Container fluid className="p-4">
       <ToastContainer />
       
       <Row className="mb-4">

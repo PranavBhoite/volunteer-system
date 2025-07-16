@@ -20,6 +20,8 @@ import AllVolunteers from './components/Features/AdminDashboard/VolunteerList/Al
 import Help from './components/Features/AdminDashboard/VolunteerInitiatives/VolunteerInitiatives';
 import HelpMe from './components/Features/VolunteerDashboard/HelpMe/HelpMe';
 import Home from './components/Features/VolunteerDashboard/Home/Home';
+import AdminRequirements from './components/Features/AdminDashboard/Requirements/AdminRequirements';
+import VolunteerRequirements from './components/Features/VolunteerDashboard/Requirements/VolunteerRequirements';
 
 
 
@@ -39,6 +41,7 @@ function App() {
           <Route path="/admin-dashboard/:uid" element={<AdminDashboard />} >
             <Route path= "organizer-view" element={<OrganizerView />} />
             <Route path="allvolunteers" element={<AllVolunteers />} />
+            <Route path="requirements" element={<AdminRequirements />} />
             <Route path="help" element={<Help/>} />
             <Route path="account-confirmation" element={<AccountConfirmationPage />} />
             <Route index element={<Navigate to= "allvolunteers" replace />} />
@@ -50,6 +53,7 @@ function App() {
           <Route path="profile" element={<Profile />} />
           <Route path="home" element={<Home/>}/>
           <Route path="volunteer-view" element={<VolunteerView />} />
+          <Route path="requirements" element={<VolunteerRequirements />} />
           <Route path="help" element={<HelpSection />} />
           <Route path="help-me" element={<HelpMe />} />
 

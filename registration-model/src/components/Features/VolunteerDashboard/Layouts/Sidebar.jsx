@@ -7,6 +7,7 @@ import {
   FaQuestionCircle,
   FaBars,
   FaTimes,
+  FaClipboardList,
 } from "react-icons/fa";
 import { BsClipboardCheckFill } from "react-icons/bs";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -38,6 +39,7 @@ export default function Sidebar() {
     { to: `/dashboard/${uid}/profile`, label: "Profile", icon: <FaUser className="me-2" /> },
     { to: `/dashboard/${uid}/home`, label: "Home", icon: <FaHome className="me-2" /> },
     { to: `/dashboard/${uid}/volunteer-view`, label: "Event", icon: <FaCalendarAlt className="me-2" /> },
+    { to: `/dashboard/${uid}/requirements`, label: "Requirements", icon: <FaClipboardList className="me-2" /> },
     { to: `/dashboard/${uid}/help`, label: "Event Initiatives", icon: <BsClipboardCheckFill className="me-2" /> },
     { to: `/dashboard/${uid}/help-me`, label: "Help", icon: <FaQuestionCircle className="me-2" /> },
   ];

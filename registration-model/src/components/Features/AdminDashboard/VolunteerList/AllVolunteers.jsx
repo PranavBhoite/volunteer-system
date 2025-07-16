@@ -34,9 +34,7 @@ const AllVolunteers = () => {
   });
 
   return (
-    <div className="main-content">
-    <Container 
-    className="px-4 py-3" style={{ backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
+    <Container fluid className="p-4" style={{ backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
       {/* Header Section */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -163,7 +161,6 @@ const AllVolunteers = () => {
         </Row>
       )}
     </Container>
-    </div>
   );
 };
 

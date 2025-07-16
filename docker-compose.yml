@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: volunteerdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - volunteer-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  backend:
+    build: ./server
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: postgres
+      DB_USER: user
+      DB_PASSWORD: secret
+      DB_NAME: volunteerdb
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - volunteer-network
+
+  frontend:
+    build: ./registration-model
+    ports:
+      - "3000:80"
+    environment:
+      REACT_APP_API_URL: http://localhost:5000
+    depends_on:
+      - backend
+    networks:
+      - volunteer-network
+
+networks:
+  volunteer-network:
+    driver: bridge
+
+volumes:
+  pgdata:

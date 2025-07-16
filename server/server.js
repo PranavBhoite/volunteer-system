@@ -11,6 +11,7 @@ const adminRoutes = require('./routes/auth/adminauth');
 const accountRoutes = require('./routes/admin/accountRoutes');
 const helpRoutes = require('./routes/help/helpRoute');
 const statsRoute = require('./routes/stats/stateRoute');
+const requirementsRoutes = require('./routes/requirements/requirementsRoute');
 
 
 dotenv.config();
@@ -29,6 +30,7 @@ app.use('/api/auth/admin', adminRoutes);
 app.use('/api/admin', accountRoutes);
 app.use('/api/help', helpRoutes);
 app.use('/api', statsRoute);
+app.use('/api/requirements', requirementsRoutes);
 
 
 // PostgreSQL connection via Sequelize

@@ -63,8 +63,7 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="main-content ">
-      <Container className="mt-4">
+    <Container fluid className="p-4">
       {/* Help Modal */}
       <Modal show={showHelpModal} onHide={() => setShowHelpModal(false)} centered backdrop="static">
         <Modal.Header closeButton>
@@ -210,7 +209,6 @@ const Home = () => {
         </Container>
       </div>
       </Container>
-    </div>
   );
 };
 
