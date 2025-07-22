@@ -175,7 +175,7 @@ const Login = () => {
     }
 
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", formData);
+      const res = await axios.post("api/auth/login", formData);
       console.log("Login response:", res.data); // Log the response for debugging
       
       // First check if we received an error response with status code 200
@@ -193,11 +193,20 @@ const Login = () => {
       const { userId, message, status } = res.data;
       
       if (status === "pending") {
-        toast.info("Your account is pending approval. Please wait for admin confirmation.", {
+        toast.warning("Account pending approval - Read-only access granted.", {
           position: "top-right",
           autoClose: 5000,
-          delay: 1000
+          transition: Slide,
         });
+        // Still allow login but store status for read-only mode
+        if (rememberMe) {
+          localStorage.setItem("userId", userId);
+          localStorage.setItem("userStatus", status);
+        } else {
+          sessionStorage.setItem("userId", userId);
+          sessionStorage.setItem("userStatus", status);
+        }
+        navigate(`/dashboard/${userId}`, { state: { toastMessage: message, userStatus: status } });
         return;
       } else if (status === "disapproved") {
         toast.error("Your account has been disapproved by admin. Please contact support.", {
@@ -220,8 +229,10 @@ const Login = () => {
       // Store user ID locally (using localStorage or sessionStorage based on rememberMe)
       if (rememberMe) {
         localStorage.setItem("userId", userId);
+        localStorage.setItem("userStatus", status || "approved");
       } else {
         sessionStorage.setItem("userId", userId);
+        sessionStorage.setItem("userStatus", status || "approved");
       }
 
       // Navigate to dashboard with success message

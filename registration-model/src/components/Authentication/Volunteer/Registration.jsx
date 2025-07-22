@@ -57,21 +57,17 @@ const Registration = () => {
     setIsSubmitting(true);
     try {
       // Adding status field to set it as pending by default
-      await axios.post("http://localhost:5000/api/auth/register", {
+      await axios.post("api/auth/register", {
         ...formData,
         status: "pending" // Set default status to pending
       });
       
       setServerMsg("Registration successful! Your account is pending approval.");
-      toast.success("Registration successful! Please wait for admin approval.", {
+      toast.success("Registration successful! You can have read-only access until an admin approves your account!", {
         position: "top-right",
         autoClose: 5000,
       });
-      toast.info("You will be able to login once an admin approves your account.", {
-        position: "top-right",
-        autoClose: 5000,
-        delay: 1000
-      });
+
       
       setTimeout(() => navigate("/login"), 6000);
     } catch (err) {

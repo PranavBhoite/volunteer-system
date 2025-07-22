@@ -101,20 +101,21 @@ exports.loginUser = async (req, res) => {
       });
     }
 
-    // Check if the user's account is pending
-    if (user.status === 'pending') {
-      // console.log("Login attempt for pending account:", email); this is just for debugging purpose
-      return res.status(400).json({
-        message: "Your account is still pending confirmation. Please wait for admin approval."
-      });
-    }
-
     await eventController.updateEventStatuses();
 
-    res.json({
+    // Include user status in response for frontend to handle accordingly
+    const responseData = {
       message: "Login successful",
       userId: user.id, // Sequelize uses 'id' (UUID)
-    });
+      status: user.status // Include status to inform frontend about user permissions
+    };
+
+    // Add specific message for pending users
+    if (user.status === 'pending') {
+      responseData.message = "Login successful, but your account is pending approval. You have read-only access until approved.";
+    }
+
+    res.json(responseData);
 
   } catch (err) {
     console.error("Login error:", err);

@@ -23,7 +23,7 @@ const TMGFHomepage = () => {
   });
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/stats')
+    axios.get('http://api/stats')
       .then(res => {
         if (res.data.success) {
           setStats(res.data.data);

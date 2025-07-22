@@ -9,7 +9,7 @@ export default function VirtualIDCard({uid, onClose}) {
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/users/display/${uid}`);
+      const response = await axios.get(`api/users/display/${uid}`);
       console.log(response);
       if(!response.data)
         return alert("Error with fetching user")

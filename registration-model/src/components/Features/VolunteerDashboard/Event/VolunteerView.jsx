@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import './VolunteerView.css';
+import { isPendingUser } from '../../../../utils/userPermissions';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const VolunteerView = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -19,7 +22,7 @@ const VolunteerView = () => {
   const fetchEvents = async (type) => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:5000/api/events/${uid}/${type}`);
+      const response = await axios.get(`api/events/${uid}/${type}`);
       const transformedEvents = response.data.map(event => ({
         ...event,
       }));
@@ -33,13 +36,25 @@ const VolunteerView = () => {
   };
 
   const handleRegister = async (eventid) => {
+    if (isPendingUser()) {
+      toast.error("You are not authorized yet. Your account is pending approval.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+
     try {
       const registerType = eventType === "Upcoming" ? 'register' : 'unregister';
-      const response = await axios.post(`http://localhost:5000/api/events/${registerType}`, {userId : uid, eventId : eventid});
+      const response = await axios.post(`/api/events/${registerType}`, {userId : uid, eventId : eventid});
       fetchEvents(eventType);
     } catch (err) {
       console.error('Registration failed:', err);
-      alert(err.response?.data?.message || 'Failed to register for event');
+      if (err.response?.status === 403) {
+        alert(err.response.data.message || "You don't have permission to perform this action.");
+      } else {
+        alert(err.response?.data?.message || 'Failed to register for event');
+      }
     }
   };
 
@@ -139,6 +154,7 @@ const VolunteerView = () => {
                       onClick={() => handleRegister(event.id)}
                       disabled={eventType === "Upcoming" && event.volunteersNeeded <= 0}
                       className={`action-btn ${eventType === "Upcoming" && event.volunteersNeeded <= 0 ? 'disabled' : eventType === 'Upcoming' ? 'register' : 'unregister'}`}
+                      title={isPendingUser() ? "Account pending approval - Read-only access" : eventType === "Upcoming" ? (event.volunteersNeeded <= 0 ? 'Event Full' : 'Register for event') : 'Unregister from event'}
                     >
                       {eventType === "Upcoming"
                         ? (event.volunteersNeeded <= 0 ? 'Event Full' : 'Register')
@@ -168,6 +184,7 @@ const VolunteerView = () => {
           </div>
         )}
       </div>
+      <ToastContainer />
     </div>
   );
 };

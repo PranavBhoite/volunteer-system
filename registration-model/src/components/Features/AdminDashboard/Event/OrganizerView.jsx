@@ -35,7 +35,7 @@ const OrganizerView = () => {
   const fetchEvents = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:5000/api/events');
+      const response = await axios.get('api/events');
       setEvents(response.data);
     } catch (err) {
       setError('Failed to fetch events');
@@ -107,12 +107,12 @@ const OrganizerView = () => {
     let response = null;
     try {
       if (editingEvent) {
-        response = await axios.put(`http://localhost:5000/api/events/${editingEvent.id}`, {
+        response = await axios.put(`api/events/${editingEvent.id}`, {
           ...formData,
         });
         console.log(response.data);      
       } else {
-        response = await axios.post('http://localhost:5000/api/events', {
+        response = await axios.post('api/events', {
           ...formData,
         });      
       }
@@ -131,7 +131,7 @@ const OrganizerView = () => {
   const handleDeleteEvent = async (eventId) => {
     if (window.confirm('Are you sure you want to delete this event?')) {
       try {
-        await axios.put(`http://localhost:5000/api/events/cancel/${eventId}`);
+        await axios.put(`http://api/events/cancel/${eventId}`);
         fetchEvents();
       } catch (err) {
         console.error('Error deleting event:', err);

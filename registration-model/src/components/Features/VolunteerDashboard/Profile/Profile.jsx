@@ -11,6 +11,7 @@ import {
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { FaUserCircle } from "react-icons/fa";
+import { isPendingUser, isReadOnlyMode } from "../../../../utils/userPermissions";
 
 const Profile = () => {
   const { uid } = useParams();
@@ -32,7 +33,7 @@ const Profile = () => {
     const fetchData = async () => {
       try {
         const userRes = await axios.get(
-          `http://localhost:5000/api/users/display/${uid}`
+          `api/users/display/${uid}`
         );
         setUser(userRes.data);
         setFormData({
@@ -67,12 +68,17 @@ const handleEditToggle = async () => {
 
     try {
       await axios.put(
-        `http://localhost:5000/api/users/update/${uid}`,
+        `httpapi/users/update/${uid}`,
         formData
       );
       alert("Profile updated successfully");
-    } catch {
-      alert("Failed to update profile.");
+    } catch (err) {
+      if (err.response?.status === 403) {
+        alert(err.response.data.message || "You don't have permission to update your profile.");
+      } else {
+        alert("Failed to update profile.");
+      }
+      return; // Don't toggle editing state if update failed
     }
   }
 
@@ -271,12 +277,24 @@ const handleEditToggle = async () => {
           </Row>
 
           <div className="text-center mt-3">
+            {isPendingUser() && (
+              <div className="alert alert-warning mb-3" role="alert">
+                <i className="fa fa-exclamation-triangle me-2"></i>
+                Your account is pending approval. Profile editing is disabled until approved.
+              </div>
+            )}
             <Button
               variant="primary"
               onClick={handleEditToggle}
-              style={{ backgroundColor: "#15b1d3", borderRadius: "8px" }}
+              disabled={isPendingUser()}
+              style={{ 
+                backgroundColor: isPendingUser() ? "#6c757d" : "#15b1d3", 
+                borderRadius: "8px",
+                opacity: isPendingUser() ? 0.7 : 1 
+              }}
+              title={isPendingUser() ? "Account pending approval - Read-only access" : "Edit profile details"}
             >
-              {isEditing ? "Save Details" : "Edit Details"}
+              {isPendingUser() ? "Read Only Mode" : (isEditing ? "Save Details" : "Edit Details")}
             </Button>
           </div>
         </Card>

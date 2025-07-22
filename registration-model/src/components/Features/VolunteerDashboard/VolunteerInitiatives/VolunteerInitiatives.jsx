@@ -320,6 +320,9 @@ import {
 import axios from 'axios';
 import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
 import { BsCalendarEvent, BsPlusLg } from 'react-icons/bs';
+import { isPendingUser, isReadOnlyMode } from '../../../../utils/userPermissions';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const HelpSection = () => {
   const { uid } = useParams();
@@ -349,7 +352,7 @@ const HelpSection = () => {
 
   const fetchEvents = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/help/user/${uid}/${statusFilter}`);
+      const res = await axios.get(`api/help/user/${uid}/${statusFilter}`);
   
       const sortedData = res.data.sort((a, b) => {
         const statusPriority = status => {
@@ -408,17 +411,53 @@ const HelpSection = () => {
     return true;
   };  
 
+  const handleCreateClick = () => {
+    if (isPendingUser()) {
+      toast.error("You are not authorized yet. Your account is pending approval.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+    setFormVisible(true);
+  };
+
+  const handleEditClick = (event) => {
+    if (isPendingUser()) {
+      toast.error("You are not authorized yet. Your account is pending approval.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+    setEventId(event.id);
+    setFormVisible(true);
+    setIsUpdating(true);
+    setFormData({ ...event });
+  };
+
+  const handleDeleteClick = (eventId) => {
+    if (isPendingUser()) {
+      toast.error("You are not authorized yet. Your account is pending approval.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+    handleCancelEvent(eventId);
+  };
+
   const handleCreateOrUpdate = async () => {
     if (!validateForm()) return;
   
     try {
       if(isUpdating){
-        await axios.put(`http://localhost:5000/api/help/update/${eventid}`, {
+        await axios.put(`api/help/update/${eventid}`, {
           ...formData,
           userIdForHelp: uid,
         });
       } else {
-        await axios.post('http://localhost:5000/api/help/create', {
+        await axios.post('api/help/create', {
           ...formData,
           userIdForHelp: uid,
         });
@@ -431,7 +470,12 @@ const HelpSection = () => {
       });
       fetchEvents();
     } catch (err) {
-      console.error("Error creating event:", err);
+      console.error("Error creating/updating event:", err);
+      if (err.response?.status === 403) {
+        alert(err.response.data.message || "You don't have permission to perform this action.");
+      } else {
+        alert("Error creating/updating event. Please try again.");
+      }
     }
   };
   
@@ -439,11 +483,15 @@ const HelpSection = () => {
     if (window.confirm('Are you sure you want to delete this event?')) {
       try {
         // Use the help-specific cancel endpoint since these are help events
-        await axios.put(`http://localhost:5000/api/help/cancel/${eventId}`);
+        await axios.put(`api/help/cancel/${eventId}`);
         fetchEvents();
       } catch (err) {
         console.error('Error Canceling event:', err);
-        alert('Failed to cancel event');
+        if (err.response?.status === 403) {
+          alert(err.response.data.message || "You don't have permission to perform this action.");
+        } else {
+          alert('Failed to cancel event');
+        }
       }
     }
   };
@@ -461,7 +509,11 @@ const HelpSection = () => {
           </Col>
 
           <Col xs={12} md="auto" className="d-flex gap-2 justify-content-md-end justify-content-start mt-2 mt-md-0 flex-wrap">
-            <Button className="unified-btn me-2" onClick={() => setFormVisible(true)}>
+            <Button 
+              className="unified-btn me-2" 
+              onClick={handleCreateClick}
+              title={isPendingUser() ? "Account pending approval - Read-only access" : "Create new event"}
+            >
               <BsPlusLg className="me-2" />
               Create
             </Button>
@@ -634,16 +686,12 @@ const HelpSection = () => {
                       <Button
                         variant="link"
                         disabled={event.helpStatus === 'approved' || event.status === "Cancelled" || event.status === "Completed"}
-                        onClick={() => {
-                          setEventId(event.id);
-                          setFormVisible(true);
-                          setIsUpdating(true);
-                          setFormData({ ...event })
-                        }}
+                        onClick={() => handleEditClick(event)}
                         style={{
                           ...btnStyle,
                           color: (event.status === 'pending' || event.status === 'disapproved') ? '#007bff' : '#aaa'
                         }}
+                        title={isPendingUser() ? "Account pending approval - Read-only access" : "Edit event"}
                       >
                         <FaEdit style={iconStyle} />
                       </Button>
@@ -651,8 +699,9 @@ const HelpSection = () => {
                       <Button
                         variant="link"
                         disabled={event.helpStatus === 'approved' || event.status === "Cancelled" || event.status === "Completed"}
-                        onClick={() => { handleCancelEvent(event.id) }}
+                        onClick={() => handleDeleteClick(event.id)}
                         style={{ ...btnStyle, color: '#fa424a' }}
+                        title={isPendingUser() ? "Account pending approval - Read-only access" : "Delete event"}
                       >
                         <FaTrash style={iconStyle} />
                       </Button>
@@ -692,6 +741,7 @@ const HelpSection = () => {
           </div>
         )}
       </Container>
+      <ToastContainer />
     </div>
   );
 };

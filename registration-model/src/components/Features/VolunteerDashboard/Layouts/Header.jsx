@@ -2,6 +2,7 @@ import React, { useState, useEffect, forwardRef } from "react";
 import { useParams } from "react-router-dom";
 import { Dropdown } from "react-bootstrap";
 import VirtualIDCard from "./VirtualIDCard";
+import { isPendingUser, getUserStatus } from "../../../../utils/userPermissions";
 
 export default function Header() {
   const { uid } = useParams();
@@ -11,7 +12,7 @@ export default function Header() {
 
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/users/display/${uid}`)
+    fetch(`http://api/users/display/${uid}`)
       .then((res) => res.json())
       .then((data) => setUser(data))
       .catch((err) => console.error("User fetch error:", err));
@@ -69,7 +70,7 @@ export default function Header() {
         boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "12px", flex: 1 }}>
         {windowWidth < 768 && (
           <button
             className="btn btn-light"
@@ -93,6 +94,26 @@ export default function Header() {
         <span style={{ fontWeight: 600, fontSize: "1rem", color: "#333" }}>
           Hello, {user?.name || "User"}
         </span>
+        
+        {/* Pending Account Notification */}
+        {isPendingUser() && (
+          <div style={{
+            backgroundColor: "#fff3cd",
+            color: "#856404",
+            padding: "6px 12px",
+            borderRadius: "4px",
+            fontSize: "0.85rem",
+            fontWeight: "500",
+            border: "1px solid #ffeaa7",
+            marginLeft: "12px",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px"
+          }}>
+            <i className="fa fa-clock" style={{ fontSize: "0.8rem" }}></i>
+            Account Pending Approval - Read Only Access
+          </div>
+        )}
       </div>
 
       <Dropdown align="end" style={{ marginLeft: "auto" }}>

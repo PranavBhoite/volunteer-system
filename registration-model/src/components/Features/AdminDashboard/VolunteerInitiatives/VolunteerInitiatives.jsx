@@ -188,7 +188,7 @@ const AdminHelp = () => {
 
   const fetchEvents = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/help/all');
+      const res = await axios.get('api/help/all');
       console.log(res.data)
       setEvents(res.data);
     } catch (error) {
@@ -199,7 +199,7 @@ const AdminHelp = () => {
   const handleStatusChange = async (id, status, message) => {
     try {
       console.log(message);
-      await axios.put(`http://localhost:5000/api/help/status/${id}`, { status, message });
+      await axios.put(`api/help/status/${id}`, { status, message });
       fetchEvents();
     } catch (error) {
       console.error('Failed to update status:', error);

@@ -2,6 +2,7 @@
   "name": "registration-model",
   "version": "0.1.0",
   "private": true,
+    "proxy": "http://backend:5000",
   "dependencies": {
     "@tailwindcss/vite": "^4.1.8",
     "@testing-library/dom": "^10.4.0",
